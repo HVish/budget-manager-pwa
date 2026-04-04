@@ -2,6 +2,10 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { useEffect } from 'react';
 import { setTokenGetter } from '@/api/client';
 
+const isScreenshotMode = Boolean(
+  (window as unknown as Record<string, unknown>).__SCREENSHOT_MODE__,
+);
+
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading, loginWithRedirect, getAccessTokenSilently } = useAuth0();
 
@@ -10,6 +14,8 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       setTokenGetter(() => getAccessTokenSilently());
     }
   }, [isAuthenticated, getAccessTokenSilently]);
+
+  if (isScreenshotMode) return <>{children}</>;
 
   if (isLoading) {
     return (

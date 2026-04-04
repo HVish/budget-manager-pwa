@@ -23,6 +23,21 @@ export function getCurrencyIcon(currency: Currency): LucideIcon {
   return currencyIconMap[currency] ?? DollarSign;
 }
 
+const currencySymbolMap: Record<Currency, string> = {
+  INR: '₹',
+  USD: '$',
+  EUR: '€',
+  GBP: '£',
+  JPY: '¥',
+  AUD: '$',
+  CAD: '$',
+};
+
+/** Returns the currency symbol character for a given currency code. */
+export function getCurrencySymbol(currency: Currency): string {
+  return currencySymbolMap[currency] ?? '$';
+}
+
 const formatterCache = new Map<string, Intl.NumberFormat>();
 
 function getFormatter(currency: string): Intl.NumberFormat {
@@ -49,9 +64,11 @@ export function formatAmount(amountInMinorUnits: number): string {
   return (amountInMinorUnits / 100).toFixed(2);
 }
 
-/** Parse display amount to minor units. e.g. "5000.00" → 500000 */
+/** Parse display amount to minor units. e.g. "5000.00" → 500000. Returns 0 for empty/invalid input. */
 export function parseAmount(displayAmount: string): number {
-  return Math.round(parseFloat(displayAmount) * 100);
+  const parsed = parseFloat(displayAmount);
+  if (isNaN(parsed)) return 0;
+  return Math.round(parsed * 100);
 }
 
 const compactFormatterCache = new Map<string, Intl.NumberFormat>();

@@ -68,6 +68,7 @@ export function useCreateWallet() {
     mutationFn: (data: WalletCreate) => api.post('api/v1/wallets', { json: data }).json<Wallet>(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['wallets'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }
@@ -79,6 +80,7 @@ export function useUpdateWallet(walletId: string) {
       api.patch(`api/v1/wallets/${walletId}`, { json: data }).json<Wallet>(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['wallets'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }
@@ -89,6 +91,7 @@ export function useDeleteWallet() {
     mutationFn: (walletId: string) => api.delete(`api/v1/wallets/${walletId}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['wallets'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }
