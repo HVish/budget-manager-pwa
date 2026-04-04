@@ -102,7 +102,7 @@ export function MonthSelectorSheet() {
                 )}
               >
                 <span className="text-sm font-medium">
-                  {format(new Date(item.year, item.month - 1, 1), 'MMMM yyyy')}
+                  {format(new Date(item.year, item.month - 1, 1), 'MMM yyyy')}
                 </span>
                 {isSelected && <Check className="h-4 w-4" />}
               </button>

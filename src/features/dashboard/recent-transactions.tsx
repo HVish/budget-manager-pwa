@@ -12,9 +12,9 @@ interface RecentTransactionsProps {
 
 export function RecentTransactions({ transactions, walletMap }: RecentTransactionsProps) {
   return (
-    <div>
+    <div className="pt-2">
       {/* Section header */}
-      <div className="mb-3 flex items-center justify-between">
+      <div className="mb-4 flex items-center justify-between">
         <h2 className="text-foreground text-base font-semibold">Recent Transactions</h2>
         <Link to="/transactions" className="text-primary text-xs font-medium hover:underline">
           View All
@@ -27,7 +27,7 @@ export function RecentTransactions({ transactions, walletMap }: RecentTransactio
           <p className="text-muted-foreground text-sm">No transactions this month</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           {transactions.map((tx) => {
             const meta = getCategoryMeta(tx.category);
             const Icon = meta.icon;

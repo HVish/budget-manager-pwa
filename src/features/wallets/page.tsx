@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Plus, WalletCards } from 'lucide-react';
+import { WalletCards } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PageHeader } from '@/components/layout/page-header';
@@ -220,20 +220,6 @@ export default function WalletsPage() {
             </div>
           </section>
         ))}
-
-        {/* Add wallet button */}
-        {groups.length > 0 && (
-          <div className="px-4 pt-3 pb-2">
-            <Button
-              variant="outline"
-              className="w-full gap-2 rounded-xl border-dashed"
-              onClick={() => navigate('/wallets/new')}
-            >
-              <Plus className="h-4 w-4" />
-              Add New Wallet
-            </Button>
-          </div>
-        )}
       </div>
 
       {/* Aria-live region for filter announcements */}

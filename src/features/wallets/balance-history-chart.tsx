@@ -48,8 +48,8 @@ export function BalanceHistoryChart({ walletId, currency }: BalanceHistoryChartP
     <div className="px-4">
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-muted-foreground text-sm font-medium">
-            Balance History
+          <CardTitle className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
+            30-Day Balance Trend
           </CardTitle>
         </CardHeader>
         <CardContent className="pb-2">

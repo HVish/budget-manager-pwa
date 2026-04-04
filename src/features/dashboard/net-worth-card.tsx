@@ -16,15 +16,15 @@ export function NetWorthCard({ netWorth, currency, conversionAvailable }: NetWor
     <Card>
       <CardContent className="p-4">
         <div className="space-y-3">
-          {/* Currency icon badge */}
-          <div className="bg-accent-soft flex h-10 w-10 items-center justify-center rounded-xl">
-            {createElement(currencyIcon, { className: 'h-5 w-5 text-accent-soft-foreground' })}
+          {/* Icon + Label row */}
+          <div className="flex items-center gap-2.5">
+            <div className="bg-accent-soft flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
+              {createElement(currencyIcon, { className: 'h-5 w-5 text-accent-soft-foreground' })}
+            </div>
+            <p className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
+              Total Net Worth
+            </p>
           </div>
-
-          {/* Label */}
-          <p className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
-            Total Net Worth
-          </p>
 
           {/* Amount */}
           {conversionAvailable ? (

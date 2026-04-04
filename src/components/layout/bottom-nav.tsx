@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router';
+import { NavLink, useLocation } from 'react-router';
 import { LayoutDashboard, WalletCards, ArrowLeftRight, PiggyBank, Plus } from 'lucide-react';
 import { useAppNavigate } from '@/lib/navigation';
 import { cn } from '@/lib/utils';
@@ -19,6 +19,8 @@ function setTabTransitionType() {
 
 export function BottomNav({ className }: { className?: string }) {
   const navigate = useAppNavigate();
+  const location = useLocation();
+  const isWalletsPage = location.pathname === '/wallets';
 
   return (
     <nav
@@ -71,8 +73,8 @@ export function BottomNav({ className }: { className?: string }) {
 
         {/* Center FAB */}
         <button
-          aria-label="Add transaction"
-          onClick={() => navigate('/transactions/new')}
+          aria-label={isWalletsPage ? 'Add wallet' : 'Add transaction'}
+          onClick={() => navigate(isWalletsPage ? '/wallets/new' : '/transactions/new')}
           className="bg-primary text-primary-foreground shadow-primary/25 ring-background absolute -top-5 left-1/2 flex h-14 w-14 -translate-x-1/2 items-center justify-center rounded-full shadow-lg ring-2 transition-transform active:scale-95"
         >
           <Plus className="h-6 w-6" />

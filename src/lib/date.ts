@@ -19,7 +19,7 @@ export function getNextMonth(year: number, month: number) {
 }
 
 export function formatMonthYear(year: number, month: number): string {
-  return format(new Date(year, month - 1, 1), 'MMMM yyyy');
+  return format(new Date(year, month - 1, 1), 'MMM yyyy');
 }
 
 export function isCurrentMonth(year: number, month: number): boolean {

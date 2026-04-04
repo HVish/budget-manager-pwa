@@ -50,20 +50,13 @@ function cleanupVtType(): void {
 
 /**
  * Wait for any running view-transition animations to finish, then clean up
- * the data-vt-type attribute. Falls back to a generous timeout.
+ * the data-vt-type attribute. Uses a generous timeout as a fallback since
+ * view-transition pseudo-element animations may start with a slight delay.
  */
 function cleanupAfterTransition(): void {
-  // Wait two frames so the browser has started the view transition animations
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      const animations = document.getAnimations();
-      if (animations.length > 0) {
-        Promise.allSettled(animations.map((a) => a.finished)).then(cleanupVtType);
-      } else {
-        cleanupVtType();
-      }
-    });
-  });
+  // Use a timeout slightly longer than the longest transition duration (350ms modal-in)
+  // to ensure animations have fully completed before cleanup
+  setTimeout(cleanupVtType, 500);
 }
 
 export function useAppNavigate() {

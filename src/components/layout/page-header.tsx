@@ -1,8 +1,7 @@
+import { useState } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { Settings } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
 import { MonthSelectorSheet } from '@/components/month-selector';
 import { getGreeting } from '@/lib/date';
 
@@ -14,32 +13,40 @@ interface PageHeaderProps {
 export function PageHeader({ title, showMonthPicker = true }: PageHeaderProps) {
   const { user } = useAuth0();
   const navigate = useNavigate();
+  const [imgFailed, setImgFailed] = useState(false);
 
   const initials = user?.name?.[0]?.toUpperCase() ?? '?';
   const greeting = getGreeting();
+  const showImage = !!user?.picture && !imgFailed;
 
   return (
     <header className="px-4">
       {/* Row 1: Greeting bar */}
       <div className="flex items-center justify-between pt-4 pb-2">
         <div className="flex items-center">
-          <Avatar size="default">
-            {user?.picture && <AvatarImage src={user.picture} alt={user.name ?? 'User'} />}
-            <AvatarFallback className="bg-primary text-primary-foreground text-sm font-semibold">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
+          <div className="relative flex size-8 shrink-0 items-center justify-center rounded-full">
+            {showImage ? (
+              <img
+                src={user.picture}
+                alt={user?.name ?? 'User'}
+                className="aspect-square size-full rounded-full object-cover"
+                onError={() => setImgFailed(true)}
+              />
+            ) : (
+              <span className="bg-primary text-primary-foreground flex size-full items-center justify-center rounded-full text-sm font-semibold">
+                {initials}
+              </span>
+            )}
+          </div>
           <span className="text-muted-foreground ml-3 text-sm">{greeting},</span>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="min-h-11 min-w-11"
+        <button
           onClick={() => navigate('/profile')}
           aria-label="Settings"
+          className="bg-card ring-foreground/10 flex h-10 w-10 items-center justify-center rounded-full ring-1"
         >
-          <Settings className="h-5 w-5" />
-        </Button>
+          <Settings className="text-muted-foreground h-5 w-5" />
+        </button>
       </div>
 
       {/* Row 2: Title + month pill */}
