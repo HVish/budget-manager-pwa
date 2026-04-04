@@ -6,7 +6,12 @@ import { Button } from '@/components/ui/button';
 import { MonthSelectorSheet } from '@/components/month-selector';
 import { getGreeting } from '@/lib/date';
 
-export function DashboardHeader() {
+interface PageHeaderProps {
+  title: string;
+  showMonthPicker?: boolean;
+}
+
+export function PageHeader({ title, showMonthPicker = true }: PageHeaderProps) {
   const { user } = useAuth0();
   const navigate = useNavigate();
 
@@ -14,7 +19,7 @@ export function DashboardHeader() {
   const greeting = getGreeting();
 
   return (
-    <div className="px-4">
+    <header className="px-4">
       {/* Row 1: Greeting bar */}
       <div className="flex items-center justify-between pt-4 pb-2">
         <div className="flex items-center">
@@ -39,9 +44,9 @@ export function DashboardHeader() {
 
       {/* Row 2: Title + month pill */}
       <div className="flex items-center justify-between pt-1 pb-4">
-        <h1 className="text-foreground text-2xl font-bold">Dashboard</h1>
-        <MonthSelectorSheet />
+        <h1 className="text-foreground text-2xl font-bold">{title}</h1>
+        {showMonthPicker && <MonthSelectorSheet />}
       </div>
-    </div>
+    </header>
   );
 }

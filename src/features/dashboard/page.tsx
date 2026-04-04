@@ -4,7 +4,7 @@ import { useWallets } from '@/api/hooks/use-wallets';
 import { useMonthStore } from '@/stores/month-store';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { DashboardHeader } from './dashboard-header';
+import { PageHeader } from '@/components/layout/page-header';
 import { NetWorthCard } from './net-worth-card';
 import { StatCard } from './stat-card';
 import { MonthlyBudgetCard } from './monthly-budget-card';
@@ -28,7 +28,7 @@ export default function DashboardPage() {
   return (
     <div className="pt-[max(env(safe-area-inset-top),16px)]">
       {/* Header always renders — greeting, avatar, month selector */}
-      <DashboardHeader />
+      <PageHeader title="Dashboard" />
 
       {/* Loading state */}
       {dashboard.isLoading && (

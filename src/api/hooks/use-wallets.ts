@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueries, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/api/client';
 import type {
   Wallet,
@@ -38,6 +38,27 @@ export function useWalletHistory(walletId: string, startDate: string, endDate: s
         })
         .json<BalanceHistoryEntry[]>(),
     enabled: !!walletId && !!startDate && !!endDate,
+  });
+}
+
+/**
+ * Fetch balance history for multiple wallets in parallel using a single
+ * useQueries call. Shares the same query key pattern as useWalletHistory,
+ * so the wallet detail page hits the cache when navigating from the list.
+ */
+export function useWalletHistories(walletIds: string[], startDate: string, endDate: string) {
+  return useQueries({
+    queries: walletIds.map((id) => ({
+      queryKey: ['wallets', id, 'history', { startDate, endDate }],
+      queryFn: () =>
+        api
+          .get(`api/v1/wallets/${id}/history`, {
+            searchParams: { startDate, endDate },
+          })
+          .json<BalanceHistoryEntry[]>(),
+      enabled: !!id && !!startDate && !!endDate,
+      staleTime: 5 * 60 * 1000,
+    })),
   });
 }
 

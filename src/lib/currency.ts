@@ -53,3 +53,31 @@ export function formatAmount(amountInMinorUnits: number): string {
 export function parseAmount(displayAmount: string): number {
   return Math.round(parseFloat(displayAmount) * 100);
 }
+
+const compactFormatterCache = new Map<string, Intl.NumberFormat>();
+
+function getCompactFormatter(currency: string): Intl.NumberFormat {
+  if (!compactFormatterCache.has(currency)) {
+    compactFormatterCache.set(
+      currency,
+      new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency,
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }),
+    );
+  }
+  return compactFormatterCache.get(currency)!;
+}
+
+/** Format minor units to display string without decimals. e.g. 12450000, "INR" → "₹1,24,500" */
+export function formatCurrencyCompact(amountInMinorUnits: number, currency: string): string {
+  return getCompactFormatter(currency).format(amountInMinorUnits / 100);
+}
+
+/** Mask all but last 4 characters. e.g. "123456784521" → "····4521" */
+export function maskAccountNumber(accountNumber: string): string {
+  const last4 = accountNumber.slice(-4);
+  return `····${last4}`;
+}
