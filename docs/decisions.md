@@ -74,6 +74,29 @@ Key decisions where someone could reasonably make the wrong choice without conte
 
 ---
 
+## New Transaction Screen (2026-04-05)
+
+### Transfer amounts: both positive, API handles debit/credit
+
+- **Why:** The `POST /api/v1/transfers` endpoint requires `fromAmount` and `toAmount` both positive (`minimum: 1`). The API creates the signed debit/credit legs internally. Don't negate `fromAmount` client-side.
+- **Rejected:** Sending `fromAmount` as negative (causes API 422).
+
+### Multi-currency transfers: same amount for both legs (v1)
+
+- **Why:** The API supports different `fromAmount`/`toAmount` for cross-currency transfers, but exposing an exchange rate input adds significant UX complexity. For v1, `toAmount = fromAmount`.
+- **When to change:** User feedback requests cross-currency transfers — add a second amount input or exchange rate field.
+
+### Tags input: deferred
+
+- **Why:** API supports `tags[]` but a good tag input UX (autocomplete, chip display, free-form entry) is complex. Not worth the effort until users ask for it.
+- **When to add:** User feedback or when a tags management screen is built.
+
+### Shared form primitives: `FieldLabel` + `inputClassName`
+
+- **Why:** Both wallet and transaction forms need the same uppercase label and `h-14 rounded-xl` input styling. Extracted to `src/components/ui/field-label.tsx` and `src/lib/form-constants.ts`. Wallet files re-export for backward compatibility.
+
+---
+
 ## shadcn Components (2026-04-04)
 
 ### Scaffold via CLI, then customize freely

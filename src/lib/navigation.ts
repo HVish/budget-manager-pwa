@@ -5,7 +5,7 @@ import { flushSync } from 'react-dom';
 type TransitionType = 'tab-switch' | 'push' | 'pop' | 'modal-present' | 'modal-dismiss' | 'fade';
 
 const TAB_ROUTES = new Set(['/dashboard', '/wallets', '/transactions', '/budgets']);
-const MODAL_ROUTE_PATTERNS = [/\/wallets\/new$/, /\/wallets\/[^/]+\/edit$/];
+const MODAL_ROUTE_PATTERNS = [/\/wallets\/new$/, /\/wallets\/[^/]+\/edit$/, /\/transactions\/new$/];
 
 /** Navigation API types — not yet in all TS lib versions */
 interface NavigateEventLike extends Event {

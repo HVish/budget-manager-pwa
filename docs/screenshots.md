@@ -16,18 +16,19 @@ pnpm screenshots wallet             # Capture by prefix (all wallet screens)
 
 ## Available Screens
 
-| Name                  | Route              | Description                        |
-| --------------------- | ------------------ | ---------------------------------- |
-| `login`               | `/login`           | Unauthenticated login page         |
-| `dashboard-loaded`    | `/dashboard`       | Dashboard with mock financial data |
-| `dashboard-empty`     | `/dashboard`       | Dashboard with zero balances       |
-| `wallets-loaded`      | `/wallets`         | Wallet list with grouped cards     |
-| `wallets-empty`       | `/wallets`         | Empty state — no wallets           |
-| `wallet-detail`       | `/wallets/w1`      | Single wallet with balance chart   |
-| `wallet-create`       | `/wallets/new`     | Create wallet form (empty)         |
-| `wallet-edit`         | `/wallets/w1/edit` | Edit wallet form (pre-filled)      |
-| `transactions-loaded` | `/transactions`    | Transaction list with date groups  |
-| `transactions-empty`  | `/transactions`    | Empty state — no transactions      |
+| Name                  | Route               | Description                        |
+| --------------------- | ------------------- | ---------------------------------- |
+| `login`               | `/login`            | Unauthenticated login page         |
+| `dashboard-loaded`    | `/dashboard`        | Dashboard with mock financial data |
+| `dashboard-empty`     | `/dashboard`        | Dashboard with zero balances       |
+| `wallets-loaded`      | `/wallets`          | Wallet list with grouped cards     |
+| `wallets-empty`       | `/wallets`          | Empty state — no wallets           |
+| `wallet-detail`       | `/wallets/w1`       | Single wallet with balance chart   |
+| `wallet-create`       | `/wallets/new`      | Create wallet form (empty)         |
+| `wallet-edit`         | `/wallets/w1/edit`  | Edit wallet form (pre-filled)      |
+| `transactions-loaded` | `/transactions`     | Transaction list with date groups  |
+| `transactions-empty`  | `/transactions`     | Empty state — no transactions      |
+| `transaction-create`  | `/transactions/new` | Create transaction form (empty)    |
 
 ## Output
 

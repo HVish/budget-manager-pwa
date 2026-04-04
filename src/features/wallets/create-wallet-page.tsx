@@ -17,8 +17,9 @@ import { useAppNavigate } from '@/lib/navigation';
 import { cn } from '@/lib/utils';
 import type { WalletType, Currency } from '@/api/types';
 import { WalletFormHeader } from './wallet-form-header';
-import { FieldLabel } from './wallet-form-fields';
-import { inputClassName, walletTypes, currencies } from './wallet-form-constants';
+import { FieldLabel } from '@/components/ui/field-label';
+import { inputClassName } from '@/lib/form-constants';
+import { walletTypes, currencies } from './wallet-form-constants';
 
 export default function CreateWalletPage() {
   const navigate = useAppNavigate();

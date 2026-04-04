@@ -15,8 +15,8 @@ import type { Wallet, WalletUpdate } from '@/api/types';
 import { WalletFormHeader } from './wallet-form-header';
 import { BalanceDiffBadge } from './balance-diff-badge';
 import { DeleteWalletDialog } from './delete-wallet-dialog';
-import { FieldLabel } from './wallet-form-fields';
-import { inputClassName } from './wallet-form-constants';
+import { FieldLabel } from '@/components/ui/field-label';
+import { inputClassName } from '@/lib/form-constants';
 
 // ---------------------------------------------------------------------------
 // Inner form — rendered only once wallet is loaded; initializes state from props

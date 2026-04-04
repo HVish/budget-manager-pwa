@@ -5,6 +5,8 @@ import type {
   TransactionCreate,
   TransactionUpdate,
   Transaction,
+  TransferCreate,
+  Transfer,
 } from '@/api/types';
 
 interface TransactionFilters {
@@ -62,6 +64,19 @@ export function useUpdateTransaction(transactionId: string) {
   return useMutation({
     mutationFn: (data: TransactionUpdate) =>
       api.patch(`api/v1/transactions/${transactionId}`, { json: data }).json<Transaction>(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      queryClient.invalidateQueries({ queryKey: ['wallets'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    },
+  });
+}
+
+export function useCreateTransfer() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TransferCreate) =>
+      api.post('api/v1/transfers', { json: data }).json<Transfer>(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       queryClient.invalidateQueries({ queryKey: ['wallets'] });

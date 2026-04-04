@@ -195,6 +195,9 @@ const screens: ScreenshotDef[] = [
   // Transactions states
   { name: 'transactions-loaded', route: '/transactions' },
   { name: 'transactions-empty', route: '/transactions', overrides: { emptyTransactions: true } },
+
+  // Create transaction form
+  { name: 'transaction-create', route: '/transactions/new' },
 ];
 
 // ── Main ────────────────────────────────────────────────────────────────────

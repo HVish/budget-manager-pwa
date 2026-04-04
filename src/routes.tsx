@@ -11,6 +11,7 @@ import TransactionsPage from '@/features/transactions/page';
 import WalletDetailPage from '@/features/wallets/wallet-detail-page';
 const CreateWalletPage = lazy(() => import('@/features/wallets/create-wallet-page'));
 const EditWalletPage = lazy(() => import('@/features/wallets/edit-wallet-page'));
+const CreateTransactionPage = lazy(() => import('@/features/transactions/create-transaction-page'));
 
 export default function AppRoutes() {
   usePopstateViewTransitions();
@@ -52,6 +53,7 @@ export default function AppRoutes() {
         <Route path="/wallets/:id" element={<WalletDetailPage />} />
         <Route path="/wallets/new" element={<CreateWalletPage />} />
         <Route path="/wallets/:id/edit" element={<EditWalletPage />} />
+        <Route path="/transactions/new" element={<CreateTransactionPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
