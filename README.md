@@ -1,73 +1,90 @@
-# React + TypeScript + Vite
+# Budget Manager PWA
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Personal budget management Progressive Web App built with React. Track wallets, transactions, and monthly budgets with a mobile-first dark-themed UI.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+| Concern      | Choice                         |
+| ------------ | ------------------------------ |
+| Framework    | React 19 + TypeScript + Vite 8 |
+| Styling      | Tailwind CSS v4 + shadcn/ui    |
+| Client state | Zustand (with localStorage)    |
+| Server state | TanStack Query v5              |
+| Routing      | React Router v7                |
+| Auth         | Auth0                          |
+| HTTP client  | ky                             |
+| Charts       | Recharts                       |
+| Package mgr  | pnpm                           |
 
-## React Compiler
+## Getting Started
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Prerequisites
 
-## Expanding the ESLint configuration
+- Node.js 20+
+- pnpm 9+
+- A running [Budget Manager API](../budget-manager-api/) instance
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Environment
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Create a `.env.local` file:
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+```env
+VITE_API_ORIGIN=https://your-api-host.com
+VITE_AUTH0_DOMAIN=your-auth0-domain
+VITE_AUTH0_CLIENT_ID=your-auth0-client-id
+VITE_AUTH0_AUDIENCE=your-auth0-audience
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Install & Run
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x';
-import reactDom from 'eslint-plugin-react-dom';
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+```sh
+pnpm install
+pnpm dev          # Starts dev server with HTTPS (mkcert)
 ```
+
+### Other Commands
+
+```sh
+pnpm build            # Type-check + production build
+pnpm lint             # ESLint
+pnpm format           # Prettier (write)
+pnpm format:check     # Prettier (check only)
+pnpm screenshots      # Capture screen screenshots (dev server must be running)
+```
+
+## Project Structure
+
+```
+src/
+├── api/            # ky client + TanStack Query hooks per resource
+├── components/
+│   ├── ui/         # shadcn/ui primitives + AppLink
+│   └── layout/     # app-shell, bottom-nav, page-header, page-header-bar
+├── features/       # Feature pages (auth, dashboard, wallets)
+├── stores/         # Zustand stores
+├── lib/            # Utilities (currency, date, categories, navigation)
+├── styles/         # Tailwind + CSS variables + view transitions
+├── routes.tsx      # Route definitions
+├── App.tsx         # Auth0Provider + QueryClient + Router
+└── main.tsx        # Entry point + service worker registration
+```
+
+## Key Features
+
+- **Dark theme** with green-tinted oklch color tokens
+- **View transitions** using the View Transition API with direction-aware animations (push, pop, modal, tab-switch)
+- **PWA** with service worker (network-first HTML, cache-first hashed assets)
+- **Mobile-first** layout with bottom navigation, FAB, and safe area insets
+
+## Documentation
+
+- **[CLAUDE.md](./CLAUDE.md)** — Conventions, commands, and project rules
+- **[DESIGN.md](./DESIGN.md)** — Complete design system spec
+- **[docs/decisions.md](./docs/decisions.md)** — Architectural decision records
+- **[docs/openapi.yaml](./docs/openapi.yaml)** — API spec (source of truth for types)
+
+## Git Conventions
+
+Commits follow [Conventional Commits](https://www.conventionalcommits.org/): `type(scope): description`
+
+Pre-commit hooks run lint-staged (ESLint + Prettier) automatically via Husky.
