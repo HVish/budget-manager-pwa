@@ -1,0 +1,39 @@
+{
+  "year": 2026,
+  "month": 4,
+  "primaryCurrency": "INR",
+  "totalLimit": 6000000,
+  "totalSpent": 4750000,
+  "percentageConsumed": 79.17,
+  "conversionAvailable": true,
+  "conversionRateDate": "2026-04-04",
+  "budgets": [
+    {
+      "id": "b1",
+      "category": "GROCERIES",
+      "limitAmount": 1500000,
+      "spentAmount": 980000,
+      "percentageConsumed": 65.33,
+      "originalCurrency": "INR",
+      "originalLimit": 1500000
+    },
+    {
+      "id": "b2",
+      "category": "ENTERTAINMENT",
+      "limitAmount": 500000,
+      "spentAmount": 450000,
+      "percentageConsumed": 90.0,
+      "originalCurrency": "INR",
+      "originalLimit": 500000
+    },
+    {
+      "id": "b3",
+      "category": "TRANSPORT",
+      "limitAmount": 800000,
+      "spentAmount": 320000,
+      "percentageConsumed": 40.0,
+      "originalCurrency": "INR",
+      "originalLimit": 800000
+    }
+  ]
+}

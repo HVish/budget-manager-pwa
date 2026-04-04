@@ -1,0 +1,60 @@
+[
+  {
+    "id": "w1",
+    "name": "HDFC Salary",
+    "balance": 12450000,
+    "currency": "INR",
+    "walletType": "checking",
+    "accountNumber": "1234567890",
+    "createdAt": "2025-01-15T10:00:00Z",
+    "updatedAt": "2026-04-01T08:30:00Z"
+  },
+  {
+    "id": "w2",
+    "name": "SBI Savings",
+    "balance": 34500000,
+    "currency": "INR",
+    "walletType": "savings",
+    "accountNumber": "9876543210",
+    "createdAt": "2025-02-01T10:00:00Z",
+    "updatedAt": "2026-03-28T14:00:00Z"
+  },
+  {
+    "id": "w3",
+    "name": "Emergency Fund",
+    "balance": 15000000,
+    "currency": "INR",
+    "walletType": "savings",
+    "createdAt": "2025-03-01T10:00:00Z",
+    "updatedAt": "2026-03-15T12:00:00Z"
+  },
+  {
+    "id": "w4",
+    "name": "Cash Wallet",
+    "balance": 850000,
+    "currency": "INR",
+    "walletType": "cash",
+    "createdAt": "2025-01-15T10:00:00Z",
+    "updatedAt": "2026-04-02T09:00:00Z"
+  },
+  {
+    "id": "w5",
+    "name": "Zerodha Portfolio",
+    "balance": 78900000,
+    "currency": "INR",
+    "walletType": "investment",
+    "accountNumber": "ZR12345",
+    "createdAt": "2025-06-01T10:00:00Z",
+    "updatedAt": "2026-04-01T16:00:00Z"
+  },
+  {
+    "id": "w6",
+    "name": "ICICI Credit Card",
+    "balance": -4200000,
+    "currency": "INR",
+    "walletType": "credit",
+    "accountNumber": "4532XXXXXXXX7891",
+    "createdAt": "2025-04-01T10:00:00Z",
+    "updatedAt": "2026-04-03T11:00:00Z"
+  }
+]

@@ -1,0 +1,70 @@
+{
+  "year": 2026,
+  "month": 4,
+  "primaryCurrency": "INR",
+  "totalIncome": 8500000,
+  "totalExpense": 4750000,
+  "netWorth": 137500000,
+  "conversionAvailable": true,
+  "conversionRateDate": "2026-04-04",
+  "summaries": [
+    {
+      "currency": "INR",
+      "totalIncome": 8500000,
+      "totalExpense": 4750000,
+      "netWorth": 137500000
+    }
+  ],
+  "recentTransactions": [
+    {
+      "id": "t1",
+      "walletId": "w1",
+      "title": "April Salary",
+      "category": "SALARY",
+      "amount": 7500000,
+      "currency": "INR",
+      "transactionDate": "2026-04-01",
+      "createdAt": "2026-04-01T09:00:00Z"
+    },
+    {
+      "id": "t2",
+      "walletId": "w1",
+      "title": "Grocery Run",
+      "category": "GROCERIES",
+      "amount": -345000,
+      "currency": "INR",
+      "transactionDate": "2026-04-02",
+      "createdAt": "2026-04-02T11:30:00Z"
+    },
+    {
+      "id": "t3",
+      "walletId": "w6",
+      "title": "Netflix Subscription",
+      "category": "ENTERTAINMENT",
+      "amount": -64900,
+      "currency": "INR",
+      "transactionDate": "2026-04-02",
+      "createdAt": "2026-04-02T00:00:00Z"
+    },
+    {
+      "id": "t4",
+      "walletId": "w4",
+      "title": "Auto Rickshaw",
+      "category": "TRANSPORT",
+      "amount": -15000,
+      "currency": "INR",
+      "transactionDate": "2026-04-03",
+      "createdAt": "2026-04-03T08:15:00Z"
+    },
+    {
+      "id": "t5",
+      "walletId": "w1",
+      "title": "Freelance Payment",
+      "category": "FREELANCE",
+      "amount": 1000000,
+      "currency": "INR",
+      "transactionDate": "2026-04-03",
+      "createdAt": "2026-04-03T14:00:00Z"
+    }
+  ]
+}
