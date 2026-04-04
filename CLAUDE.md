@@ -6,7 +6,7 @@ Personal budget management Progressive Web App — React frontend for the Budget
 
 - **API spec**: `docs/openapi.yaml` — source of truth for types, endpoints, field names
 - **API source repo**: `/Users/sakshee/vishnu/budget-manager-api/` — check `docs/openapi.yaml` there for latest spec
-- **Design docs**: `docs/` — implementation plans, design specs
+- **Decision records**: `docs/decisions.md` — key architectural and design decisions with rationale
 
 ## Tech Stack
 
@@ -32,10 +32,9 @@ Personal budget management Progressive Web App — React frontend for the Budget
 ```sh
 pnpm dev            # Start dev server
 pnpm build          # Type-check + production build
-pnpm lint           # ESLint
+pnpm lint           # ESLint + Tailwind canonical class linter
 pnpm format         # Prettier (write)
 pnpm format:check   # Prettier (check only, for CI)
-pnpm lint:tw        # Tailwind canonical class linter (see scripts/lint-tailwind.sh)
 ```
 
 ## Git Workflow
@@ -46,6 +45,14 @@ pnpm lint:tw        # Tailwind canonical class linter (see scripts/lint-tailwind
   - Examples: `feat: add budget progress card`, `fix: correct chart color token`
 - Do **not** skip hooks (`--no-verify`) unless explicitly asked.
 
+## Documentation
+
+- Design specs and implementation plans are **temporary** — use them during active development, then delete once the feature is stable.
+- Distill important decisions (what, why, what was rejected) into `docs/decisions.md` before deleting specs.
+- Decision records are living documents — override entries when decisions change, don't append "v2".
+- **Prune regularly:** Delete a decision when (a) the "why" is obvious from the code, (b) there's no realistic alternative anymore, or (c) a new engineer would make the right choice without it. Merge related entries as they accumulate.
+- Don't keep verbose docs around "just in case" — the code and git history are the source of truth.
+
 ## Project Structure
 
 ```
@@ -53,7 +60,7 @@ src/
 ├── api/            # ky client + TanStack Query hooks per resource
 ├── components/
 │   ├── ui/         # shadcn/ui primitives (scaffold via CLI, then customize freely)
-│   └── layout/     # app-shell, bottom-nav
+│   └── layout/     # app-shell, bottom-nav, page-header
 ├── features/       # Feature pages (auth, dashboard, wallets)
 ├── stores/         # Zustand stores
 ├── lib/            # Utilities (currency, date, categories, cn)
@@ -85,3 +92,12 @@ src/
 
 - **Month store** (Zustand): global month/year selection, persisted to localStorage.
 - **Server state** (TanStack Query): query keys follow `[resource, filters]` convention.
+
+## Code Review Process
+
+When asked to review code, always run **both** of these review agents in parallel:
+
+1. **designer** — Reviews UI code for design accuracy, spacing, color tokens, touch targets, accessibility, interaction states, and theme consistency. Fixes issues directly.
+2. **architect** — Reviews code for architecture, data flow, performance, conventions, TypeScript correctness, and edge cases. Fixes issues directly.
+
+Both agents should read the relevant source files and `docs/decisions.md` for context. Issues should be categorized as MUST FIX, SHOULD FIX, or NICE TO HAVE, and fixed directly in the code when possible.
