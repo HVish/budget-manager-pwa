@@ -1,9 +1,9 @@
-import { useNavigate } from 'react-router';
 import { Pencil } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/currency';
 import { walletTypeConfig, getWalletSubtitle } from '@/lib/wallet-types';
+import { useAppNavigate } from '@/lib/navigation';
 import { cn } from '@/lib/utils';
 import type { Wallet, BalanceHistoryEntry } from '@/api/types';
 import { WalletSparkline } from './wallet-sparkline';
@@ -15,7 +15,7 @@ interface WalletCardProps {
 }
 
 export function WalletCard({ wallet, sparklineData, onEdit }: WalletCardProps) {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const config = walletTypeConfig[wallet.walletType] ?? walletTypeConfig.checking;
   const Icon = config.icon;
   const isNegative = wallet.balance < 0;
@@ -37,7 +37,7 @@ export function WalletCard({ wallet, sparklineData, onEdit }: WalletCardProps) {
       role="article"
       aria-label={`${wallet.name}, balance ${formatCurrency(wallet.balance, wallet.currency)}`}
       tabIndex={0}
-      className="hover:bg-accent/50 focus-visible:ring-ring cursor-pointer gap-0 py-0 transition-all duration-150 focus-visible:ring-2 focus-visible:outline-none active:scale-[0.98]"
+      className="dark:bg-wallet-card hover:bg-accent/50 focus-visible:ring-ring cursor-pointer gap-0 py-0 transition-all duration-150 focus-visible:ring-2 focus-visible:outline-none active:scale-[0.98]"
       onClick={() => navigate(`/wallets/${wallet.id}`)}
       onKeyDown={handleKeyDown}
     >

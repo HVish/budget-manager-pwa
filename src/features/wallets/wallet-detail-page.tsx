@@ -1,30 +1,20 @@
 import { useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router';
+import { useParams } from 'react-router';
 import { ArrowLeft, Pencil, Trash2 } from 'lucide-react';
-import { Button, buttonVariants } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { useWallet, useDeleteWallet } from '@/api/hooks/use-wallets';
+import { useWallet } from '@/api/hooks/use-wallets';
 import { formatCurrency } from '@/lib/currency';
+import { useAppNavigate } from '@/lib/navigation';
 import { BalanceHistoryChart } from './balance-history-chart';
-import { WalletForm } from './wallet-form';
+import { DeleteWalletDialog } from './delete-wallet-dialog';
 
 export default function WalletDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const { data: wallet, isLoading, isError } = useWallet(id!);
-  const deleteWallet = useDeleteWallet();
+  const navigate = useAppNavigate();
+  const { data: wallet, isLoading, isError } = useWallet(id ?? '');
 
-  const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   if (isLoading) {
@@ -48,25 +38,35 @@ export default function WalletDetailPage() {
     );
   }
 
-  async function handleDelete() {
-    await deleteWallet.mutateAsync(id!);
-    navigate('/wallets', { replace: true });
-  }
-
   return (
     <>
       <div className="space-y-4 pt-4">
         {/* Header */}
         <div className="flex items-center gap-2 px-4">
-          <Link to="/wallets" className={cn(buttonVariants({ variant: 'ghost', size: 'icon-sm' }))}>
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-          <h2 className="flex-1 text-lg font-semibold">{wallet.name}</h2>
-          <Button variant="ghost" size="icon-sm" onClick={() => setEditOpen(true)}>
-            <Pencil className="h-4 w-4" />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate('/wallets')}
+            aria-label="Back to wallets"
+          >
+            <ArrowLeft className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon-sm" onClick={() => setDeleteOpen(true)}>
-            <Trash2 className="text-destructive h-4 w-4" />
+          <h2 className="flex-1 text-lg font-semibold">{wallet.name}</h2>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate(`/wallets/${id}/edit`)}
+            aria-label="Edit wallet"
+          >
+            <Pencil className="h-5 w-5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setDeleteOpen(true)}
+            aria-label="Delete wallet"
+          >
+            <Trash2 className="text-destructive h-5 w-5" />
           </Button>
         </div>
 
@@ -90,37 +90,12 @@ export default function WalletDetailPage() {
         <BalanceHistoryChart walletId={wallet.id} currency={wallet.currency} />
       </div>
 
-      {/* Edit sheet */}
-      <WalletForm open={editOpen} onOpenChange={setEditOpen} wallet={wallet} />
-
-      {/* Delete confirmation */}
-      <Dialog
+      <DeleteWalletDialog
         open={deleteOpen}
-        onOpenChange={(open) => {
-          if (!deleteWallet.isPending) setDeleteOpen(open);
-        }}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete wallet</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete "{wallet.name}"? This action cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDeleteOpen(false)}
-              disabled={deleteWallet.isPending}
-            >
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={handleDelete} disabled={deleteWallet.isPending}>
-              {deleteWallet.isPending ? 'Deleting...' : 'Delete'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        onOpenChange={setDeleteOpen}
+        walletId={wallet.id}
+        walletName={wallet.name}
+      />
     </>
   );
 }

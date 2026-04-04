@@ -7,10 +7,10 @@ import { useWallets, useWalletHistories } from '@/api/hooks/use-wallets';
 import { useDashboard } from '@/api/hooks/use-dashboard';
 import { useMonthStore, useMonthRange } from '@/stores/month-store';
 import { walletTypeConfig, WALLET_TYPE_ORDER } from '@/lib/wallet-types';
+import { useAppNavigate } from '@/lib/navigation';
 import type { Wallet, BalanceHistoryEntry, WalletType } from '@/api/types';
 import type { WalletTypeConfig } from '@/lib/wallet-types';
 import { WalletCard } from './wallet-card';
-import { WalletForm } from './wallet-form';
 import { WalletFilterTabs } from './wallet-filter-tabs';
 import { FILTER_TABS } from './wallet-filter-config';
 import type { FilterTab } from './wallet-filter-config';
@@ -77,13 +77,12 @@ interface WalletGroup {
 export default function WalletsPage() {
   const { year, month } = useMonthStore();
   const { startDate, endDate } = useMonthRange();
+  const navigate = useAppNavigate();
 
   const walletsQuery = useWallets();
   const dashboardQuery = useDashboard(year, month);
 
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
-  const [formOpen, setFormOpen] = useState(false);
-  const [editWallet, setEditWallet] = useState<Wallet | undefined>(undefined);
 
   const wallets = useMemo(() => walletsQuery.data ?? [], [walletsQuery.data]);
 
@@ -152,10 +151,8 @@ export default function WalletsPage() {
 
   if (wallets.length === 0) {
     return (
-      <>
-        <div className="pt-[max(env(safe-area-inset-top),16px)]">
-          <PageHeader title="Wallets" />
-        </div>
+      <div className="pt-[max(env(safe-area-inset-top),16px)]">
+        <PageHeader title="Wallets" />
         <div className="flex flex-col items-center justify-center gap-4 px-4 pt-20 text-center">
           <WalletCards className="text-muted-foreground/50 h-12 w-12" />
           <div>
@@ -164,10 +161,9 @@ export default function WalletsPage() {
               Create a wallet to start tracking your finances.
             </p>
           </div>
-          <Button onClick={() => setFormOpen(true)}>Create Your First Wallet</Button>
+          <Button onClick={() => navigate('/wallets/new')}>Create Your First Wallet</Button>
         </div>
-        <WalletForm open={formOpen} onOpenChange={setFormOpen} />
-      </>
+      </div>
     );
   }
 
@@ -218,10 +214,7 @@ export default function WalletsPage() {
                   key={wallet.id}
                   wallet={wallet}
                   sparklineData={sparklineMap.get(wallet.id)}
-                  onEdit={(w) => {
-                    setEditWallet(w);
-                    setFormOpen(true);
-                  }}
+                  onEdit={(w) => navigate(`/wallets/${w.id}/edit`)}
                 />
               ))}
             </div>
@@ -234,10 +227,7 @@ export default function WalletsPage() {
             <Button
               variant="outline"
               className="w-full gap-2 rounded-xl border-dashed"
-              onClick={() => {
-                setEditWallet(undefined);
-                setFormOpen(true);
-              }}
+              onClick={() => navigate('/wallets/new')}
             >
               <Plus className="h-4 w-4" />
               Add New Wallet
@@ -250,16 +240,6 @@ export default function WalletsPage() {
       <div aria-live="polite" className="sr-only">
         {`Showing ${filteredWallets.length} wallet${filteredWallets.length !== 1 ? 's' : ''}`}
       </div>
-
-      {/* Wallet form sheet */}
-      <WalletForm
-        open={formOpen}
-        onOpenChange={(open) => {
-          setFormOpen(open);
-          if (!open) setEditWallet(undefined);
-        }}
-        wallet={editWallet}
-      />
     </>
   );
 }
