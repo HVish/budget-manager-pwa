@@ -35,6 +35,8 @@ pnpm build          # Type-check + production build
 pnpm lint           # ESLint + Tailwind canonical class linter
 pnpm format         # Prettier (write)
 pnpm format:check   # Prettier (check only, for CI)
+pnpm screenshots    # Capture all screen screenshots (dev server must be running)
+pnpm screenshots X  # Capture specific screen(s) by name/prefix
 ```
 
 ## Git Workflow
@@ -92,6 +94,13 @@ src/
 
 - **Month store** (Zustand): global month/year selection, persisted to localStorage.
 - **Server state** (TanStack Query): query keys follow `[resource, filters]` convention.
+
+## Screenshots & Visual Audit
+
+- **Reference doc**: `docs/screenshots.md` — available screens, viewports, fixtures, and how to add new screens.
+- **Design system**: `DESIGN.md` — color tokens, spacing, typography, component patterns for comparison.
+- When adding or modifying a screen/route, update `scripts/capture-screenshots.ts` (add a `ScreenshotDef` entry) and the **Available Screens** table in `docs/screenshots.md`.
+- Screenshots output to `screenshots/` (gitignored). Fixtures live in `screenshots/fixtures/`.
 
 ## Code Review Process
 

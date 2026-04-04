@@ -24,3 +24,8 @@ dist-ssr
 *.sw?
 
 .claude/agent-memory-local/*
+
+# Screenshot captures (ephemeral design audit artifacts)
+screenshots/*.png
+screenshots/mobile-small/
+screenshots/mobile-large/
