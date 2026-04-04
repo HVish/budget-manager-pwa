@@ -203,7 +203,7 @@ export default function WalletDetailPage() {
               </div>
 
               {/* Transaction rows */}
-              <div className="space-y-2">
+              <div className="space-y-3.5">
                 {group.transactions.map((tx) => {
                   const meta = getCategoryMeta(tx.category);
                   const Icon = meta.icon;

@@ -30,7 +30,7 @@ export function RecentTransactions({ transactions, walletMap }: RecentTransactio
           <p className="text-muted-foreground text-sm">No transactions this month</p>
         </div>
       ) : (
-        <div className="space-y-2.5">
+        <div className="space-y-3.5">
           {transactions.map((tx) => {
             const meta = getCategoryMeta(tx.category);
             const Icon = meta.icon;

@@ -7,6 +7,7 @@ import CallbackPage from '@/features/auth/callback-page';
 import LoginPage from '@/features/auth/login-page';
 import DashboardPage from '@/features/dashboard/page';
 import WalletsPage from '@/features/wallets/page';
+import TransactionsPage from '@/features/transactions/page';
 import WalletDetailPage from '@/features/wallets/wallet-detail-page';
 const CreateWalletPage = lazy(() => import('@/features/wallets/create-wallet-page'));
 const EditWalletPage = lazy(() => import('@/features/wallets/edit-wallet-page'));
@@ -29,6 +30,7 @@ export default function AppRoutes() {
       >
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/wallets" element={<WalletsPage />} />
+        <Route path="/transactions" element={<TransactionsPage />} />
       </Route>
 
       {/* Full-screen routes: no bottom nav */}

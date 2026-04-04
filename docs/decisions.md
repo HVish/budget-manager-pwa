@@ -53,6 +53,27 @@ Key decisions where someone could reasonably make the wrong choice without conte
 
 ---
 
+## Transactions Screen (2026-04-05)
+
+### No search bar: API has no text search
+
+- **Why:** `GET /api/v1/transactions` has no `search`, `q`, or `title` parameter. Client-side filtering on cursor-paginated data would only search loaded pages, producing incomplete results.
+- **When to add:** API adds a `search` query parameter — then wire it into the filter bar.
+
+### Income/Expenses filter: use minAmount/maxAmount
+
+- **Why:** The API has no `type=income|expense` filter. Since amounts are signed (positive = credit, negative = debit), `minAmount=1` selects income and `maxAmount=-1` selects expenses.
+
+### Daily net: omit for mixed-currency date groups
+
+- **Why:** Same reasoning as "net worth: use dashboard API" — can't sum INR + USD without conversion rates. When a date group has transactions in multiple currencies, the daily net is hidden.
+
+### Tab routes: eager import, not React.lazy
+
+- **Why:** Tab routes (Dashboard, Wallets, Transactions) are eagerly imported so tab-switch view transitions are instant with no loading spinner flash. `React.lazy` is reserved for push-navigated routes (forms, detail pages).
+
+---
+
 ## shadcn Components (2026-04-04)
 
 ### Scaffold via CLI, then customize freely

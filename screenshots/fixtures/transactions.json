@@ -1,0 +1,107 @@
+{
+  "transactions": [
+    {
+      "id": "t1",
+      "walletId": "w1",
+      "title": "April Salary",
+      "category": "SALARY",
+      "tags": [],
+      "amount": 7500000,
+      "currency": "INR",
+      "transactionDate": "2026-04-03T09:00:00Z",
+      "transferId": null,
+      "notes": null,
+      "createdAt": "2026-04-03T09:00:00Z",
+      "updatedAt": "2026-04-03T09:00:00Z"
+    },
+    {
+      "id": "t5",
+      "walletId": "w1",
+      "title": "Freelance Payment",
+      "category": "FREELANCE",
+      "tags": [],
+      "amount": 1000000,
+      "currency": "INR",
+      "transactionDate": "2026-04-03T14:00:00Z",
+      "transferId": null,
+      "notes": null,
+      "createdAt": "2026-04-03T14:00:00Z",
+      "updatedAt": "2026-04-03T14:00:00Z"
+    },
+    {
+      "id": "t4",
+      "walletId": "w4",
+      "title": "Auto Rickshaw",
+      "category": "TRANSPORT",
+      "tags": [],
+      "amount": -15000,
+      "currency": "INR",
+      "transactionDate": "2026-04-03T08:15:00Z",
+      "transferId": null,
+      "notes": null,
+      "createdAt": "2026-04-03T08:15:00Z",
+      "updatedAt": "2026-04-03T08:15:00Z"
+    },
+    {
+      "id": "t2",
+      "walletId": "w1",
+      "title": "Grocery Run",
+      "category": "GROCERIES",
+      "tags": [],
+      "amount": -345000,
+      "currency": "INR",
+      "transactionDate": "2026-04-02T11:30:00Z",
+      "transferId": null,
+      "notes": null,
+      "createdAt": "2026-04-02T11:30:00Z",
+      "updatedAt": "2026-04-02T11:30:00Z"
+    },
+    {
+      "id": "t3",
+      "walletId": "w6",
+      "title": "Netflix Subscription",
+      "category": "ENTERTAINMENT",
+      "tags": [],
+      "amount": -64900,
+      "currency": "INR",
+      "transactionDate": "2026-04-02T12:00:00Z",
+      "transferId": null,
+      "notes": null,
+      "createdAt": "2026-04-02T12:00:00Z",
+      "updatedAt": "2026-04-02T12:00:00Z"
+    },
+    {
+      "id": "t6",
+      "walletId": "w1",
+      "title": "Electricity Bill",
+      "category": "UTILITIES",
+      "tags": [],
+      "amount": -235000,
+      "currency": "INR",
+      "transactionDate": "2026-04-01T10:00:00Z",
+      "transferId": null,
+      "notes": null,
+      "createdAt": "2026-04-01T10:00:00Z",
+      "updatedAt": "2026-04-01T10:00:00Z"
+    },
+    {
+      "id": "t7",
+      "walletId": "w2",
+      "title": "Dinner at Olive Garden",
+      "category": "FOOD",
+      "tags": [],
+      "amount": -180000,
+      "currency": "INR",
+      "transactionDate": "2026-04-01T20:30:00Z",
+      "transferId": null,
+      "notes": null,
+      "createdAt": "2026-04-01T20:30:00Z",
+      "updatedAt": "2026-04-01T20:30:00Z"
+    }
+  ],
+  "pagination": {
+    "nextCursor": null,
+    "hasMore": false,
+    "limit": 20
+  }
+}

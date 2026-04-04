@@ -9,7 +9,7 @@
  *
  * Available screen names:
  *   login, dashboard-loaded, dashboard-empty, wallets-loaded, wallets-empty,
- *   wallet-detail, wallet-create, wallet-edit
+ *   wallet-detail, wallet-create, wallet-edit, transactions-loaded, transactions-empty
  *
  * Screenshots are saved to screenshots/<viewport>/<name>.png
  */
@@ -44,6 +44,7 @@ const fixtures = {
   dashboard: loadFixture('dashboard'),
   budgetSummary: loadFixture('budget-summary'),
   walletHistory: loadFixture('wallet-history'),
+  transactions: loadFixture('transactions'),
 };
 
 const emptyDashboard = {
@@ -60,6 +61,7 @@ const emptyDashboard = {
 type MockOverrides = {
   emptyWallets?: boolean;
   emptyDashboard?: boolean;
+  emptyTransactions?: boolean;
 };
 
 async function mockApi(route: Route, overrides: MockOverrides = {}) {
@@ -126,10 +128,11 @@ async function mockApi(route: Route, overrides: MockOverrides = {}) {
     return route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({
-        transactions: [],
-        pagination: { nextCursor: null, hasMore: false, limit: 20 },
-      }),
+      body: JSON.stringify(
+        overrides.emptyTransactions
+          ? { transactions: [], pagination: { nextCursor: null, hasMore: false, limit: 20 } }
+          : fixtures.transactions,
+      ),
     });
   }
 
@@ -188,6 +191,10 @@ const screens: ScreenshotDef[] = [
 
   // Edit wallet (form) — uses w1 fixture data
   { name: 'wallet-edit', route: '/wallets/w1/edit' },
+
+  // Transactions states
+  { name: 'transactions-loaded', route: '/transactions' },
+  { name: 'transactions-empty', route: '/transactions', overrides: { emptyTransactions: true } },
 ];
 
 // ── Main ────────────────────────────────────────────────────────────────────
