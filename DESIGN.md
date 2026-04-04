@@ -180,6 +180,13 @@ Cards use `rounded-2xl` (18px). Buttons and inputs use `rounded-lg` (10px). Prim
 - Variants match button variants
 - Used for wallet types, categories, and status indicators
 
+### Horizontal Scroll Affordance
+
+- Scrollable rows (e.g. filter tabs) use a CSS `mask-image` gradient fade (24px wide) on whichever edge has overflow
+- Mask state: `none` (all content fits), `end` (more to the right), `start` (more to the left), `both`
+- Asymmetric padding (`pl-4 pr-2`) so the last item clips naturally, reinforcing the scroll signal
+- Hidden scrollbar via `scrollbar-none` (cross-browser: `scrollbar-width: none` + `::-webkit-scrollbar`)
+
 ---
 
 ## Iconography

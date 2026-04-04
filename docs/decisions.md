@@ -25,6 +25,12 @@ Key decisions where someone could reasonably make the wrong choice without conte
 
 - **Why:** Filter selection is transient — should reset on navigation. Persisting to store surprises users returning with a forgotten filter active.
 
+### Filter tabs scroll affordance: gradient edge mask, not arrows/dots
+
+- **Why:** On narrow viewports the tab row overflows. Users miss that it scrolls. A `mask-image` fade on the overflowing edge(s) signals continuation without adding DOM elements or competing touch targets.
+- **How:** Scroll position drives a `maskStyle` object (`none`/`start`/`end`/`both`). Asymmetric padding (`pl-4 pr-2`) ensures the last tab clips naturally.
+- **Rejected:** Arrow indicators (desktop pattern, adds clutter), scroll dots (wrong semantic for a filter bar), auto-scroll bounce (distracting, complex state management).
+
 ### Wallet form: full-screen pages, not bottom sheet
 
 - **Why:** Bottom sheets fight the virtual keyboard on mobile — inputs get obscured, scroll becomes unpredictable. Full-screen pages at `/wallets/new` and `/wallets/:id/edit` give proper scroll, safe-area handling, and view transition support.

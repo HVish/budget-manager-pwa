@@ -1,7 +1,23 @@
-import { useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { FILTER_TABS } from './wallet-filter-config';
 import type { FilterTab } from './wallet-filter-config';
+
+type ScrollEdge = 'none' | 'start' | 'end' | 'both';
+
+const maskStyle: Record<ScrollEdge, React.CSSProperties> = {
+  none: {},
+  start: {
+    maskImage: 'linear-gradient(to right, transparent, black 24px)',
+  },
+  end: {
+    maskImage: 'linear-gradient(to left, transparent, black 24px)',
+  },
+  both: {
+    maskImage:
+      'linear-gradient(to right, transparent, black 24px, black calc(100% - 24px), transparent)',
+  },
+};
 
 interface WalletFilterTabsProps {
   activeTab: FilterTab;
@@ -10,6 +26,31 @@ interface WalletFilterTabsProps {
 
 export function WalletFilterTabs({ activeTab, onTabChange }: WalletFilterTabsProps) {
   const listRef = useRef<HTMLDivElement>(null);
+  const [edge, setEdge] = useState<ScrollEdge>('none');
+
+  const updateEdge = useCallback(() => {
+    const el = listRef.current;
+    if (!el) return;
+
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    const threshold = 2;
+    const canScrollLeft = scrollLeft > threshold;
+    const canScrollRight = scrollLeft + clientWidth < scrollWidth - threshold;
+
+    if (canScrollLeft && canScrollRight) setEdge('both');
+    else if (canScrollRight) setEdge('end');
+    else if (canScrollLeft) setEdge('start');
+    else setEdge('none');
+  }, []);
+
+  // Detect initial overflow once the list mounts
+  const setListRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      (listRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+      if (node) updateEdge();
+    },
+    [updateEdge],
+  );
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLButtonElement>, currentIndex: number) {
     const tabs = Array.from(
@@ -36,7 +77,13 @@ export function WalletFilterTabs({ activeTab, onTabChange }: WalletFilterTabsPro
 
   return (
     <nav aria-label="Wallet type filter" className="pb-4">
-      <div ref={listRef} role="tablist" className="scrollbar-none flex gap-3 overflow-x-auto px-4">
+      <div
+        ref={setListRef}
+        role="tablist"
+        onScroll={updateEdge}
+        style={maskStyle[edge]}
+        className="scrollbar-none flex gap-3 overflow-x-auto pr-2 pl-4"
+      >
         {FILTER_TABS.map((tab, index) => (
           <button
             key={tab.id}
@@ -56,8 +103,8 @@ export function WalletFilterTabs({ activeTab, onTabChange }: WalletFilterTabsPro
             {tab.label}
           </button>
         ))}
-        {/* Spacer to prevent last tab from being clipped by scroll edge */}
-        <div className="w-px shrink-0" aria-hidden="true" />
+        {/* Spacer so the last tab can scroll fully into view */}
+        <div className="w-2 shrink-0" aria-hidden="true" />
       </div>
     </nav>
   );
