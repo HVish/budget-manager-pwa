@@ -1,19 +1,19 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/api/client";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { api } from '@/api/client';
 import type {
   Wallet,
   WalletCreate,
   WalletUpdate,
   WalletType,
   BalanceHistoryEntry,
-} from "@/api/types";
+} from '@/api/types';
 
 export function useWallets(type?: WalletType) {
   return useQuery({
-    queryKey: ["wallets", { type }],
+    queryKey: ['wallets', { type }],
     queryFn: () =>
       api
-        .get("api/v1/wallets", {
+        .get('api/v1/wallets', {
           searchParams: type ? { type } : {},
         })
         .json<Wallet[]>(),
@@ -22,19 +22,15 @@ export function useWallets(type?: WalletType) {
 
 export function useWallet(walletId: string) {
   return useQuery({
-    queryKey: ["wallets", walletId],
+    queryKey: ['wallets', walletId],
     queryFn: () => api.get(`api/v1/wallets/${walletId}`).json<Wallet>(),
     enabled: !!walletId,
   });
 }
 
-export function useWalletHistory(
-  walletId: string,
-  startDate: string,
-  endDate: string
-) {
+export function useWalletHistory(walletId: string, startDate: string, endDate: string) {
   return useQuery({
-    queryKey: ["wallets", walletId, "history", { startDate, endDate }],
+    queryKey: ['wallets', walletId, 'history', { startDate, endDate }],
     queryFn: () =>
       api
         .get(`api/v1/wallets/${walletId}/history`, {
@@ -48,10 +44,9 @@ export function useWalletHistory(
 export function useCreateWallet() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: WalletCreate) =>
-      api.post("api/v1/wallets", { json: data }).json<Wallet>(),
+    mutationFn: (data: WalletCreate) => api.post('api/v1/wallets', { json: data }).json<Wallet>(),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["wallets"] });
+      queryClient.invalidateQueries({ queryKey: ['wallets'] });
     },
   });
 }
@@ -62,7 +57,7 @@ export function useUpdateWallet(walletId: string) {
     mutationFn: (data: WalletUpdate) =>
       api.patch(`api/v1/wallets/${walletId}`, { json: data }).json<Wallet>(),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["wallets"] });
+      queryClient.invalidateQueries({ queryKey: ['wallets'] });
     },
   });
 }
@@ -72,7 +67,7 @@ export function useDeleteWallet() {
   return useMutation({
     mutationFn: (walletId: string) => api.delete(`api/v1/wallets/${walletId}`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["wallets"] });
+      queryClient.invalidateQueries({ queryKey: ['wallets'] });
     },
   });
 }

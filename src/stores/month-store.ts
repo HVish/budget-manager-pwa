@@ -1,6 +1,6 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import { getMonthRange, getPrevMonth, getNextMonth, isFutureMonth } from "@/lib/date";
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import { getMonthRange, getPrevMonth, getNextMonth, isFutureMonth } from '@/lib/date';
 
 interface MonthState {
   year: number;
@@ -38,8 +38,8 @@ export const useMonthStore = create<MonthState>()(
         }
       },
     }),
-    { name: "budget-month" }
-  )
+    { name: 'budget-month' },
+  ),
 );
 
 export function useMonthRange() {

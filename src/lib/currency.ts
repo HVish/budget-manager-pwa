@@ -1,14 +1,39 @@
+import {
+  IndianRupee,
+  DollarSign,
+  Euro,
+  PoundSterling,
+  JapaneseYen,
+  type LucideIcon,
+} from 'lucide-react';
+import type { Currency } from '@/api/types';
+
+const currencyIconMap: Record<Currency, LucideIcon> = {
+  INR: IndianRupee,
+  USD: DollarSign,
+  EUR: Euro,
+  GBP: PoundSterling,
+  JPY: JapaneseYen,
+  AUD: DollarSign,
+  CAD: DollarSign,
+};
+
+/** Returns the Lucide icon component for a given currency code. */
+export function getCurrencyIcon(currency: Currency): LucideIcon {
+  return currencyIconMap[currency] ?? DollarSign;
+}
+
 const formatterCache = new Map<string, Intl.NumberFormat>();
 
 function getFormatter(currency: string): Intl.NumberFormat {
   if (!formatterCache.has(currency)) {
     formatterCache.set(
       currency,
-      new Intl.NumberFormat("en-IN", {
-        style: "currency",
+      new Intl.NumberFormat('en-IN', {
+        style: 'currency',
         currency,
         minimumFractionDigits: 2,
-      })
+      }),
     );
   }
   return formatterCache.get(currency)!;

@@ -1,10 +1,10 @@
-import { format, startOfMonth, endOfMonth, subMonths, addMonths } from "date-fns";
+import { format, startOfMonth, endOfMonth, subMonths, addMonths } from 'date-fns';
 
 export function getMonthRange(year: number, month: number) {
   const date = new Date(year, month - 1, 1);
   return {
-    startDate: format(startOfMonth(date), "yyyy-MM-dd"),
-    endDate: format(endOfMonth(date), "yyyy-MM-dd"),
+    startDate: format(startOfMonth(date), 'yyyy-MM-dd'),
+    endDate: format(endOfMonth(date), 'yyyy-MM-dd'),
   };
 }
 
@@ -19,7 +19,7 @@ export function getNextMonth(year: number, month: number) {
 }
 
 export function formatMonthYear(year: number, month: number): string {
-  return format(new Date(year, month - 1, 1), "MMMM yyyy");
+  return format(new Date(year, month - 1, 1), 'MMMM yyyy');
 }
 
 export function isCurrentMonth(year: number, month: number): boolean {
@@ -36,4 +36,11 @@ export function isFutureMonth(year: number, month: number): boolean {
 
 export function getClientTimezone(): string {
   return Intl.DateTimeFormat().resolvedOptions().timeZone;
+}
+
+export function getGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Good Morning';
+  if (hour < 17) return 'Good Afternoon';
+  return 'Good Evening';
 }

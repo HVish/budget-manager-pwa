@@ -1,10 +1,10 @@
 // ── Currency ─────────────────────────────────────────────────────────────────
 
-export type Currency = "USD" | "INR" | "EUR" | "GBP" | "JPY" | "AUD" | "CAD";
+export type Currency = 'USD' | 'INR' | 'EUR' | 'GBP' | 'JPY' | 'AUD' | 'CAD';
 
 // ── Wallets ─────────────────────────────────────────────────────────────────
 
-export type WalletType = "checking" | "savings" | "cash" | "credit" | "investment";
+export type WalletType = 'checking' | 'savings' | 'cash' | 'credit' | 'investment';
 
 export interface Wallet {
   id: string;
@@ -40,21 +40,21 @@ export interface BalanceHistoryEntry {
 // ── Transactions ────────────────────────────────────────────────────────────
 
 export type TransactionCategory =
-  | "SALARY"
-  | "FREELANCE"
-  | "INVESTMENT"
-  | "GROCERIES"
-  | "TRANSPORT"
-  | "ENTERTAINMENT"
-  | "SHOPPING"
-  | "FOOD"
-  | "UTILITIES"
-  | "HOUSING"
-  | "DEBT"
-  | "HEALTH"
-  | "OTHER"
-  | "CORRECTION"
-  | "TRANSFER";
+  | 'SALARY'
+  | 'FREELANCE'
+  | 'INVESTMENT'
+  | 'GROCERIES'
+  | 'TRANSPORT'
+  | 'ENTERTAINMENT'
+  | 'SHOPPING'
+  | 'FOOD'
+  | 'UTILITIES'
+  | 'HOUSING'
+  | 'DEBT'
+  | 'HEALTH'
+  | 'OTHER'
+  | 'CORRECTION'
+  | 'TRANSFER';
 
 export interface Transaction {
   id: string;
@@ -210,7 +210,7 @@ export interface ProblemDetail {
   status: number;
   detail?: string;
   instance?: string;
-  "invalid-params"?: Array<{
+  'invalid-params'?: Array<{
     name: string;
     reason: string;
     value?: unknown;

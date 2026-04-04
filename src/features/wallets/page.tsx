@@ -1,10 +1,10 @@
-import { useState } from "react";
-import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useWallets } from "@/api/hooks/use-wallets";
-import { WalletCard } from "./wallet-card";
-import { WalletForm } from "./wallet-form";
+import { useState } from 'react';
+import { Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useWallets } from '@/api/hooks/use-wallets';
+import { WalletCard } from './wallet-card';
+import { WalletForm } from './wallet-form';
 
 export default function WalletsPage() {
   const { data: wallets, isLoading, isError, refetch } = useWallets();
@@ -12,7 +12,7 @@ export default function WalletsPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-3 px-4">
+      <div className="space-y-3 px-4 pt-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <Skeleton key={i} className="h-20 w-full rounded-xl" />
         ))}
@@ -23,7 +23,7 @@ export default function WalletsPage() {
   if (isError) {
     return (
       <div className="flex flex-col items-center justify-center gap-2 px-4 pt-20 text-center">
-        <p className="text-sm text-destructive">Failed to load wallets</p>
+        <p className="text-destructive text-sm">Failed to load wallets</p>
         <Button variant="link" onClick={() => refetch()}>
           Try again
         </Button>
@@ -33,7 +33,7 @@ export default function WalletsPage() {
 
   return (
     <>
-      <div className="space-y-3 px-4">
+      <div className="space-y-3 px-4 pt-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Wallets</h2>
           <Button size="sm" onClick={() => setFormOpen(true)}>
@@ -43,7 +43,7 @@ export default function WalletsPage() {
         </div>
 
         {!wallets?.length ? (
-          <div className="py-16 text-center text-sm text-muted-foreground">
+          <div className="text-muted-foreground py-16 text-center text-sm">
             No wallets yet. Create one to get started.
           </div>
         ) : (

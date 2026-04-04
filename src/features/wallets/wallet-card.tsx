@@ -1,24 +1,15 @@
-import { useNavigate } from "react-router";
-import { Card, CardContent } from "@/components/ui/card";
-import { formatCurrency } from "@/lib/currency";
-import {
-  Landmark,
-  Banknote,
-  CreditCard,
-  PiggyBank,
-  TrendingUp,
-} from "lucide-react";
-import type { Wallet } from "@/api/types";
+import { useNavigate } from 'react-router';
+import { Card, CardContent } from '@/components/ui/card';
+import { formatCurrency } from '@/lib/currency';
+import { Landmark, Banknote, CreditCard, PiggyBank, TrendingUp } from 'lucide-react';
+import type { Wallet } from '@/api/types';
 
-const walletTypeConfig: Record<
-  string,
-  { icon: typeof Landmark; label: string }
-> = {
-  checking: { icon: Landmark, label: "Checking" },
-  savings: { icon: PiggyBank, label: "Savings" },
-  cash: { icon: Banknote, label: "Cash" },
-  credit: { icon: CreditCard, label: "Credit" },
-  investment: { icon: TrendingUp, label: "Investment" },
+const walletTypeConfig: Record<string, { icon: typeof Landmark; label: string }> = {
+  checking: { icon: Landmark, label: 'Checking' },
+  savings: { icon: PiggyBank, label: 'Savings' },
+  cash: { icon: Banknote, label: 'Cash' },
+  credit: { icon: CreditCard, label: 'Credit' },
+  investment: { icon: TrendingUp, label: 'Investment' },
 };
 
 interface WalletCardProps {
@@ -32,16 +23,16 @@ export function WalletCard({ wallet }: WalletCardProps) {
 
   return (
     <Card
-      className="cursor-pointer transition-all duration-150 hover:bg-accent/50 active:scale-[0.98]"
+      className="hover:bg-accent/50 cursor-pointer transition-all duration-150 active:scale-[0.98]"
       onClick={() => navigate(`/wallets/${wallet.id}`)}
     >
       <CardContent className="flex items-center gap-3 py-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
-          <Icon className="h-5 w-5 text-primary" />
+        <div className="bg-primary/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
+          <Icon className="text-primary h-5 w-5" />
         </div>
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium">{wallet.name}</p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs">
             {config.label}
             {wallet.accountNumber && ` · ${wallet.accountNumber}`}
           </p>
