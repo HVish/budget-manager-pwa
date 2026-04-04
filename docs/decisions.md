@@ -25,6 +25,16 @@ Key decisions where someone could reasonably make the wrong choice without conte
 
 - **Why:** Filter selection is transient — should reset on navigation. Persisting to store surprises users returning with a forgotten filter active.
 
+### Wallet form: full-screen pages, not bottom sheet
+
+- **Why:** Bottom sheets fight the virtual keyboard on mobile — inputs get obscured, scroll becomes unpredictable. Full-screen pages at `/wallets/new` and `/wallets/:id/edit` give proper scroll, safe-area handling, and view transition support.
+- **Rejected:** Sheet-based `WalletForm` component (original implementation, deleted).
+
+### View transitions: data attribute + CSS, not JS animation
+
+- **Why:** CSS `::view-transition` pseudo-elements are hardware-accelerated and don't block the main thread. Transition type is set via `data-vt-type` on `<html>`, matched by CSS selectors. `useAppNavigate` auto-detects the type (tab-switch, push/pop, modal) from route patterns.
+- **Rejected:** Framer Motion page transitions (heavy bundle), manual `startViewTransition` (React Router already calls it with `viewTransition: true`).
+
 ---
 
 ## shadcn Components (2026-04-04)
