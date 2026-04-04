@@ -1,0 +1,1706 @@
+openapi: 3.0.3
+info:
+  title: Budget Manager API
+  description: RESTful API for Budget Manager with OIDC authentication
+  version: 1.4.0
+  contact:
+    name: API Support
+    email: api@budgetmanager.io
+servers:
+  - url: https://api.budgetmanager.io
+    description: Production server
+  - url: https://api.staging.budgetmanager.vishnusingh.in
+    description: Staging server
+  - url: http://localhost:8080
+    description: Local development server
+  - url: /
+    description: Relative to main API
+tags:
+  - name: User
+    description: User profile management
+    x-displayName: User
+  - name: Wallets
+    description: Wallet and account management
+    x-displayName: Wallets
+  - name: Transactions
+    description: Transaction management
+    x-displayName: Transactions
+  - name: Transfers
+    description: Wallet-to-wallet double-entry transfers
+    x-displayName: Transfers
+  - name: Dashboard
+    description: Dashboard overview and statistics
+    x-displayName: Dashboard
+  - name: Budgets
+    description: Per-category monthly budget rules and spending tracking
+    x-displayName: Budgets
+paths:
+  /api/v1/budgets:
+    get:
+      tags:
+        - Budgets
+      summary: List budget rules
+      description: >-
+        Returns all budget rules for the authenticated user with live spent
+        amounts for the current month.
+      operationId: listBudgets
+      responses:
+        '200':
+          description: Budget rules retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Budget'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - BearerAuth: []
+    post:
+      tags:
+        - Budgets
+      summary: Create a budget rule
+      description: >-
+        Create a per-category monthly spending limit. Only one budget per
+        category is allowed.
+      operationId: createBudget
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BudgetCreate'
+      responses:
+        '201':
+          description: Budget rule created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Budget'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - BearerAuth: []
+  /api/v1/budgets/summary:
+    get:
+      tags:
+        - Budgets
+      summary: Get budget summary
+      description: >
+        Aggregate budget totals in the user's primary currency for the given
+        month.
+
+        Defaults to the current month when year and month are omitted.
+
+        For the current month the spent amounts are computed live from
+        transactions;
+
+        for past months they are read from budget_history snapshots.
+      operationId: getBudgetSummary
+      parameters:
+        - name: year
+          in: query
+          required: false
+          description: Calendar year (e.g. 2026). Must be provided together with month.
+          schema:
+            type: integer
+          example: 2026
+        - name: month
+          in: query
+          required: false
+          description: Calendar month (1-12). Must be provided together with year.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+          example: 3
+        - name: timezone
+          in: query
+          required: false
+          description: >
+            IANA timezone name (e.g. "Asia/Kolkata"). Used to determine whether
+            the
+
+            queried month is still current. Defaults to UTC if omitted or
+            unrecognised.
+          schema:
+            type: string
+          example: Asia/Kolkata
+      responses:
+        '200':
+          description: Budget summary retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BudgetSummaryResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - BearerAuth: []
+  /api/v1/budgets/{budgetId}:
+    parameters:
+      - $ref: '#/components/parameters/BudgetId'
+    get:
+      tags:
+        - Budgets
+      summary: Get a budget rule
+      description: Returns a single budget rule with live spent for the current month.
+      operationId: getBudget
+      responses:
+        '200':
+          description: Budget rule retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Budget'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - BearerAuth: []
+    patch:
+      tags:
+        - Budgets
+      summary: Update a budget rule
+      description: Update the limit amount and/or currency of an existing budget rule.
+      operationId: updateBudget
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BudgetUpdate'
+      responses:
+        '200':
+          description: Budget rule updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Budget'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - BearerAuth: []
+    delete:
+      tags:
+        - Budgets
+      summary: Delete a budget rule
+      description: |
+        Deletes the budget rule. Historical snapshot rows in budget_history are
+        retained (with budget_id set to null) so past reports remain intact.
+      operationId: deleteBudget
+      responses:
+        '204':
+          description: Budget rule deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - BearerAuth: []
+  /api/v1/dashboard:
+    get:
+      tags:
+        - Dashboard
+      summary: Get monthly dashboard
+      description: |
+        Returns pre-computed monthly aggregates (income, expense, net worth)
+        broken down per currency, and the 5 most recent transactions for the
+        selected month. Returns empty summaries if the outbox processor has
+        not yet computed data for this month.
+      operationId: getDashboard
+      parameters:
+        - name: year
+          in: query
+          required: true
+          description: Calendar year (e.g. 2025)
+          schema:
+            type: integer
+          example: 2025
+        - name: month
+          in: query
+          required: true
+          description: Calendar month (1-12)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+          example: 3
+        - name: timezone
+          in: query
+          required: false
+          description: >
+            IANA timezone name for the client (e.g. "Asia/Kolkata",
+            "America/New_York").
+
+            Used to determine whether the queried month is still current, so the
+            correct
+
+            exchange rate date is selected. Defaults to UTC if omitted or
+            unrecognised.
+          schema:
+            type: string
+          example: Asia/Kolkata
+      responses:
+        '200':
+          description: Dashboard data retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - BearerAuth: []
+  /api/v1/transactions:
+    get:
+      tags:
+        - Transactions
+      summary: List transactions with cursor-based pagination
+      operationId: listTransactions
+      parameters:
+        - name: walletIds
+          in: query
+          description: Filter by wallet IDs (comma-separated UUIDs)
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
+          style: form
+          explode: false
+        - name: startDate
+          in: query
+          description: Filter by start date (inclusive) in YYYY-MM-DD format
+          schema:
+            type: string
+            format: date
+          example: '2026-01-01'
+        - name: endDate
+          in: query
+          description: Filter by end date (inclusive) in YYYY-MM-DD format
+          schema:
+            type: string
+            format: date
+          example: '2026-01-31'
+        - name: minAmount
+          in: query
+          description: Filter by minimum amount in minor units (inclusive, can be negative)
+          schema:
+            type: integer
+            format: int64
+          example: -50000
+        - name: maxAmount
+          in: query
+          description: Filter by maximum amount in minor units (inclusive, can be negative)
+          schema:
+            type: integer
+            format: int64
+          example: 100000
+        - name: category
+          in: query
+          description: Filter by category
+          schema:
+            type: string
+          example: GROCERIES
+        - name: tags
+          in: query
+          description: Filter by tags (comma-separated, matches if any tag overlaps)
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: false
+          example: vacation,tax-deductible
+        - name: isTransfer
+          in: query
+          description: >-
+            Filter by transfer status (true=only transfers, false=only
+            non-transfers, null=all)
+          schema:
+            type: boolean
+        - name: limit
+          in: query
+          description: Number of results per page (default 50, max 100)
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            maximum: 100
+            default: 50
+        - name: cursor
+          in: query
+          description: Pagination cursor from previous response
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Transactions retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - BearerAuth: []
+    post:
+      tags:
+        - Transactions
+      summary: Create new transaction
+      description: >
+        Create a new income (credit/positive) or expense (debit/negative)
+        transaction.
+
+        The wallet balance is automatically updated atomically.
+      operationId: createTransaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionCreate'
+      responses:
+        '201':
+          description: Transaction created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - BearerAuth: []
+  /api/v1/transactions/{transactionId}:
+    parameters:
+      - $ref: '#/components/parameters/TransactionId'
+    get:
+      tags:
+        - Transactions
+      summary: Get transaction details
+      operationId: getTransaction
+      responses:
+        '200':
+          description: Transaction retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - BearerAuth: []
+    patch:
+      tags:
+        - Transactions
+      summary: Update transaction
+      description: >
+        Partially update transaction attributes. If the transaction_date is
+        changed,
+
+        the transaction is moved between partitions (DELETE + INSERT). The
+        wallet
+
+        balance is adjusted by the delta automatically.
+      operationId: updateTransaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionUpdate'
+      responses:
+        '200':
+          description: Transaction updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - BearerAuth: []
+    delete:
+      tags:
+        - Transactions
+      summary: Delete transaction
+      description: |
+        Delete a transaction. The wallet balance is automatically adjusted
+        (subtracts the transaction amount).
+      operationId: deleteTransaction
+      responses:
+        '204':
+          description: Transaction deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - BearerAuth: []
+  /api/v1/transfers:
+    post:
+      tags:
+        - Transfers
+      summary: Create a wallet-to-wallet transfer
+      description: >
+        Create a double-entry transfer between two wallets owned by the user.
+
+        This atomically creates a debit transaction in the source wallet and a
+
+        credit transaction in the destination wallet, linked by a shared
+        transfer_id.
+
+        Both wallet balances are updated atomically within a single database
+        transaction.
+      operationId: createTransfer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferCreate'
+      responses:
+        '201':
+          description: Transfer created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transfer'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - BearerAuth: []
+  /api/v1/transfers/{transferId}:
+    parameters:
+      - $ref: '#/components/parameters/TransferId'
+    get:
+      tags:
+        - Transfers
+      summary: Get transfer details
+      description: Retrieve both legs (debit and credit) of a transfer by its transfer ID.
+      operationId: getTransfer
+      responses:
+        '200':
+          description: Transfer retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transfer'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - BearerAuth: []
+    delete:
+      tags:
+        - Transfers
+      summary: Delete a transfer
+      description: |
+        Delete both legs of a transfer atomically. Both wallet balances are
+        reversed. This operation cannot be undone.
+      operationId: deleteTransfer
+      responses:
+        '204':
+          description: Transfer deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - BearerAuth: []
+  /api/v1/wallets:
+    get:
+      tags:
+        - Wallets
+      summary: List all wallets
+      operationId: listWallets
+      parameters:
+        - name: type
+          in: query
+          description: Filter by wallet type
+          schema:
+            type: string
+            enum:
+              - checking
+              - savings
+              - cash
+              - credit
+              - investment
+      responses:
+        '200':
+          description: Wallets retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Wallet'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - BearerAuth: []
+    post:
+      tags:
+        - Wallets
+      summary: Create new wallet
+      operationId: createWallet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WalletCreate'
+      responses:
+        '201':
+          description: Wallet created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Wallet'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - BearerAuth: []
+  /api/v1/wallets/{walletId}:
+    parameters:
+      - $ref: '#/components/parameters/WalletId'
+    get:
+      tags:
+        - Wallets
+      summary: Get wallet details
+      operationId: getWallet
+      responses:
+        '200':
+          description: Wallet retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Wallet'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - BearerAuth: []
+    patch:
+      tags:
+        - Wallets
+      summary: Update wallet
+      description: |
+        Partially update wallet attributes (name, currency, or balance).
+        When balance is updated, this is a correction/adjustment operation.
+        In the future, when transactions are implemented, balance updates will
+        trigger a correction transaction entry via events/queues for audit trail
+        and loose coupling. Wallet type cannot be changed after creation.
+      operationId: updateWallet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WalletUpdate'
+      responses:
+        '200':
+          description: Wallet updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Wallet'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - BearerAuth: []
+    delete:
+      tags:
+        - Wallets
+      summary: Delete wallet
+      operationId: deleteWallet
+      responses:
+        '204':
+          description: Wallet deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - BearerAuth: []
+  /api/v1/wallets/{walletId}/history:
+    parameters:
+      - $ref: '#/components/parameters/WalletId'
+    get:
+      tags:
+        - Wallets
+      summary: Get wallet balance history
+      description: |
+        Retrieve daily balance snapshots for a wallet within a date range.
+        Useful for generating balance trend charts and analytics.
+      operationId: getWalletHistory
+      parameters:
+        - name: startDate
+          in: query
+          required: true
+          description: Start date (inclusive) in YYYY-MM-DD format
+          schema:
+            type: string
+            format: date
+          example: '2025-01-01'
+        - name: endDate
+          in: query
+          required: true
+          description: End date (inclusive) in YYYY-MM-DD format
+          schema:
+            type: string
+            format: date
+          example: '2025-01-31'
+      responses:
+        '200':
+          description: Balance history retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BalanceHistoryEntry'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - BearerAuth: []
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: OIDC JWT token
+  schemas:
+    ProblemDetail:
+      type: object
+      description: RFC 7807 Problem Details
+      properties:
+        type:
+          type: string
+          format: uri
+          description: URI reference identifying the problem type
+          example: https://api.budgetmanager.io/errors/validation-error
+        title:
+          type: string
+          description: Short human-readable summary
+          example: Validation Failed
+        status:
+          type: integer
+          description: HTTP status code
+          example: 400
+        detail:
+          type: string
+          description: Human-readable explanation
+          example: Transaction amount must be positive
+        instance:
+          type: string
+          format: uri
+          description: URI reference identifying the specific occurrence
+          example: /api/transactions
+      required:
+        - type
+        - title
+        - status
+    ValidationProblemDetail:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetail'
+        - type: object
+          properties:
+            invalid-params:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    example: amount
+                  reason:
+                    type: string
+                    example: must be greater than zero
+                  value:
+                    example: -100
+    Budget:
+      type: object
+      description: A budget rule with live spending data for the current month.
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 550e8400-e29b-41d4-a716-446655440000
+        category:
+          type: string
+          description: Transaction category this budget applies to.
+          example: GROCERIES
+        limitAmount:
+          type: integer
+          format: int64
+          description: Monthly spending limit in minor units (e.g. 500000 = ₹5000).
+          example: 500000
+        currency:
+          type: string
+          minLength: 3
+          maxLength: 3
+          description: ISO 4217 currency code for this budget.
+          example: INR
+        spentAmount:
+          type: integer
+          format: int64
+          description: Amount spent in the current month (minor units, in budget currency).
+          example: 320000
+        percentageConsumed:
+          type: number
+          format: double
+          description: Percentage of limit consumed (0–100+), rounded to 2 decimal places.
+          example: 64
+        createdAt:
+          type: string
+          format: date-time
+          example: '2026-03-01T00:00:00Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2026-03-01T00:00:00Z'
+      required:
+        - id
+        - category
+        - limitAmount
+        - currency
+        - spentAmount
+        - percentageConsumed
+        - createdAt
+        - updatedAt
+    BudgetCreate:
+      type: object
+      properties:
+        category:
+          type: string
+          description: >-
+            Transaction category to budget (TRANSFER and CORRECTION are not
+            allowed).
+          example: GROCERIES
+        limitAmount:
+          type: integer
+          format: int64
+          minimum: 1
+          description: Monthly spending limit in minor units.
+          example: 500000
+        currency:
+          type: string
+          minLength: 3
+          maxLength: 3
+          description: ISO 4217 currency code.
+          example: INR
+      required:
+        - category
+        - limitAmount
+        - currency
+    BudgetUpdate:
+      type: object
+      description: At least one field must be provided.
+      properties:
+        limitAmount:
+          type: integer
+          format: int64
+          minimum: 1
+          description: New monthly spending limit in minor units.
+          example: 600000
+        currency:
+          type: string
+          minLength: 3
+          maxLength: 3
+          description: New ISO 4217 currency code.
+          example: USD
+    BudgetSummaryResponse:
+      type: object
+      properties:
+        year:
+          type: integer
+          example: 2026
+        month:
+          type: integer
+          example: 3
+        primaryCurrency:
+          type: string
+          minLength: 3
+          maxLength: 3
+          example: INR
+        totalLimit:
+          type: integer
+          format: int64
+          description: Sum of all budget limits converted to primary currency.
+          example: 1500000
+        totalSpent:
+          type: integer
+          format: int64
+          description: Sum of all spending converted to primary currency.
+          example: 820000
+        percentageConsumed:
+          type: number
+          format: double
+          example: 54.67
+        conversionAvailable:
+          type: boolean
+          description: >-
+            False when any required exchange rate was unavailable;
+            primary-currency totals will be zero.
+          example: true
+        conversionRateDate:
+          type: string
+          format: date
+          description: >-
+            Date of the oldest exchange rate used. Present only when
+            conversionAvailable is true.
+          example: '2026-03-14'
+        budgets:
+          type: array
+          items:
+            $ref: '#/components/schemas/BudgetSummaryItem'
+      required:
+        - year
+        - month
+        - primaryCurrency
+        - totalLimit
+        - totalSpent
+        - percentageConsumed
+        - conversionAvailable
+        - budgets
+    BudgetSummaryItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Budget rule ID. May be empty if the original rule was deleted.
+          example: 550e8400-e29b-41d4-a716-446655440000
+        category:
+          type: string
+          example: GROCERIES
+        limitAmount:
+          type: integer
+          format: int64
+          description: Limit converted to primary currency.
+          example: 500000
+        spentAmount:
+          type: integer
+          format: int64
+          description: Spent converted to primary currency.
+          example: 320000
+        percentageConsumed:
+          type: number
+          format: double
+          example: 64
+        originalCurrency:
+          type: string
+          minLength: 3
+          maxLength: 3
+          description: The budget rule's own currency (before conversion).
+          example: INR
+        originalLimit:
+          type: integer
+          format: int64
+          description: Limit in the budget's own currency.
+          example: 500000
+      required:
+        - id
+        - category
+        - limitAmount
+        - spentAmount
+        - percentageConsumed
+        - originalCurrency
+        - originalLimit
+    DashboardResponse:
+      type: object
+      properties:
+        year:
+          type: integer
+          description: Calendar year
+          example: 2025
+        month:
+          type: integer
+          description: Calendar month (1-12)
+          example: 3
+        primaryCurrency:
+          $ref: '#/components/schemas/Currency'
+        totalIncome:
+          type: integer
+          format: int64
+          description: >-
+            Total income for the month converted to primary currency (minor
+            units)
+          example: 85000
+        totalExpense:
+          type: integer
+          format: int64
+          description: >-
+            Total expense for the month converted to primary currency (minor
+            units)
+          example: 42000
+        netWorth:
+          type: integer
+          format: int64
+          description: Current net worth converted to primary currency (minor units)
+          example: 1200000
+        conversionAvailable:
+          type: boolean
+          description: >-
+            Whether exchange rates were available for all wallet currencies.
+            False means primary-currency totals are zero and should not be
+            displayed.
+          example: true
+        conversionRateDate:
+          type: string
+          format: date
+          description: >-
+            Date of the oldest exchange rate used for conversion. Present only
+            when conversionAvailable is true.
+          example: '2025-03-31'
+        summaries:
+          type: array
+          description: Per-currency monthly aggregates (raw, before conversion)
+          items:
+            $ref: '#/components/schemas/MonthlyCurrencySummary'
+        recentTransactions:
+          type: array
+          description: Up to 5 most recent transactions in the selected month
+          items:
+            $ref: '#/components/schemas/DashboardTransaction'
+      required:
+        - year
+        - month
+        - primaryCurrency
+        - totalIncome
+        - totalExpense
+        - netWorth
+        - conversionAvailable
+        - summaries
+        - recentTransactions
+    MonthlyCurrencySummary:
+      type: object
+      properties:
+        currency:
+          $ref: '#/components/schemas/Currency'
+        totalIncome:
+          type: integer
+          format: int64
+          description: Total income (positive amounts) in minor units
+          example: 500000
+        totalExpense:
+          type: integer
+          format: int64
+          description: Total expense (absolute value of negative amounts) in minor units
+          example: 300000
+        netWorth:
+          type: integer
+          format: int64
+          description: Current sum of all wallet balances in this currency (minor units)
+          example: 1200000
+      required:
+        - currency
+        - totalIncome
+        - totalExpense
+        - netWorth
+    DashboardTransaction:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 550e8400-e29b-41d4-a716-446655440000
+        walletId:
+          type: string
+          format: uuid
+          example: 660e8400-e29b-41d4-a716-446655440000
+        title:
+          type: string
+          example: Grocery shopping
+        category:
+          type: string
+          example: GROCERIES
+        amount:
+          type: integer
+          format: int64
+          description: Signed amount in minor units (negative=debit, positive=credit)
+          example: -5000
+        currency:
+          $ref: '#/components/schemas/Currency'
+        transactionDate:
+          type: string
+          format: date
+          example: '2025-03-15'
+        transferId:
+          type: string
+          format: uuid
+          description: Present only for transfer transactions
+        tags:
+          type: array
+          items:
+            type: string
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+          example: '2025-03-15T10:30:00Z'
+      required:
+        - id
+        - walletId
+        - title
+        - category
+        - amount
+        - currency
+        - transactionDate
+        - createdAt
+    Currency:
+      type: string
+      enum:
+        - USD
+        - INR
+        - EUR
+        - GBP
+        - JPY
+        - AUD
+        - CAD
+      description: ISO 4217 currency code
+      example: USD
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Transaction UUID
+          example: 550e8400-e29b-41d4-a716-446655440000
+        walletId:
+          type: string
+          format: uuid
+          description: Wallet UUID
+          example: 660e8400-e29b-41d4-a716-446655440001
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: User-friendly transaction description
+          example: Grocery shopping at Walmart
+        category:
+          type: string
+          maxLength: 50
+          description: >
+            Single category for budget classification. Valid categories:
+
+            Income: SALARY, FREELANCE, INVESTMENT
+
+            Expense: GROCERIES, TRANSPORT, ENTERTAINMENT, SHOPPING, FOOD,
+            UTILITIES, HOUSING, DEBT, HEALTH, OTHER
+
+            System: CORRECTION
+          example: GROCERIES
+        tags:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 50
+          description: Optional freeform tags for personal organization
+          example:
+            - vacation
+            - tax-deductible
+          nullable: true
+          x-omitempty: true
+        amount:
+          type: integer
+          format: int64
+          description: |
+            Signed amount in minor units (cents):
+            - Negative = debit (money out, expense)
+            - Positive = credit (money in, income)
+            Works across all wallet types (checking, credit cards, loans, etc.)
+          example: -5000
+        currency:
+          $ref: '#/components/schemas/Currency'
+        transactionDate:
+          type: string
+          format: date
+          description: Date of transaction (cannot be in future)
+          example: '2026-01-15'
+        transferId:
+          type: string
+          format: uuid
+          description: >-
+            Links debit/credit transaction pairs for wallet-to-wallet transfers
+            (Release 4). NULL for regular transactions.
+          example: null
+          nullable: true
+          x-omitempty: true
+        notes:
+          type: string
+          maxLength: 1000
+          description: Optional additional details or context
+          example: Weekly grocery shopping
+          nullable: true
+          x-omitempty: true
+        createdAt:
+          type: string
+          format: date-time
+          example: '2026-01-15T10:30:00Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2026-01-20T14:25:00Z'
+      required:
+        - id
+        - walletId
+        - title
+        - category
+        - amount
+        - currency
+        - transactionDate
+        - createdAt
+        - updatedAt
+    TransactionCreate:
+      type: object
+      properties:
+        walletId:
+          type: string
+          format: uuid
+          description: Wallet UUID
+          example: 660e8400-e29b-41d4-a716-446655440001
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: User-friendly transaction description
+          example: Grocery shopping at Walmart
+        category:
+          type: string
+          maxLength: 50
+          description: >
+            Single category for budget classification. Valid categories:
+
+            Income: SALARY, FREELANCE, INVESTMENT
+
+            Expense: GROCERIES, TRANSPORT, ENTERTAINMENT, SHOPPING, FOOD,
+            UTILITIES, HOUSING, DEBT, HEALTH, OTHER
+
+            System: CORRECTION
+          example: GROCERIES
+        tags:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 50
+          description: Optional freeform tags for personal organization
+          example:
+            - vacation
+            - family-trip
+        amount:
+          type: integer
+          format: int64
+          description: |
+            Signed amount in minor units (cents):
+            - Negative = debit (money out, expense)
+            - Positive = credit (money in, income)
+            Must be non-zero.
+          example: -5000
+        transactionDate:
+          type: string
+          format: date
+          description: Date of transaction (cannot be in future)
+          example: '2026-01-15'
+        notes:
+          type: string
+          maxLength: 1000
+          description: Optional additional details or context
+          example: Weekly grocery shopping
+      required:
+        - walletId
+        - title
+        - category
+        - amount
+        - transactionDate
+    TransactionUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: User-friendly transaction description
+          example: Updated transaction title
+        category:
+          type: string
+          maxLength: 50
+          description: Single category (must be valid category)
+          example: TRANSPORT
+        tags:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 50
+          description: Optional freeform tags (replaces existing tags)
+          example:
+            - business-expense
+            - reimbursable
+        amount:
+          type: integer
+          format: int64
+          description: |
+            Signed amount in minor units (cents).
+            Changing this adjusts the wallet balance by the delta.
+          example: -7500
+        transactionDate:
+          type: string
+          format: date
+          description: |
+            Date of transaction (cannot be in future).
+            Changing this triggers a partition move (DELETE + INSERT).
+          example: '2026-01-16'
+        notes:
+          type: string
+          maxLength: 1000
+          description: Optional additional details or context
+          example: Updated notes
+    TransactionListResponse:
+      type: object
+      properties:
+        transactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transaction'
+        pagination:
+          type: object
+          properties:
+            nextCursor:
+              type: string
+              description: Cursor for the next page (null if no more results)
+              example: MjAyNi0wMS0xNTphYmMxMjM0NQ==
+              nullable: true
+            hasMore:
+              type: boolean
+              description: Whether there are more results available
+              example: true
+            limit:
+              type: integer
+              format: int32
+              description: Number of results per page
+              example: 50
+          required:
+            - hasMore
+            - limit
+      required:
+        - transactions
+        - pagination
+    TransferCreate:
+      type: object
+      properties:
+        fromWalletId:
+          type: string
+          format: uuid
+          description: Source wallet UUID (will be debited)
+          example: 660e8400-e29b-41d4-a716-446655440001
+        toWalletId:
+          type: string
+          format: uuid
+          description: Destination wallet UUID (will be credited)
+          example: 660e8400-e29b-41d4-a716-446655440002
+        fromAmount:
+          type: integer
+          format: int64
+          description: >
+            Amount to debit from the source wallet in minor units (cents). Must
+            be positive.
+          example: 10000
+          minimum: 1
+        toAmount:
+          type: integer
+          format: int64
+          description: >
+            Amount to credit to the destination wallet in minor units (cents).
+            Must be positive.
+
+            For same-currency transfers this equals fromAmount.
+
+            For cross-currency transfers this reflects the converted amount.
+          example: 9200
+          minimum: 1
+        transactionDate:
+          type: string
+          format: date
+          description: Date of the transfer (cannot be in the future)
+          example: '2026-01-15'
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Optional description for the transfer (defaults to "Transfer")
+          example: Monthly savings transfer
+        notes:
+          type: string
+          maxLength: 1000
+          description: Optional additional context
+          example: Moving funds to savings account
+          nullable: true
+        tags:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 50
+          description: Optional freeform tags
+          example:
+            - savings
+            - monthly
+          nullable: true
+      required:
+        - fromWalletId
+        - toWalletId
+        - fromAmount
+        - toAmount
+        - transactionDate
+    Transfer:
+      type: object
+      description: |
+        A double-entry transfer consisting of a debit leg (source wallet)
+        and a credit leg (destination wallet), linked by a shared transfer_id.
+      properties:
+        transferId:
+          type: string
+          format: uuid
+          description: Shared UUID linking both transaction legs
+          example: 770e8400-e29b-41d4-a716-446655440002
+        debitTransaction:
+          $ref: '#/components/schemas/Transaction'
+        creditTransaction:
+          $ref: '#/components/schemas/Transaction'
+      required:
+        - transferId
+        - debitTransaction
+        - creditTransaction
+    Wallet:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Wallet UUID
+          example: 550e8400-e29b-41d4-a716-446655440000
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Wallet display name
+          example: Chase Checking
+        balance:
+          type: integer
+          format: int64
+          description: Balance in minor units/cents (e.g., 1000 = $10.00)
+          example: 845020
+        currency:
+          $ref: '#/components/schemas/Currency'
+        walletType:
+          type: string
+          enum:
+            - checking
+            - savings
+            - cash
+            - credit
+            - investment
+          description: Type of wallet
+          example: checking
+        accountNumber:
+          type: string
+          maxLength: 255
+          description: Account or card number for external accounts (e.g., last 4 digits)
+          example: '1234'
+        createdAt:
+          type: string
+          format: date-time
+          example: '2025-01-15T10:30:00Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2025-01-20T14:25:00Z'
+      required:
+        - id
+        - name
+        - balance
+        - currency
+        - walletType
+        - createdAt
+        - updatedAt
+    WalletCreate:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Wallet display name
+          example: My Savings Account
+        balance:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Initial balance in minor units/cents (default 0)
+          example: 100000
+        currency:
+          $ref: '#/components/schemas/Currency'
+        walletType:
+          type: string
+          enum:
+            - checking
+            - savings
+            - cash
+            - credit
+            - investment
+          description: Type of wallet (defaults to checking)
+          example: savings
+        accountNumber:
+          type: string
+          maxLength: 255
+          description: Account or card number for external accounts (e.g., last 4 digits)
+          example: '1234'
+      required:
+        - name
+    WalletUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Wallet display name
+          example: Updated Wallet Name
+        balance:
+          type: integer
+          format: int64
+          description: |
+            Wallet balance in minor units/cents (e.g., 1000 = $10.00).
+            This is a correction/adjustment operation. In the future, when
+            transactions are implemented, this will trigger a correction
+            transaction entry for audit trail.
+          example: 950000
+        currency:
+          $ref: '#/components/schemas/Currency'
+        accountNumber:
+          type: string
+          maxLength: 255
+          description: Account or card number for external accounts (e.g., last 4 digits)
+          example: '5678'
+    BalanceHistoryEntry:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          description: Snapshot date
+          example: '2025-01-15'
+        balance:
+          type: integer
+          format: int64
+          description: Balance in minor units/cents at end of this date
+          example: 845020
+      required:
+        - date
+        - balance
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+          example:
+            type: https://api.budgetmanager.io/errors/bad-request
+            title: Bad Request
+            status: 400
+            detail: Invalid request format
+            instance: /api/transactions
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+          example:
+            type: https://api.budgetmanager.io/errors/authentication-required
+            title: Authentication Required
+            status: 401
+            detail: Valid JWT token required
+            instance: /api/dashboard
+    NotFound:
+      description: Resource not found
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+          example:
+            type: https://api.budgetmanager.io/errors/resource-not-found
+            title: Resource Not Found
+            status: 404
+            detail: Transaction not found
+            instance: /api/transactions/txn_invalid
+    ValidationError:
+      description: Validation error
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ValidationProblemDetail'
+          example:
+            type: https://api.budgetmanager.io/errors/validation-error
+            title: Validation Failed
+            status: 422
+            detail: Request validation failed
+            instance: /api/transactions
+            invalid-params:
+              - name: amount
+                reason: must be greater than zero
+                value: -100
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+          example:
+            type: https://api.budgetmanager.io/errors/server-error
+            title: Internal Server Error
+            status: 500
+            detail: An unexpected error occurred
+            instance: /api/dashboard
+  parameters:
+    BudgetId:
+      name: budgetId
+      in: path
+      required: true
+      description: Budget rule ID (UUID)
+      schema:
+        type: string
+        format: uuid
+      example: 550e8400-e29b-41d4-a716-446655440000
+    TransactionId:
+      name: transactionId
+      in: path
+      required: true
+      description: Transaction ID (UUID)
+      schema:
+        type: string
+        format: uuid
+      example: 550e8400-e29b-41d4-a716-446655440000
+    TransferId:
+      name: transferId
+      in: path
+      required: true
+      description: Transfer ID (UUID shared by both debit and credit legs)
+      schema:
+        type: string
+        format: uuid
+      example: 770e8400-e29b-41d4-a716-446655440002
+    WalletId:
+      name: walletId
+      in: path
+      required: true
+      description: Wallet ID (UUID)
+      schema:
+        type: string
+        format: uuid
+      example: 550e8400-e29b-41d4-a716-446655440000
