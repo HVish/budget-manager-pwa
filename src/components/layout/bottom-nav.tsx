@@ -1,5 +1,6 @@
-import { NavLink, useNavigate } from 'react-router';
+import { NavLink } from 'react-router';
 import { LayoutDashboard, WalletCards, ArrowLeftRight, PiggyBank, Plus } from 'lucide-react';
+import { useAppNavigate } from '@/lib/navigation';
 import { cn } from '@/lib/utils';
 
 const leftNavItems = [
@@ -12,8 +13,12 @@ const rightNavItems = [
   { to: '/budgets', icon: PiggyBank, label: 'Budget' },
 ];
 
+function setTabTransitionType() {
+  document.documentElement.dataset.vtType = 'tab-switch';
+}
+
 export function BottomNav({ className }: { className?: string }) {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   return (
     <nav
@@ -28,6 +33,8 @@ export function BottomNav({ className }: { className?: string }) {
           <NavLink
             key={to}
             to={to}
+            viewTransition
+            onClick={setTabTransitionType}
             className={({ isActive }) =>
               cn(
                 'flex min-h-11 min-w-11 flex-col items-center gap-1 px-3 py-2 text-xs transition-colors',
@@ -48,6 +55,8 @@ export function BottomNav({ className }: { className?: string }) {
           <NavLink
             key={to}
             to={to}
+            viewTransition
+            onClick={setTabTransitionType}
             className={({ isActive }) =>
               cn(
                 'flex min-h-11 min-w-11 flex-col items-center gap-1 px-3 py-2 text-xs transition-colors',
@@ -63,10 +72,7 @@ export function BottomNav({ className }: { className?: string }) {
         {/* Center FAB */}
         <button
           aria-label="Add transaction"
-          onClick={() => {
-            // TODO: Route to transaction creation flow
-            navigate('/transactions/new');
-          }}
+          onClick={() => navigate('/transactions/new')}
           className="bg-primary text-primary-foreground shadow-primary/25 ring-background absolute -top-5 left-1/2 flex h-14 w-14 -translate-x-1/2 items-center justify-center rounded-full shadow-lg ring-2 transition-transform active:scale-95"
         >
           <Plus className="h-6 w-6" />

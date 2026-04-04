@@ -1,0 +1,174 @@
+/* ── View Transition Timing ──────────────────────────────────────────────── */
+
+:root {
+  --vt-duration-tab: 150ms;
+  --vt-duration-push: 300ms;
+  --vt-duration-modal-in: 350ms;
+  --vt-duration-modal-out: 300ms;
+  --vt-duration-fade: 200ms;
+  --vt-ease-slide: cubic-bezier(0.32, 0.72, 0, 1);
+  --vt-ease-modal-in: cubic-bezier(0.16, 1, 0.3, 1);
+  --vt-ease-modal-out: cubic-bezier(0.32, 0, 0.67, 0);
+}
+
+/* ── Keyframes ───────────────────────────────────────────────────────────── */
+
+@keyframes vt-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes vt-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes vt-slide-from-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0.85;
+  }
+}
+
+@keyframes vt-slide-to-left {
+  to {
+    transform: translateX(-30%);
+    opacity: 0.6;
+  }
+}
+
+@keyframes vt-slide-from-left {
+  from {
+    transform: translateX(-30%);
+    opacity: 0.6;
+  }
+}
+
+@keyframes vt-slide-to-right {
+  to {
+    transform: translateX(100%);
+    opacity: 0.85;
+  }
+}
+
+@keyframes vt-slide-from-bottom {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes vt-slide-to-bottom {
+  to {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes vt-scale-down {
+  to {
+    transform: scale(0.94);
+    opacity: 0.4;
+    border-radius: 12px;
+  }
+}
+
+@keyframes vt-scale-up {
+  from {
+    transform: scale(0.94);
+    opacity: 0.4;
+    border-radius: 12px;
+  }
+}
+
+@keyframes vt-fade-shrink {
+  to {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+/* ── Tab Switch: cross-fade ──────────────────────────────────────────────── */
+
+html[data-vt-type='tab-switch'] {
+  &::view-transition-old(root) {
+    animation: vt-fade-out var(--vt-duration-tab) ease-out both;
+  }
+
+  &::view-transition-new(root) {
+    animation: vt-fade-in var(--vt-duration-tab) ease-in 50ms both;
+  }
+}
+
+/* ── Push: slide from right ──────────────────────────────────────────────── */
+
+html[data-vt-type='push'] {
+  &::view-transition-old(root) {
+    animation: vt-slide-to-left var(--vt-duration-push) var(--vt-ease-slide) both;
+  }
+
+  &::view-transition-new(root) {
+    animation: vt-slide-from-right var(--vt-duration-push) var(--vt-ease-slide) both;
+  }
+}
+
+/* ── Pop: slide from left ────────────────────────────────────────────────── */
+
+html[data-vt-type='pop'] {
+  &::view-transition-old(root) {
+    animation: vt-slide-to-right var(--vt-duration-push) var(--vt-ease-slide) both;
+  }
+
+  &::view-transition-new(root) {
+    animation: vt-slide-from-left var(--vt-duration-push) var(--vt-ease-slide) both;
+  }
+}
+
+/* ── Modal Present: slide from bottom ───────────────────────────────────── */
+
+html[data-vt-type='modal-present'] {
+  &::view-transition-old(root) {
+    animation: vt-scale-down var(--vt-duration-modal-in) var(--vt-ease-modal-in) both;
+  }
+
+  &::view-transition-new(root) {
+    animation: vt-slide-from-bottom var(--vt-duration-modal-in) var(--vt-ease-modal-in) both;
+  }
+}
+
+/* ── Modal Dismiss: slide to bottom ─────────────────────────────────────── */
+
+html[data-vt-type='modal-dismiss'] {
+  &::view-transition-old(root) {
+    animation: vt-slide-to-bottom var(--vt-duration-modal-out) var(--vt-ease-modal-out) both;
+  }
+
+  &::view-transition-new(root) {
+    animation: vt-scale-up var(--vt-duration-modal-out) var(--vt-ease-modal-out) both;
+  }
+}
+
+/* ── Fade (destructive / fallback) ──────────────────────────────────────── */
+
+html[data-vt-type='fade'] {
+  &::view-transition-old(root) {
+    animation: vt-fade-shrink var(--vt-duration-fade) ease-out both;
+  }
+
+  &::view-transition-new(root) {
+    animation: vt-fade-in var(--vt-duration-fade) ease-in both;
+  }
+}
+
+/* ── Reduced motion ──────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: vt-fade-out 100ms ease both !important;
+  }
+
+  ::view-transition-new(root) {
+    animation: vt-fade-in 100ms ease both !important;
+  }
+}

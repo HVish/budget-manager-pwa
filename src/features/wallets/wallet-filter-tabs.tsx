@@ -35,12 +35,8 @@ export function WalletFilterTabs({ activeTab, onTabChange }: WalletFilterTabsPro
   }
 
   return (
-    <nav aria-label="Wallet type filter" className="px-4 pb-4">
-      <div
-        ref={listRef}
-        role="tablist"
-        className="scrollbar-none -mx-4 flex gap-2 overflow-x-auto px-4"
-      >
+    <nav aria-label="Wallet type filter" className="pb-4">
+      <div ref={listRef} role="tablist" className="scrollbar-none flex gap-3 overflow-x-auto px-4">
         {FILTER_TABS.map((tab, index) => (
           <button
             key={tab.id}
@@ -50,16 +46,18 @@ export function WalletFilterTabs({ activeTab, onTabChange }: WalletFilterTabsPro
             onClick={() => onTabChange(tab.id)}
             onKeyDown={(e) => handleKeyDown(e, index)}
             className={cn(
-              'min-h-9 min-w-12 rounded-full px-4 py-2 text-sm text-nowrap transition-colors duration-150',
+              'shrink-0 rounded-xl px-4 py-2 text-sm text-nowrap transition-colors duration-150',
               'focus-visible:ring-ring focus-visible:ring-offset-background focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
               activeTab === tab.id
                 ? 'bg-primary text-primary-foreground font-semibold'
-                : 'bg-secondary text-secondary-foreground hover:bg-secondary/80 font-medium',
+                : 'text-muted-foreground hover:bg-card font-medium',
             )}
           >
             {tab.label}
           </button>
         ))}
+        {/* Spacer to prevent last tab from being clipped by scroll edge */}
+        <div className="w-px shrink-0" aria-hidden="true" />
       </div>
     </nav>
   );

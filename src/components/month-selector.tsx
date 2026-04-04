@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { ChevronDown, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import {
   Sheet,
@@ -56,7 +57,7 @@ export function MonthSelectorSheet() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger
-        render={<Button variant="outline" size="sm" className="gap-1.5 rounded-full" />}
+        render={<Button variant="outline" className="h-9 gap-1.5 rounded-full px-3 text-sm" />}
       >
         {formatMonthYear(year, month)}
         <ChevronDown className="h-3.5 w-3.5 opacity-60" />
@@ -93,11 +94,12 @@ export function MonthSelectorSheet() {
                 key={`${item.year}-${item.month}`}
                 ref={isSelected ? selectedRef : undefined}
                 onClick={() => handleSelect(item.year, item.month)}
-                className={`bg-card flex min-h-11 w-full items-center justify-between rounded-xl px-4 py-3 ring-1 transition-colors ${
+                className={cn(
+                  'bg-card flex min-h-11 w-full items-center justify-between rounded-xl px-4 py-3 ring-1 transition-colors',
                   isSelected
                     ? 'ring-primary text-primary'
-                    : 'text-foreground hover:ring-border ring-transparent'
-                }`}
+                    : 'text-foreground hover:ring-border ring-transparent',
+                )}
               >
                 <span className="text-sm font-medium">
                   {format(new Date(item.year, item.month - 1, 1), 'MMMM yyyy')}
