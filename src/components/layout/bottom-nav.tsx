@@ -12,11 +12,16 @@ const rightNavItems = [
   { to: '/budgets', icon: PiggyBank, label: 'Budget' },
 ];
 
-export function BottomNav() {
+export function BottomNav({ className }: { className?: string }) {
   const navigate = useNavigate();
 
   return (
-    <nav className="border-border bg-background/95 supports-backdrop-filter:bg-background/60 fixed right-0 bottom-0 left-0 z-40 border-t pb-[env(safe-area-inset-bottom)] backdrop-blur">
+    <nav
+      className={cn(
+        'border-border bg-background/95 supports-backdrop-filter:bg-background/60 fixed right-0 bottom-0 left-0 z-40 border-t pb-[env(safe-area-inset-bottom)] backdrop-blur',
+        className,
+      )}
+    >
       <div className="relative flex h-16 items-center justify-around px-2">
         {/* Left tabs */}
         {leftNavItems.map(({ to, icon: Icon, label }) => (

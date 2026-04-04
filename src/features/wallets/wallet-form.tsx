@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
 import { useCreateWallet, useUpdateWallet } from '@/api/hooks/use-wallets';
+import { useScrollIntoViewOnFocus } from '@/hooks/use-scroll-into-view-on-focus';
 import { parseAmount, formatAmount } from '@/lib/currency';
 import type { Wallet, WalletType, Currency } from '@/api/types';
 
@@ -42,6 +43,9 @@ export function WalletForm({ open, onOpenChange, wallet }: WalletFormProps) {
   const [accountNumber, setAccountNumber] = useState(wallet?.accountNumber ?? '');
 
   const isPending = createWallet.isPending || updateWallet.isPending;
+
+  const formRef = useRef<HTMLFormElement>(null);
+  useScrollIntoViewOnFocus(formRef);
 
   const walletId = wallet?.id;
   useEffect(() => {
@@ -84,7 +88,7 @@ export function WalletForm({ open, onOpenChange, wallet }: WalletFormProps) {
         <SheetHeader>
           <SheetTitle>{isEdit ? 'Edit Wallet' : 'New Wallet'}</SheetTitle>
         </SheetHeader>
-        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+        <form ref={formRef} onSubmit={handleSubmit} className="mt-4 space-y-4 overflow-y-auto">
           <div className="space-y-1.5">
             <label htmlFor="wallet-name" className="text-sm font-medium">
               Name
@@ -159,6 +163,8 @@ export function WalletForm({ open, onOpenChange, wallet }: WalletFormProps) {
               value={accountNumber}
               onChange={(e) => setAccountNumber(e.target.value)}
               placeholder="Last 4 digits (optional)"
+              inputMode="numeric"
+              pattern="[0-9]*"
             />
           </div>
 
