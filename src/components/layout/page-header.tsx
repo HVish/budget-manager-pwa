@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { Settings } from 'lucide-react';
-import { useNavigate } from 'react-router';
 import { MonthSelectorSheet } from '@/components/month-selector';
+import { useAppNavigate } from '@/lib/navigation';
 import { getGreeting } from '@/lib/date';
 
 interface PageHeaderProps {
@@ -12,7 +12,7 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, showMonthPicker = true }: PageHeaderProps) {
   const { user } = useAuth0();
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const [imgFailed, setImgFailed] = useState(false);
 
   const initials = user?.name?.[0]?.toUpperCase() ?? '?';
@@ -43,7 +43,7 @@ export function PageHeader({ title, showMonthPicker = true }: PageHeaderProps) {
         <button
           onClick={() => navigate('/profile')}
           aria-label="Settings"
-          className="bg-card ring-foreground/10 flex h-10 w-10 items-center justify-center rounded-full ring-1"
+          className="bg-card ring-foreground/10 flex min-h-11 min-w-11 items-center justify-center rounded-full ring-1"
         >
           <Settings className="text-muted-foreground h-5 w-5" />
         </button>

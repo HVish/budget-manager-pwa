@@ -30,10 +30,20 @@ Key decisions where someone could reasonably make the wrong choice without conte
 - **Why:** Bottom sheets fight the virtual keyboard on mobile — inputs get obscured, scroll becomes unpredictable. Full-screen pages at `/wallets/new` and `/wallets/:id/edit` give proper scroll, safe-area handling, and view transition support.
 - **Rejected:** Sheet-based `WalletForm` component (original implementation, deleted).
 
-### View transitions: data attribute + CSS, not JS animation
+### View transitions: manual `startViewTransition`, not React Router's `viewTransition` option
 
-- **Why:** CSS `::view-transition` pseudo-elements are hardware-accelerated and don't block the main thread. Transition type is set via `data-vt-type` on `<html>`, matched by CSS selectors. `useAppNavigate` auto-detects the type (tab-switch, push/pop, modal) from route patterns.
-- **Rejected:** Framer Motion page transitions (heavy bundle), manual `startViewTransition` (React Router already calls it with `viewTransition: true`).
+- **Why:** React Router's `viewTransition: true` doesn't support custom transition types (push vs pop vs modal) and doesn't animate browser back/forward. We call `document.startViewTransition()` ourselves with `flushSync` for synchronous DOM capture.
+- **Programmatic nav:** `useAppNavigate` wraps `routerNavigate(path)` in `startViewTransition(() => flushSync(...))`. For `navigate(-1)`, delegates to the Navigation API handler since `history.go(-1)` fires popstate asynchronously.
+- **Browser back/forward:** `usePopstateViewTransitions` uses the Navigation API (`window.navigation` 'navigate' event) on Chrome. `event.intercept()` takes over the traverse, then dispatches a synthetic popstate inside `startViewTransition + flushSync` so React Router processes it synchronously. Falls back to a capture-phase popstate listener with timeout on Safari/Firefox.
+- **All links:** `AppLink` component wraps `NavLink` and routes clicks through `useAppNavigate` instead of React Router's default navigation.
+- **Transition type:** Auto-detected from route patterns via `getTransitionType()`, set as `data-vt-type` on `<html>`, matched by CSS `::view-transition-*` selectors.
+- **Rejected:** React Router's `viewTransition: true` (no custom types, no back/forward support), Framer Motion (heavy bundle).
+
+### Service worker: network-first HTML, cache-first hashed assets
+
+- **Why:** Stale-while-revalidate for everything served old `index.html` after deploys, which referenced deleted content-hashed assets — broken app until next reload.
+- **Strategy:** Navigation requests (HTML) → network-first with cache fallback (always fresh after deploy). `/assets/*` (Vite-hashed JS/CSS) → cache-first (immutable, instant). Everything else → network-first.
+- **Rejected:** Stale-while-revalidate for all (deploy breakage), removing SW entirely (lose offline + PWA install).
 
 ---
 

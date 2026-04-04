@@ -1,10 +1,6 @@
 const CACHE_NAME = "budget-manager-v1";
-const STATIC_ASSETS = ["/", "/index.html"];
 
-self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
-  );
+self.addEventListener("install", () => {
   self.skipWaiting();
 });
 
@@ -23,21 +19,56 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   const { request } = event;
-  // Only cache GET requests for static assets (not API calls)
   if (request.method !== "GET") return;
+
   const url = new URL(request.url);
+
+  // Skip API calls — let them go to network directly
   if (url.pathname.startsWith("/api")) return;
 
+  // Navigation requests (HTML): network-first, fall back to cache offline
+  if (request.mode === "navigate") {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          return response;
+        })
+        .catch(() => caches.match(request))
+    );
+    return;
+  }
+
+  // Hashed static assets (JS, CSS, fonts, images): cache-first
+  // Vite adds content hashes to filenames, so cached versions are immutable.
+  if (url.pathname.startsWith("/assets/")) {
+    event.respondWith(
+      caches.match(request).then(
+        (cached) =>
+          cached ||
+          fetch(request).then((response) => {
+            if (response.ok) {
+              const clone = response.clone();
+              caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+            }
+            return response;
+          })
+      )
+    );
+    return;
+  }
+
+  // Everything else (manifest, icons, etc.): network-first
   event.respondWith(
-    caches.match(request).then((cached) => {
-      const fetched = fetch(request).then((response) => {
+    fetch(request)
+      .then((response) => {
         if (response.ok) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
         }
         return response;
-      });
-      return cached || fetched;
-    })
+      })
+      .catch(() => caches.match(request))
   );
 });

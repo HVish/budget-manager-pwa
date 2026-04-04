@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate, Outlet } from 'react-router';
+import { usePopstateViewTransitions } from '@/lib/navigation';
 import { AuthGuard } from '@/features/auth/auth-guard';
 import AppShell from '@/components/layout/app-shell';
 import CallbackPage from '@/features/auth/callback-page';
@@ -7,11 +8,12 @@ import LoginPage from '@/features/auth/login-page';
 import DashboardPage from '@/features/dashboard/page';
 import WalletsPage from '@/features/wallets/page';
 import WalletDetailPage from '@/features/wallets/wallet-detail-page';
-
 const CreateWalletPage = lazy(() => import('@/features/wallets/create-wallet-page'));
 const EditWalletPage = lazy(() => import('@/features/wallets/edit-wallet-page'));
 
 export default function AppRoutes() {
+  usePopstateViewTransitions();
+
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
@@ -27,10 +29,9 @@ export default function AppRoutes() {
       >
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/wallets" element={<WalletsPage />} />
-        <Route path="/wallets/:id" element={<WalletDetailPage />} />
       </Route>
 
-      {/* Modal-style routes: full-screen, no bottom nav, lazy loaded */}
+      {/* Full-screen routes: no bottom nav */}
       <Route
         element={
           <AuthGuard>
@@ -46,6 +47,7 @@ export default function AppRoutes() {
           </AuthGuard>
         }
       >
+        <Route path="/wallets/:id" element={<WalletDetailPage />} />
         <Route path="/wallets/new" element={<CreateWalletPage />} />
         <Route path="/wallets/:id/edit" element={<EditWalletPage />} />
       </Route>

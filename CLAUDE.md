@@ -90,6 +90,12 @@ src/
 - shadcn components live in `src/components/ui/` — scaffold new ones via `pnpm dlx shadcn@latest add <name>`, then customize freely. Don't re-run the add command on already-customized components (it overwrites). Don't hand-write a shadcn primitive from scratch — always start from the generated output.
 - Semantic color tokens: `text-income` / `text-expense` for financial values.
 
+### Navigation
+
+- Use **`AppLink`** (`@/components/ui/app-link`) instead of React Router's `Link` / `NavLink` for all in-app links — it routes through the view transition system.
+- Use **`useAppNavigate`** (`@/lib/navigation`) for programmatic navigation — never import `useNavigate` directly from `react-router` (except in `navigation.ts` itself).
+- Use **`PageHeaderBar`** (`@/components/layout/page-header-bar`) for detail/form page headers — handles safe-area insets, back/close buttons (size-6), and trailing action slots (size-5).
+
 ### State
 
 - **Month store** (Zustand): global month/year selection, persisted to localStorage.
@@ -101,6 +107,15 @@ src/
 - **Design system**: `DESIGN.md` — color tokens, spacing, typography, component patterns for comparison.
 - When adding or modifying a screen/route, update `scripts/capture-screenshots.ts` (add a `ScreenshotDef` entry) and the **Available Screens** table in `docs/screenshots.md`.
 - Screenshots output to `screenshots/` (gitignored). Fixtures live in `screenshots/fixtures/`.
+
+## Pre-Commit Checklist
+
+Before committing, always check if docs need updating:
+
+- **`CLAUDE.md`** — New conventions, components, or patterns that future work should follow.
+- **`docs/decisions.md`** — Decisions with non-obvious "why" that someone could get wrong. Update stale entries, don't append "v2".
+- **`DESIGN.md`** — Changes to visual specs, tokens, or component patterns.
+- **`docs/screenshots.md`** — New or modified screens/routes.
 
 ## Code Review Process
 

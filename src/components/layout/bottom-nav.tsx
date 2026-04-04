@@ -1,6 +1,7 @@
-import { NavLink, useLocation } from 'react-router';
+import { useLocation } from 'react-router';
 import { LayoutDashboard, WalletCards, ArrowLeftRight, PiggyBank, Plus } from 'lucide-react';
 import { useAppNavigate } from '@/lib/navigation';
+import { AppLink } from '@/components/ui/app-link';
 import { cn } from '@/lib/utils';
 
 const leftNavItems = [
@@ -12,10 +13,6 @@ const rightNavItems = [
   { to: '/transactions', icon: ArrowLeftRight, label: 'Transactions' },
   { to: '/budgets', icon: PiggyBank, label: 'Budget' },
 ];
-
-function setTabTransitionType() {
-  document.documentElement.dataset.vtType = 'tab-switch';
-}
 
 export function BottomNav({ className }: { className?: string }) {
   const navigate = useAppNavigate();
@@ -32,11 +29,9 @@ export function BottomNav({ className }: { className?: string }) {
       <div className="relative flex h-16 items-center justify-around px-2">
         {/* Left tabs */}
         {leftNavItems.map(({ to, icon: Icon, label }) => (
-          <NavLink
+          <AppLink
             key={to}
             to={to}
-            viewTransition
-            onClick={setTabTransitionType}
             className={({ isActive }) =>
               cn(
                 'flex min-h-11 min-w-11 flex-col items-center gap-1 px-3 py-2 text-xs transition-colors',
@@ -46,7 +41,7 @@ export function BottomNav({ className }: { className?: string }) {
           >
             <Icon className="h-5 w-5" />
             <span>{label}</span>
-          </NavLink>
+          </AppLink>
         ))}
 
         {/* FAB spacer */}
@@ -54,11 +49,9 @@ export function BottomNav({ className }: { className?: string }) {
 
         {/* Right tabs */}
         {rightNavItems.map(({ to, icon: Icon, label }) => (
-          <NavLink
+          <AppLink
             key={to}
             to={to}
-            viewTransition
-            onClick={setTabTransitionType}
             className={({ isActive }) =>
               cn(
                 'flex min-h-11 min-w-11 flex-col items-center gap-1 px-3 py-2 text-xs transition-colors',
@@ -68,7 +61,7 @@ export function BottomNav({ className }: { className?: string }) {
           >
             <Icon className="h-5 w-5" />
             <span>{label}</span>
-          </NavLink>
+          </AppLink>
         ))}
 
         {/* Center FAB */}

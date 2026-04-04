@@ -26,7 +26,7 @@ const outputDir = resolve(root, 'screenshots');
 
 // ── Config ──────────────────────────────────────────────────────────────────
 
-const BASE_URL = process.env.BASE_URL ?? 'http://localhost:5173';
+const BASE_URL = process.env.BASE_URL ?? 'https://localhost:5173';
 
 const VIEWPORTS = [
   { name: 'mobile-small', width: 375, height: 812 },
@@ -221,6 +221,7 @@ async function main() {
         viewport: { width: viewport.width, height: viewport.height },
         deviceScaleFactor: 3,
         colorScheme: 'dark',
+        ignoreHTTPSErrors: true,
       });
       const page = await context.newPage();
 

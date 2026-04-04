@@ -1,8 +1,9 @@
 import { useState, useMemo } from 'react';
 import { useParams } from 'react-router';
-import { ArrowLeft, Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { Button } from '@/components/ui/button';
+import { PageHeaderBar } from '@/components/layout/page-header-bar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useWallet } from '@/api/hooks/use-wallets';
 import { useTransactions } from '@/api/hooks/use-transactions';
@@ -100,7 +101,7 @@ export default function WalletDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center gap-2 px-4 pt-20 text-center">
         <p className="text-destructive text-sm">Wallet not found</p>
-        <Button variant="link" onClick={() => navigate('/wallets')}>
+        <Button variant="link" className="min-h-11" onClick={() => navigate('/wallets')}>
           Back to wallets
         </Button>
       </div>
@@ -115,38 +116,28 @@ export default function WalletDetailPage() {
 
   return (
     <>
-      <div className="pb-24">
+      <div className="pb-[max(env(safe-area-inset-bottom),24px)]">
         {/* Header */}
-        <div className="flex items-center gap-2 px-4 pt-[max(env(safe-area-inset-top),16px)]">
+        <PageHeaderBar title="Wallet Details" onBack={() => navigate('/wallets')}>
           <Button
             variant="ghost"
             size="icon"
-            className="text-foreground min-h-11 min-w-11 p-2"
-            onClick={() => navigate('/wallets')}
-            aria-label="Back to wallets"
-          >
-            <ArrowLeft className="h-6 w-6" />
-          </Button>
-          <h1 className="text-foreground flex-1 text-2xl font-bold">Wallet Details</h1>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-foreground min-h-11 min-w-11 p-2"
+            className="min-h-11 min-w-11"
             onClick={() => navigate(`/wallets/${id}/edit`)}
             aria-label="Edit wallet"
           >
-            <Pencil className="h-5 w-5" />
+            <Pencil />
           </Button>
           <Button
             variant="ghost"
             size="icon"
-            className="min-h-11 min-w-11 p-2"
+            className="text-destructive min-h-11 min-w-11"
             onClick={() => setDeleteOpen(true)}
             aria-label="Delete wallet"
           >
-            <Trash2 className="text-destructive h-6 w-6" />
+            <Trash2 />
           </Button>
-        </div>
+        </PageHeaderBar>
 
         {/* Info banner — "Viewing data for" */}
         <div className="px-4 pt-3">
@@ -165,7 +156,7 @@ export default function WalletDetailPage() {
           >
             <WalletIcon className={cn('h-8 w-8', config.iconColor)} />
           </div>
-          <h1 className="text-foreground mt-3 text-xl font-bold">{wallet.name}</h1>
+          <h2 className="text-foreground mt-3 text-xl font-bold">{wallet.name}</h2>
           <p className="text-muted-foreground mt-0.5 text-sm">{subtitle}</p>
           <p className="text-muted-foreground mt-1 text-xs">{config.balanceLabel}</p>
           <p

@@ -1,24 +1,10 @@
-import { X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { PageHeaderBar } from '@/components/layout/page-header-bar';
 
-interface WalletFormHeaderProps {
-  title: string;
-  onClose: () => void;
-}
+type WalletFormHeaderProps =
+  | { title: string; onClose: () => void; onBack?: never }
+  | { title: string; onBack: () => void; onClose?: never };
 
-export function WalletFormHeader({ title, onClose }: WalletFormHeaderProps) {
-  return (
-    <header className="flex min-h-14 items-center gap-2 px-4 pt-[max(env(safe-area-inset-top),16px)]">
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={onClose}
-        aria-label="Close"
-        className="shrink-0 p-2"
-      >
-        <X className="h-6 w-6" />
-      </Button>
-      <h1 className="text-foreground text-2xl font-bold">{title}</h1>
-    </header>
-  );
+export function WalletFormHeader({ title, onClose, onBack }: WalletFormHeaderProps) {
+  if (onBack) return <PageHeaderBar title={title} onBack={onBack} />;
+  return <PageHeaderBar title={title} onClose={onClose} />;
 }

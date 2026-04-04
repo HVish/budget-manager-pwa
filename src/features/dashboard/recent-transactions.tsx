@@ -1,5 +1,5 @@
 import { format, parseISO } from 'date-fns';
-import { Link } from 'react-router';
+import { AppLink } from '@/components/ui/app-link';
 import { formatCurrency } from '@/lib/currency';
 import { getCategoryMeta } from '@/lib/categories';
 import { cn } from '@/lib/utils';
@@ -16,9 +16,12 @@ export function RecentTransactions({ transactions, walletMap }: RecentTransactio
       {/* Section header */}
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-foreground text-base font-semibold">Recent Transactions</h2>
-        <Link to="/transactions" className="text-primary text-xs font-medium hover:underline">
+        <AppLink
+          to="/transactions"
+          className="text-primary inline-flex min-h-11 items-center text-xs font-medium hover:underline"
+        >
           View All
-        </Link>
+        </AppLink>
       </div>
 
       {/* Empty state */}

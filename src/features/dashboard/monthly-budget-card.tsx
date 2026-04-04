@@ -1,4 +1,4 @@
-import { Link } from 'react-router';
+import { AppLink } from '@/components/ui/app-link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatCurrency } from '@/lib/currency';
@@ -34,9 +34,12 @@ export function MonthlyBudgetCard({ year, month }: MonthlyBudgetCardProps) {
       <Card>
         <CardContent className="text-muted-foreground p-4 text-center text-sm">
           No budgets configured.{' '}
-          <Link to="/budgets" className="text-primary font-medium hover:underline">
+          <AppLink
+            to="/budgets"
+            className="text-primary inline-flex min-h-11 items-center font-medium hover:underline"
+          >
             Set one up
-          </Link>
+          </AppLink>
         </CardContent>
       </Card>
     );

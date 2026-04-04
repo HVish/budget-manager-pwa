@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
-import { useParams, Link } from 'react-router';
+import { useParams } from 'react-router';
+import { AppLink } from '@/components/ui/app-link';
 import { Loader2, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -64,7 +65,7 @@ function EditWalletForm({ wallet }: EditWalletFormProps) {
 
   return (
     <div className="bg-background flex h-dvh flex-col">
-      <WalletFormHeader title="Edit Wallet" onClose={() => navigate(`/wallets/${wallet.id}`)} />
+      <WalletFormHeader title="Edit Wallet" onClose={() => navigate(-1)} />
 
       <form
         ref={formRef}
@@ -176,7 +177,7 @@ export default function EditWalletPage() {
   if (isLoading) {
     return (
       <div className="bg-background flex h-dvh flex-col">
-        <div className="relative flex min-h-14 items-center px-5 pt-[max(env(safe-area-inset-top),16px)]">
+        <div className="relative flex min-h-14 items-center px-4 pt-[max(env(safe-area-inset-top),16px)]">
           <Skeleton className="h-7 w-7 rounded-lg" />
           <Skeleton className="absolute left-1/2 h-6 w-28 -translate-x-1/2" />
         </div>
@@ -204,9 +205,12 @@ export default function EditWalletPage() {
     return (
       <div className="bg-background flex h-dvh flex-col items-center justify-center gap-2 px-4 text-center">
         <p className="text-destructive text-sm">Wallet not found</p>
-        <Link to="/wallets" className="text-primary text-sm underline">
+        <AppLink
+          to="/wallets"
+          className="text-primary inline-flex min-h-11 items-center text-sm underline"
+        >
           Back to wallets
-        </Link>
+        </AppLink>
       </div>
     );
   }
