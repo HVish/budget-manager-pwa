@@ -35,6 +35,7 @@ pnpm build          # Type-check + production build
 pnpm lint           # ESLint
 pnpm format         # Prettier (write)
 pnpm format:check   # Prettier (check only, for CI)
+pnpm lint:tw        # Tailwind canonical class linter (see scripts/lint-tailwind.sh)
 ```
 
 ## Git Workflow
@@ -51,7 +52,7 @@ pnpm format:check   # Prettier (check only, for CI)
 src/
 ├── api/            # ky client + TanStack Query hooks per resource
 ├── components/
-│   ├── ui/         # shadcn/ui primitives (CLI-managed, don't edit by hand)
+│   ├── ui/         # shadcn/ui primitives (scaffold via CLI, then customize freely)
 │   └── layout/     # app-shell, bottom-nav
 ├── features/       # Feature pages (auth, dashboard, wallets)
 ├── stores/         # Zustand stores
@@ -77,7 +78,7 @@ src/
 - Dark mode default (`<html class="dark">`) with green-tinted oklch color tokens.
 - Mobile-first layout with bottom navigation, FAB, and safe area insets.
 - Use `cn()` from `@/lib/utils` for conditional class merging — no template literal concatenation.
-- shadcn components in `src/components/ui/` — add via `pnpm dlx shadcn@latest add`, don't hand-write.
+- shadcn components live in `src/components/ui/` — scaffold new ones via `pnpm dlx shadcn@latest add <name>`, then customize freely. Don't re-run the add command on already-customized components (it overwrites). Don't hand-write a shadcn primitive from scratch — always start from the generated output.
 - Semantic color tokens: `text-income` / `text-expense` for financial values.
 
 ### State
