@@ -181,12 +181,12 @@ export default function CreateTransactionPage() {
 
       <TransactionTypeTabs value={type} onChange={handleTypeChange} />
 
-      <div className="from-background pointer-events-none relative z-10 -mb-4 h-4 bg-gradient-to-b to-transparent" />
+      <div className="from-background pointer-events-none relative z-10 -mb-4 h-4 bg-linear-to-b to-transparent" />
 
       <form
         ref={formRef}
         onSubmit={handleSubmit}
-        className="flex-1 space-y-6 overflow-y-auto px-5 pt-2 pb-[max(env(safe-area-inset-bottom),24px)]"
+        className="flex-1 space-y-6 overflow-y-auto px-5 pt-4 pb-[max(env(safe-area-inset-bottom),24px)]"
       >
         {/* Amount */}
         <div>
