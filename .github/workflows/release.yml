@@ -28,8 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
-      new_release_published: ${{ steps.semantic.outputs.new_release_published }}
-      new_release_version: ${{ steps.semantic.outputs.new_release_version }}
+      version: ${{ steps.semantic.outputs.version }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -90,7 +89,7 @@ jobs:
       - name: Build
         run: pnpm build
         env:
-          VITE_APP_VERSION: ${{ needs.release.outputs.new_release_version || needs.release.outputs.version }}
+          VITE_APP_VERSION: ${{ needs.release.outputs.version }}
           VITE_API_ORIGIN: ${{ vars.VITE_API_ORIGIN }}
           VITE_AUTH0_DOMAIN: ${{ vars.VITE_AUTH0_DOMAIN }}
           VITE_AUTH0_CLIENT_ID: ${{ secrets.VITE_AUTH0_CLIENT_ID }}
