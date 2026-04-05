@@ -3,6 +3,7 @@ name: Deploy to S3 + CloudFront
 on:
   workflow_run:
     workflows: ['Release']
+    branches: [main, develop]
     types: [completed]
   workflow_dispatch:
     inputs:
@@ -39,14 +40,14 @@ jobs:
     environment: >-
       ${{
         github.event_name == 'workflow_dispatch' && inputs.environment
-        || (github.event.workflow_run.head_branch == 'main' && 'production')
+        || (github.event_name == 'workflow_run' && (github.event.workflow_run.head_branch == 'main' && 'production' || 'staging'))
         || 'staging'
       }}
 
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.ref }}
           fetch-depth: 0
 
       - uses: pnpm/action-setup@v4
