@@ -83,6 +83,17 @@ src/
 - **[docs/decisions.md](./docs/decisions.md)** — Architectural decision records
 - **[docs/openapi.yaml](./docs/openapi.yaml)** — API spec (source of truth for types)
 
+## Deployment
+
+Deployed to AWS S3 + CloudFront via GitHub Actions.
+
+| Branch    | Environment | URL                                          |
+| --------- | ----------- | -------------------------------------------- |
+| `develop` | staging     | https://staging.budgetmanager.vishnusingh.in |
+| `main`    | production  | https://budgetmanager.vishnusingh.in         |
+
+Manual deploys can be triggered via `workflow_dispatch` from the Actions tab.
+
 ## Git Conventions
 
 Commits follow [Conventional Commits](https://www.conventionalcommits.org/): `type(scope): description`
