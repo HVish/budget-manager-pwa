@@ -9,7 +9,8 @@
  *
  * Available screen names:
  *   login, dashboard-loaded, dashboard-empty, wallets-loaded, wallets-empty,
- *   wallet-detail, wallet-create, wallet-edit, transactions-loaded, transactions-empty
+ *   wallet-detail, wallet-create, wallet-edit, transactions-loaded, transactions-empty,
+ *   transaction-create, budgets-loaded, budgets-empty, budget-create, budget-edit
  *
  * Screenshots are saved to screenshots/<viewport>/<name>.png
  */
@@ -62,6 +63,7 @@ type MockOverrides = {
   emptyWallets?: boolean;
   emptyDashboard?: boolean;
   emptyTransactions?: boolean;
+  emptyBudgets?: boolean;
 };
 
 async function mockApi(route: Route, overrides: MockOverrides = {}) {
@@ -78,11 +80,36 @@ async function mockApi(route: Route, overrides: MockOverrides = {}) {
 
   // Budget summary
   if (url.includes('/api/v1/budgets/summary')) {
+    const emptyBudgetSummary = {
+      ...fixtures.budgetSummary,
+      totalLimit: 0,
+      totalSpent: 0,
+      percentageConsumed: 0,
+      budgets: [],
+    };
     return route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify(fixtures.budgetSummary),
+      body: JSON.stringify(overrides.emptyBudgets ? emptyBudgetSummary : fixtures.budgetSummary),
     });
+  }
+
+  // Single budget
+  if (url.match(/\/api\/v1\/budgets\/[\w-]+$/)) {
+    const budgetId = url.match(/\/budgets\/([\w-]+)/)?.[1];
+    const budget = fixtures.budgetSummary.budgets.find((b: { id: string }) => b.id === budgetId);
+    if (budget) {
+      return route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          id: budget.id,
+          category: budget.category,
+          limitAmount: budget.originalLimit,
+          currency: budget.originalCurrency,
+        }),
+      });
+    }
   }
 
   // Budgets list
@@ -198,6 +225,16 @@ const screens: ScreenshotDef[] = [
 
   // Create transaction form
   { name: 'transaction-create', route: '/transactions/new' },
+
+  // Budget states
+  { name: 'budgets-loaded', route: '/budgets' },
+  { name: 'budgets-empty', route: '/budgets', overrides: { emptyBudgets: true } },
+
+  // Create budget form
+  { name: 'budget-create', route: '/budgets/new' },
+
+  // Edit budget form
+  { name: 'budget-edit', route: '/budgets/b1/edit' },
 ];
 
 // ── Main ────────────────────────────────────────────────────────────────────

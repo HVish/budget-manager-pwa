@@ -14,10 +14,16 @@ const rightNavItems = [
   { to: '/budgets', icon: PiggyBank, label: 'Budget' },
 ];
 
+function getFabDestination(pathname: string): { to: string; label: string } {
+  if (pathname === '/wallets') return { to: '/wallets/new', label: 'Add wallet' };
+  if (pathname === '/budgets') return { to: '/budgets/new', label: 'Add budget' };
+  return { to: '/transactions/new', label: 'Add transaction' };
+}
+
 export function BottomNav({ className }: { className?: string }) {
   const navigate = useAppNavigate();
   const location = useLocation();
-  const isWalletsPage = location.pathname === '/wallets';
+  const fab = getFabDestination(location.pathname);
 
   return (
     <nav
@@ -66,8 +72,8 @@ export function BottomNav({ className }: { className?: string }) {
 
         {/* Center FAB */}
         <button
-          aria-label={isWalletsPage ? 'Add wallet' : 'Add transaction'}
-          onClick={() => navigate(isWalletsPage ? '/wallets/new' : '/transactions/new')}
+          aria-label={fab.label}
+          onClick={() => navigate(fab.to)}
           className="bg-primary text-primary-foreground shadow-primary/25 ring-background absolute -top-5 left-1/2 flex h-14 w-14 -translate-x-1/2 items-center justify-center rounded-full shadow-lg ring-2 transition-transform active:scale-95"
         >
           <Plus className="h-6 w-6" />

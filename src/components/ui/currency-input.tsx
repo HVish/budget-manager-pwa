@@ -120,7 +120,7 @@ export function CurrencyInput({
   return (
     <div
       className={cn(
-        'border-input dark:bg-card flex h-20 items-center rounded-xl border py-3 pr-2 pl-4',
+        'border-input dark:bg-card flex items-center rounded-xl border px-4 py-3',
         disabled && 'cursor-not-allowed opacity-50',
       )}
     >
@@ -143,7 +143,7 @@ export function CurrencyInput({
         disabled={disabled}
         className="text-foreground placeholder:text-muted-foreground min-w-0 flex-1 border-0 bg-transparent text-3xl leading-none font-bold outline-none"
       />
-      <div className="ml-2 flex flex-col">
+      <div className="ml-2 flex flex-col gap-2">
         <Button
           type="button"
           variant="ghost"
@@ -156,9 +156,8 @@ export function CurrencyInput({
           onPointerUp={stopHold}
           onPointerLeave={stopHold}
           onPointerCancel={stopHold}
-          className="h-8 min-h-11 w-8 min-w-11"
         >
-          <ChevronUp className="h-6 w-6" />
+          <ChevronUp />
         </Button>
         <Button
           type="button"
@@ -172,9 +171,8 @@ export function CurrencyInput({
           onPointerUp={stopHold}
           onPointerLeave={stopHold}
           onPointerCancel={stopHold}
-          className="h-8 min-h-11 w-8 min-w-11"
         >
-          <ChevronDown className="h-6 w-6" />
+          <ChevronDown />
         </Button>
       </div>
     </div>

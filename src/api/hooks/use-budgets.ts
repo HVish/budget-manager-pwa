@@ -10,6 +10,14 @@ export function useBudgets() {
   });
 }
 
+export function useBudget(budgetId: string) {
+  return useQuery({
+    queryKey: ['budgets', budgetId],
+    queryFn: () => api.get(`api/v1/budgets/${budgetId}`).json<Budget>(),
+    enabled: !!budgetId,
+  });
+}
+
 export function useBudgetSummary(year?: number, month?: number) {
   return useQuery({
     queryKey: ['budgets', 'summary', { year, month }],

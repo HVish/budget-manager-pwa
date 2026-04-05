@@ -1,11 +1,18 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import { flushSync } from 'react-dom';
+import { resetScrollPosition } from '@/lib/scroll';
 
 type TransitionType = 'tab-switch' | 'push' | 'pop' | 'modal-present' | 'modal-dismiss' | 'fade';
 
 const TAB_ROUTES = new Set(['/dashboard', '/wallets', '/transactions', '/budgets']);
-const MODAL_ROUTE_PATTERNS = [/\/wallets\/new$/, /\/wallets\/[^/]+\/edit$/, /\/transactions\/new$/];
+const MODAL_ROUTE_PATTERNS = [
+  /\/wallets\/new$/,
+  /\/wallets\/[^/]+\/edit$/,
+  /\/transactions\/new$/,
+  /\/budgets\/new$/,
+  /\/budgets\/[^/]+\/edit$/,
+];
 
 /** Navigation API types — not yet in all TS lib versions */
 interface NavigateEventLike extends Event {
@@ -73,6 +80,7 @@ export function useAppNavigate() {
       flushSync(() => {
         routerNavigate(to, options);
       });
+      resetScrollPosition();
     });
 
     transition.finished.finally(() => {
@@ -128,19 +136,15 @@ export function usePopstateViewTransitions() {
 
         event.intercept({
           async handler() {
-            // By now the browser has committed the new history entry.
-            // URL and history.state reflect the destination.
             document.documentElement.dataset.vtType = type;
 
             const transition = document.startViewTransition(() => {
-              // Dispatch a synthetic popstate so React Router's handlePop
-              // picks up the new URL and index from window.location / history.state.
-              // flushSync ensures React commits the DOM update synchronously.
               flushSync(() => {
                 isSyntheticPopstate = true;
                 window.dispatchEvent(new PopStateEvent('popstate', { state: history.state }));
                 isSyntheticPopstate = false;
               });
+              resetScrollPosition();
             });
 
             await transition.finished;

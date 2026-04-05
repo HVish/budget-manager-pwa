@@ -13,7 +13,7 @@ export function NetWorthCard({ netWorth, currency, conversionAvailable }: NetWor
   const currencyIcon = getCurrencyIcon(currency);
 
   return (
-    <Card>
+    <Card className="py-0">
       <CardContent className="p-4">
         <div className="space-y-3">
           {/* Icon + Label row */}

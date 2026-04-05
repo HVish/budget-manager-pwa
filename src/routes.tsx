@@ -8,10 +8,13 @@ import LoginPage from '@/features/auth/login-page';
 import DashboardPage from '@/features/dashboard/page';
 import WalletsPage from '@/features/wallets/page';
 import TransactionsPage from '@/features/transactions/page';
+import BudgetsPage from '@/features/budgets/page';
 import WalletDetailPage from '@/features/wallets/wallet-detail-page';
 const CreateWalletPage = lazy(() => import('@/features/wallets/create-wallet-page'));
 const EditWalletPage = lazy(() => import('@/features/wallets/edit-wallet-page'));
 const CreateTransactionPage = lazy(() => import('@/features/transactions/create-transaction-page'));
+const CreateBudgetPage = lazy(() => import('@/features/budgets/create-budget-page'));
+const EditBudgetPage = lazy(() => import('@/features/budgets/edit-budget-page'));
 
 export default function AppRoutes() {
   usePopstateViewTransitions();
@@ -32,6 +35,7 @@ export default function AppRoutes() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/wallets" element={<WalletsPage />} />
         <Route path="/transactions" element={<TransactionsPage />} />
+        <Route path="/budgets" element={<BudgetsPage />} />
       </Route>
 
       {/* Full-screen routes: no bottom nav */}
@@ -54,6 +58,8 @@ export default function AppRoutes() {
         <Route path="/wallets/new" element={<CreateWalletPage />} />
         <Route path="/wallets/:id/edit" element={<EditWalletPage />} />
         <Route path="/transactions/new" element={<CreateTransactionPage />} />
+        <Route path="/budgets/new" element={<CreateBudgetPage />} />
+        <Route path="/budgets/:id/edit" element={<EditBudgetPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

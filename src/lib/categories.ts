@@ -62,3 +62,6 @@ export const expenseCategories: TransactionCategory[] = [
   'HEALTH',
   'OTHER',
 ];
+
+/** Categories that can have a budget — expense categories only. */
+export const allBudgetableCategories: TransactionCategory[] = [...expenseCategories];

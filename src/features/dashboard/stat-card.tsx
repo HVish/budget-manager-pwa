@@ -17,7 +17,7 @@ export function StatCard({ type, amount, currency, conversionAvailable = true }:
   const label = isIncome ? 'Income' : 'Spent';
 
   return (
-    <Card>
+    <Card className="py-0">
       <CardContent className="p-4">
         {/* Icon circle */}
         <div className="bg-accent-soft flex h-9 w-9 items-center justify-center rounded-full">

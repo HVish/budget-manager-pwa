@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatCurrency } from '@/lib/currency';
 import { useBudgetSummary } from '@/api/hooks/use-budgets';
+import { getProgressColor } from '@/lib/budget';
 import { cn } from '@/lib/utils';
 
 interface MonthlyBudgetCardProps {
@@ -10,17 +11,11 @@ interface MonthlyBudgetCardProps {
   month: number;
 }
 
-function getProgressColor(pct: number): string {
-  if (pct >= 90) return 'bg-destructive';
-  if (pct >= 75) return 'bg-yellow-500';
-  return 'bg-primary';
-}
-
 export function MonthlyBudgetCard({ year, month }: MonthlyBudgetCardProps) {
   const { data, isLoading, isError } = useBudgetSummary(year, month);
 
   if (isLoading) {
-    return <Skeleton className="h-20 w-full rounded-xl" />;
+    return <Skeleton className="h-24 w-full rounded-2xl" />;
   }
 
   // Silently hide on error — budget is supplementary data
@@ -31,7 +26,7 @@ export function MonthlyBudgetCard({ year, month }: MonthlyBudgetCardProps) {
   // No budgets configured
   if (!data.budgets.length) {
     return (
-      <Card>
+      <Card className="py-0">
         <CardContent className="text-muted-foreground p-4 text-center text-sm">
           No budgets configured.{' '}
           <AppLink
@@ -50,7 +45,7 @@ export function MonthlyBudgetCard({ year, month }: MonthlyBudgetCardProps) {
   // Cannot show meaningful budget data without exchange rate conversion
   if (!conversionAvailable) {
     return (
-      <Card>
+      <Card className="py-0">
         <CardContent className="text-muted-foreground p-4 text-center text-sm">
           Exchange rates unavailable
         </CardContent>
@@ -64,7 +59,7 @@ export function MonthlyBudgetCard({ year, month }: MonthlyBudgetCardProps) {
   const isOverBudget = remaining < 0;
 
   return (
-    <Card>
+    <Card className="py-0">
       <CardContent className="p-4">
         {/* Title row */}
         <div className="mb-3 flex items-center justify-between">
