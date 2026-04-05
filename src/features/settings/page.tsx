@@ -180,40 +180,33 @@ export default function SettingsPage() {
           {isLoading ? (
             <div className="pt-6">
               <Skeleton className="mb-2 ml-1 h-3 w-16" />
-              <Card className="py-0">
-                <CardContent className="p-3">
-                  <Skeleton className="h-11 w-full rounded-xl" />
-                </CardContent>
-              </Card>
+              <Skeleton className="h-11 w-full rounded-xl" />
             </div>
           ) : (
             <section aria-label="Account settings" className="pt-6">
               <h2 className="text-primary mb-2 px-1 text-xs font-semibold tracking-wider uppercase">
                 Account
               </h2>
-              <Card className="py-0">
-                <CardContent className="p-3">
-                  <Button
-                    variant="outline"
-                    className="h-11 w-full rounded-xl text-sm font-medium"
-                    onClick={handleSignOut}
-                  >
-                    Sign Out
-                  </Button>
-                </CardContent>
-              </Card>
+              <Button
+                variant="outline"
+                className="h-11 w-full rounded-xl text-sm font-medium"
+                onClick={handleSignOut}
+              >
+                Sign Out
+              </Button>
             </section>
           )}
 
           {!isLoading && (
             <>
-              <div className="pt-6 text-center">
-                <button
-                  className="text-destructive/70 hover:text-destructive focus-visible:ring-ring/50 min-h-11 px-4 text-xs font-medium underline underline-offset-4 outline-none focus-visible:rounded-lg focus-visible:ring-3"
+              <div className="pt-4">
+                <Button
+                  variant="destructive"
+                  className="h-11 w-full rounded-xl text-sm font-medium"
                   onClick={handleDeleteAccount}
                 >
                   Delete Account
-                </button>
+                </Button>
               </div>
 
               <p className="text-muted-foreground/50 pt-8 pb-4 text-center text-xs">

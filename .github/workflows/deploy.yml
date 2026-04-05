@@ -1,8 +1,9 @@
 name: Deploy to S3 + CloudFront
 
 on:
-  push:
-    branches: [main, develop]
+  workflow_run:
+    workflows: ['Release']
+    types: [completed]
   workflow_dispatch:
     inputs:
       environment:
@@ -18,7 +19,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: deploy-${{ github.ref_name }}
+  group: >-
+    deploy-${{
+      github.event_name == 'workflow_run'
+      && github.event.workflow_run.head_branch
+      || github.ref_name
+    }}
   cancel-in-progress: true
 
 jobs:
@@ -26,12 +32,22 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
-    environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || (github.ref_name == 'main' && 'production' || 'staging') }}
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+
+    environment: >-
+      ${{
+        github.event_name == 'workflow_dispatch' && inputs.environment
+        || (github.event.workflow_run.head_branch == 'main' && 'production')
+        || 'staging'
+      }}
 
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+          fetch-depth: 0
 
       - uses: pnpm/action-setup@v4
 
@@ -76,7 +92,7 @@ jobs:
 
           # Include static assets only if they changed (always for manual deploys)
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] || \
-             git diff --name-only ${{ github.event.before }} ${{ github.sha }} -- 'public/favicon*' 'public/icons*' | grep -q .; then
+             git diff --name-only HEAD~1 HEAD -- 'public/favicon*' 'public/icons*' 2>/dev/null | grep -q .; then
             PATHS="$PATHS /favicon.svg /icons.svg /icons/*"
           fi
 
