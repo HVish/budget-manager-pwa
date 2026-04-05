@@ -146,17 +146,20 @@ Cards use `rounded-2xl` (18px). Buttons and inputs use `rounded-lg` (10px). Prim
 
 **Sizes**: xs (24px), sm (28px), default (32px), lg (36px). Primary action buttons are 56px (`h-14`) with `rounded-xl`.
 
+**Icon button sizes**: `icon-xs` (24×24), `icon-sm` (28×28), `icon` (32×32), `icon-lg` (36×36). `icon-sm` is intentionally compact (no 44px touch target override) — used for secondary actions like edit pencils on cards and stepper buttons on currency inputs where the parent container provides adequate touch area.
+
 **Interaction**: `translate-y-px` on active press for tactile feedback. `opacity-50` when disabled. 3px focus ring at 50% opacity.
 
 ### Cards
 
-- Background: `--card` with `ring-1 ring-border` (subtle border)
+- Background: `--card` with `ring-1 ring-foreground/10` (subtle border)
 - Corner radius: `rounded-2xl`
-- Shadow: `shadow-sm`
 - Padding: 16px (default), 12px (small variant)
 - Interactive cards: `active:scale-[0.98]` with cursor-pointer
 - Sub-components: Header (with optional action), Title, Description, Content, Footer
 - Footer: `bg-muted/50` with top border, used for secondary info
+- **`py-0` rule**: The `Card` component defaults to `py-4` and `gap-4`. When a card's only child is `<CardContent className="p-4">`, always add `py-0` to `<Card>` to avoid double vertical padding. Add `gap-0` when no inter-child gap is needed (e.g. wallet/budget cards with `dark:bg-wallet-card`).
+- **Wallet-style cards**: Use `dark:bg-wallet-card gap-0 py-0` for list item cards (wallets, budgets) — gives a subtler surface between `--background` and `--card`.
 
 ### Inputs
 
@@ -165,6 +168,14 @@ Cards use `rounded-2xl` (18px). Buttons and inputs use `rounded-lg` (10px). Prim
 - Border: `--input`, changes to `--ring` on focus
 - Focus: 3px ring with `ring-ring/50`
 - Error state: `border-destructive` with `ring-destructive/20`
+
+### Currency Input
+
+- Auto height with `py-3 px-4`, `rounded-xl`, `border-input`
+- Currency symbol: `text-3xl font-bold text-muted-foreground` (left side)
+- Input: `text-3xl font-bold` (fills remaining space)
+- Stepper buttons: `icon-sm` ghost buttons stacked vertically with `gap-2` (right side)
+- Skeleton placeholder height: `h-16 rounded-xl`
 
 ### Bottom Sheets
 
@@ -339,6 +350,9 @@ Reduced motion: all transitions collapse to a 100ms fade.
 - Skeleton placeholders matching content layout dimensions
 - Cards show gray pulsing rectangles (`animate-pulse`)
 - Skeletons use `bg-muted` color
+- Skeleton `rounded-*` must match the component's border radius — cards use `rounded-2xl`, inputs use `rounded-xl`
+- Skeleton height must approximate the rendered component height after `py-0` adjustments
+- Skeleton layout structure (grid, spacing, order) must mirror actual content to minimize layout shift
 
 ### Empty States
 

@@ -29,6 +29,10 @@ pnpm screenshots wallet             # Capture by prefix (all wallet screens)
 | `transactions-loaded` | `/transactions`     | Transaction list with date groups  |
 | `transactions-empty`  | `/transactions`     | Empty state — no transactions      |
 | `transaction-create`  | `/transactions/new` | Create transaction form (empty)    |
+| `budgets-loaded`      | `/budgets`          | Budget list with category cards    |
+| `budgets-empty`       | `/budgets`          | Empty state — no budgets           |
+| `budget-create`       | `/budgets/new`      | Create budget form (empty)         |
+| `budget-edit`         | `/budgets/b1/edit`  | Edit budget form (pre-filled)      |
 
 ## Output
 

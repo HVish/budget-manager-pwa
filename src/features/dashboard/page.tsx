@@ -34,21 +34,21 @@ export default function DashboardPage() {
       {dashboard.isLoading && (
         <div className="space-y-4 px-4 pb-4">
           {/* Net worth card */}
-          <Skeleton className="h-40 w-full rounded-xl" />
+          <Skeleton className="h-30 w-full rounded-2xl" />
           {/* Income / Spent stat cards */}
           <div className="grid grid-cols-2 gap-3">
-            <Skeleton className="h-24 rounded-xl" />
-            <Skeleton className="h-24 rounded-xl" />
+            <Skeleton className="h-28 rounded-2xl" />
+            <Skeleton className="h-28 rounded-2xl" />
           </div>
           {/* Budget card */}
-          <Skeleton className="h-20 w-full rounded-xl" />
+          <Skeleton className="h-24 w-full rounded-2xl" />
           {/* Recent transactions */}
           <div>
             <Skeleton className="mb-3 h-4 w-40" />
             <div className="space-y-3">
-              <Skeleton className="h-16 rounded-xl" />
-              <Skeleton className="h-16 rounded-xl" />
-              <Skeleton className="h-16 rounded-xl" />
+              <Skeleton className="h-16 rounded-2xl" />
+              <Skeleton className="h-16 rounded-2xl" />
+              <Skeleton className="h-16 rounded-2xl" />
             </div>
           </div>
         </div>

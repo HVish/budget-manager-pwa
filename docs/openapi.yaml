@@ -576,6 +576,93 @@ paths:
           $ref: '#/components/responses/InternalServerError'
       security:
         - BearerAuth: []
+  /api/v1/users:
+    put:
+      tags:
+        - User
+      summary: Upsert user profile
+      description: >
+        Create or update a user profile by validating an OIDC ID token.
+
+        Called during sign-up or login to sync user info from the identity
+        provider.
+      operationId: upsertUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpsertUserRequest'
+      responses:
+        '200':
+          description: User profile created or updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - BearerAuth: []
+  /api/v1/users/profile:
+    get:
+      tags:
+        - User
+      summary: Get current user profile
+      description: >-
+        Retrieve the authenticated user's profile including preferences like
+        default currency and timezone.
+      operationId: getUserProfile
+      responses:
+        '200':
+          description: User profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - BearerAuth: []
+    patch:
+      tags:
+        - User
+      summary: Update user profile
+      description: |
+        Partially update the authenticated user's profile.
+        All fields are optional — only provided fields are updated.
+      operationId: updateUserProfile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: User profile updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - BearerAuth: []
   /api/v1/wallets:
     get:
       tags:
@@ -1475,6 +1562,68 @@ components:
         - transferId
         - debitTransaction
         - creditTransaction
+    UpsertUserRequest:
+      type: object
+      properties:
+        idToken:
+          type: string
+          description: OIDC ID token from the identity provider
+          example: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
+      required:
+        - idToken
+    UserProfile:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: OIDC external user identifier
+          example: auth0|abc123
+        email:
+          type: string
+          format: email
+          description: User email address
+          example: user@example.com
+        name:
+          type: string
+          nullable: true
+          description: User display name
+          example: Jane Doe
+        currency:
+          $ref: '#/components/schemas/Currency'
+        timezone:
+          type: string
+          description: IANA timezone identifier for date/time display
+          example: Asia/Kolkata
+        createdAt:
+          type: string
+          format: date-time
+          description: When the user profile was created
+          example: '2025-01-15T10:30:00Z'
+      required:
+        - userId
+        - email
+        - currency
+        - timezone
+        - createdAt
+    UpdateProfileRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+          description: User display name
+          example: Jane Doe
+        email:
+          type: string
+          format: email
+          description: User email address
+          example: user@example.com
+        currency:
+          $ref: '#/components/schemas/Currency'
+        timezone:
+          type: string
+          description: IANA timezone identifier (e.g., Asia/Kolkata, America/New_York)
+          example: America/New_York
     Wallet:
       type: object
       properties:

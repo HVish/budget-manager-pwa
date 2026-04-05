@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { CurrencyInput } from '@/components/ui/currency-input';
@@ -11,6 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useCreateWallet } from '@/api/hooks/use-wallets';
+import { useProfile } from '@/api/hooks/use-profile';
 import { useScrollIntoViewOnFocus } from '@/hooks/use-scroll-into-view-on-focus';
 import { parseAmount } from '@/lib/currency';
 import { useAppNavigate } from '@/lib/navigation';
@@ -23,21 +25,32 @@ import { walletTypes, currencies } from './wallet-form-constants';
 
 export default function CreateWalletPage() {
   const navigate = useAppNavigate();
+  const profileQuery = useProfile();
   const createWallet = useCreateWallet();
+
+  const defaultCurrency = profileQuery.data?.currency ?? 'INR';
 
   const [name, setName] = useState('');
   const [balance, setBalance] = useState('0.00');
   const [walletType, setWalletType] = useState<WalletType>('checking');
-  const [currency, setCurrency] = useState<Currency>('INR');
+  const [currencyOverride, setCurrencyOverride] = useState<Currency | null>(null);
+  const currency = currencyOverride ?? defaultCurrency;
   const [accountNumber, setAccountNumber] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState(false);
 
   const formRef = useRef<HTMLFormElement>(null);
   useScrollIntoViewOnFocus(formRef);
 
+  const isFormValid = !!name.trim();
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim()) return;
+    setSubmitted(true);
+    if (!isFormValid) {
+      toast.error('Please enter a wallet name');
+      return;
+    }
     setError(null);
 
     try {
@@ -73,10 +86,12 @@ export default function CreateWalletPage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. Main Checking"
-            required
             maxLength={255}
-            className={inputClassName}
+            className={cn(inputClassName, submitted && !name.trim() && 'border-destructive')}
           />
+          {submitted && !name.trim() && (
+            <p className="text-destructive mt-1 text-sm">Please enter a wallet name</p>
+          )}
         </div>
 
         {/* Initial Balance */}
@@ -112,7 +127,7 @@ export default function CreateWalletPage() {
 
           <div>
             <FieldLabel htmlFor="wallet-currency">Currency</FieldLabel>
-            <Select value={currency} onValueChange={(v) => setCurrency(v as Currency)}>
+            <Select value={currency} onValueChange={(v) => setCurrencyOverride(v as Currency)}>
               <SelectTrigger id="wallet-currency" className={cn(inputClassName, 'w-full')}>
                 <SelectValue />
               </SelectTrigger>
@@ -153,8 +168,13 @@ export default function CreateWalletPage() {
         <div className="pt-8">
           <Button
             type="submit"
-            disabled={isPending || !name.trim()}
-            className="h-14 w-full rounded-xl text-base font-bold"
+            disabled={isPending}
+            className={cn(
+              'h-14 w-full rounded-xl text-base font-bold disabled:opacity-100',
+              isFormValid && !isPending
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-muted text-muted-foreground',
+            )}
           >
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {isPending ? 'Saving...' : 'Save Wallet'}

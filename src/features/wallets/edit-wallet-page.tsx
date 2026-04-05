@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { useParams } from 'react-router';
 import { AppLink } from '@/components/ui/app-link';
 import { Loader2, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -46,7 +47,10 @@ function EditWalletForm({ wallet }: EditWalletFormProps) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim() || !hasChanges) return;
+    if (!name.trim() || !hasChanges) {
+      toast.error('No changes to save');
+      return;
+    }
     setError(null);
 
     try {
@@ -129,7 +133,7 @@ function EditWalletForm({ wallet }: EditWalletFormProps) {
         <div className="pt-8">
           <Button
             type="submit"
-            disabled={isPending || !hasChanges}
+            disabled={isPending}
             className={cn(
               'h-14 w-full rounded-xl text-base font-bold disabled:opacity-100',
               hasChanges && !isPending
@@ -192,7 +196,7 @@ export default function EditWalletPage() {
           </div>
           <div>
             <Skeleton className="mb-2 h-3 w-24" />
-            <Skeleton className="h-24 w-full rounded-xl" />
+            <Skeleton className="h-16 w-full rounded-xl" />
           </div>
           <Skeleton className="mt-8 h-14 w-full rounded-xl" />
           <Skeleton className="mt-3 h-14 w-full rounded-xl" />

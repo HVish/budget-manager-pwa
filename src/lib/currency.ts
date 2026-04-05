@@ -20,7 +20,7 @@ const currencyIconMap: Record<Currency, LucideIcon> = {
 
 /** Returns the Lucide icon component for a given currency code. */
 export function getCurrencyIcon(currency: Currency): LucideIcon {
-  return currencyIconMap[currency] ?? DollarSign;
+  return currencyIconMap[currency] ?? IndianRupee;
 }
 
 const currencySymbolMap: Record<Currency, string> = {
@@ -35,7 +35,7 @@ const currencySymbolMap: Record<Currency, string> = {
 
 /** Returns the currency symbol character for a given currency code. */
 export function getCurrencySymbol(currency: Currency): string {
-  return currencySymbolMap[currency] ?? '$';
+  return currencySymbolMap[currency] ?? '₹';
 }
 
 const formatterCache = new Map<string, Intl.NumberFormat>();

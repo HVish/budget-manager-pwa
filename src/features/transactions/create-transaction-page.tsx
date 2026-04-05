@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { format } from 'date-fns';
 import { Calendar, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { CurrencyInput } from '@/components/ui/currency-input';
@@ -15,6 +16,7 @@ import {
 import { PageHeaderBar } from '@/components/layout/page-header-bar';
 import { useCreateTransaction, useCreateTransfer } from '@/api/hooks/use-transactions';
 import { useWallets } from '@/api/hooks/use-wallets';
+import { useProfile } from '@/api/hooks/use-profile';
 import { useScrollIntoViewOnFocus } from '@/hooks/use-scroll-into-view-on-focus';
 import { parseAmount } from '@/lib/currency';
 import { inputClassName } from '@/lib/form-constants';
@@ -54,12 +56,13 @@ async function extractErrorMessage(err: unknown, type: TransactionType): Promise
 
 export default function CreateTransactionPage() {
   const navigate = useAppNavigate();
+  const profileQuery = useProfile();
   const walletsQuery = useWallets();
   const createTransaction = useCreateTransaction();
   const createTransfer = useCreateTransfer();
 
   const [type, setType] = useState<TransactionType>('expense');
-  const [amount, setAmount] = useState('0.00');
+  const [amount, setAmount] = useState('');
   const [title, setTitle] = useState('');
   const [walletId, setWalletId] = useState('');
   const [fromWalletId, setFromWalletId] = useState('');
@@ -68,6 +71,7 @@ export default function CreateTransactionPage() {
   const [category, setCategory] = useState('');
   const [notes, setNotes] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState(false);
 
   const formRef = useRef<HTMLFormElement>(null);
   useScrollIntoViewOnFocus(formRef);
@@ -97,7 +101,7 @@ export default function CreateTransactionPage() {
   const selectedWallet = wallets.find((w) =>
     type === 'transfer' ? w.id === fromWalletId : w.id === walletId,
   );
-  const currency = selectedWallet?.currency ?? wallets[0]?.currency ?? 'INR';
+  const currency = selectedWallet?.currency ?? profileQuery.data?.currency ?? 'INR';
 
   const categories = type === 'income' ? incomeCategories : expenseCategories;
 
@@ -129,6 +133,7 @@ export default function CreateTransactionPage() {
     setType(newType);
     setCategory('');
     setError(null);
+    setSubmitted(false);
   }
 
   const titlePlaceholder =
@@ -138,9 +143,30 @@ export default function CreateTransactionPage() {
         ? 'e.g. Savings transfer'
         : 'e.g. Weekly groceries';
 
+  function getFirstError(): string | null {
+    if (!isWalletValid) {
+      if (type === 'transfer') {
+        if (!fromWalletId) return 'Please select a From wallet';
+        if (!toWalletId) return 'Please select a To wallet';
+        return 'From and To wallets must be different';
+      }
+      return 'Please select a wallet';
+    }
+    if (!isAmountValid) return 'Please enter an amount';
+    if (!isTitleValid) return 'Please enter a title';
+    if (!isCategoryValid) return 'Please select a category';
+    if (!isDateValid) return 'Please select a date';
+    return null;
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!isFormValid) return;
+    setSubmitted(true);
+    if (!isFormValid) {
+      const error = getFirstError();
+      if (error) toast.error(error);
+      return;
+    }
     setError(null);
 
     try {
@@ -188,35 +214,6 @@ export default function CreateTransactionPage() {
         onSubmit={handleSubmit}
         className="flex-1 space-y-6 overflow-y-auto px-5 pt-4 pb-[max(env(safe-area-inset-bottom),24px)]"
       >
-        {/* Amount */}
-        <div>
-          <FieldLabel htmlFor="txn-amount">Enter Amount</FieldLabel>
-          <CurrencyInput
-            id="txn-amount"
-            value={amount}
-            onChange={handleAmountChange}
-            currency={currency}
-            allowNegative={false}
-            aria-label="Transaction amount"
-          />
-        </div>
-
-        {/* Title */}
-        <div>
-          <FieldLabel htmlFor="txn-title">
-            {type === 'transfer' ? 'Title (optional)' : 'Title'}
-          </FieldLabel>
-          <Input
-            id="txn-title"
-            value={title}
-            onChange={(e) => handleTitleChange(e.target.value)}
-            placeholder={titlePlaceholder}
-            required={type !== 'transfer'}
-            maxLength={255}
-            className={inputClassName}
-          />
-        </div>
-
         {/* Wallet (income/expense) */}
         {type !== 'transfer' && (
           <div>
@@ -226,7 +223,14 @@ export default function CreateTransactionPage() {
               items={walletItems}
               onValueChange={(v) => handleWalletChange(v ?? '')}
             >
-              <SelectTrigger id="txn-wallet" className={cn(inputClassName, 'w-full')}>
+              <SelectTrigger
+                id="txn-wallet"
+                className={cn(
+                  inputClassName,
+                  'w-full',
+                  submitted && !walletId && 'border-destructive',
+                )}
+              >
                 <SelectValue placeholder="Select wallet" />
               </SelectTrigger>
               <SelectContent>
@@ -237,6 +241,9 @@ export default function CreateTransactionPage() {
                 ))}
               </SelectContent>
             </Select>
+            {submitted && !walletId && (
+              <p className="text-destructive mt-1 text-sm">Please select a wallet</p>
+            )}
           </div>
         )}
 
@@ -250,7 +257,14 @@ export default function CreateTransactionPage() {
                 items={walletItems}
                 onValueChange={(v) => handleFromWalletChange(v ?? '')}
               >
-                <SelectTrigger id="txn-from-wallet" className={cn(inputClassName, 'w-full')}>
+                <SelectTrigger
+                  id="txn-from-wallet"
+                  className={cn(
+                    inputClassName,
+                    'w-full',
+                    submitted && !fromWalletId && 'border-destructive',
+                  )}
+                >
                   <SelectValue placeholder="Select wallet" />
                 </SelectTrigger>
                 <SelectContent>
@@ -261,6 +275,9 @@ export default function CreateTransactionPage() {
                   ))}
                 </SelectContent>
               </Select>
+              {submitted && !fromWalletId && (
+                <p className="text-destructive mt-1 text-sm">Please select a wallet</p>
+              )}
             </div>
 
             <div>
@@ -270,7 +287,14 @@ export default function CreateTransactionPage() {
                 items={walletItems}
                 onValueChange={(v) => handleToWalletChange(v ?? '')}
               >
-                <SelectTrigger id="txn-to-wallet" className={cn(inputClassName, 'w-full')}>
+                <SelectTrigger
+                  id="txn-to-wallet"
+                  className={cn(
+                    inputClassName,
+                    'w-full',
+                    submitted && !toWalletId && 'border-destructive',
+                  )}
+                >
                   <SelectValue placeholder="Select wallet" />
                 </SelectTrigger>
                 <SelectContent>
@@ -281,6 +305,9 @@ export default function CreateTransactionPage() {
                   ))}
                 </SelectContent>
               </Select>
+              {submitted && !toWalletId && (
+                <p className="text-destructive mt-1 text-sm">Please select a wallet</p>
+              )}
               {fromWalletId && toWalletId && fromWalletId === toWalletId && (
                 <p role="alert" className="text-destructive mt-1 text-sm">
                   From and To wallets must be different
@@ -290,21 +317,38 @@ export default function CreateTransactionPage() {
           </>
         )}
 
-        {/* Date */}
+        {/* Amount */}
         <div>
-          <FieldLabel htmlFor="txn-date">Date</FieldLabel>
-          <div className="relative">
-            <Input
-              id="txn-date"
-              type="date"
-              value={date}
-              onChange={(e) => handleDateChange(e.target.value)}
-              max={format(new Date(), 'yyyy-MM-dd')}
-              required
-              className={cn(inputClassName, 'appearance-none pr-10')}
-            />
-            <Calendar className="text-muted-foreground pointer-events-none absolute top-1/2 right-4 size-5 -translate-y-1/2" />
-          </div>
+          <FieldLabel htmlFor="txn-amount">Enter Amount</FieldLabel>
+          <CurrencyInput
+            id="txn-amount"
+            value={amount}
+            onChange={handleAmountChange}
+            currency={currency}
+            allowNegative={false}
+            aria-label="Transaction amount"
+          />
+          {submitted && !isAmountValid && (
+            <p className="text-destructive mt-1 text-sm">Please enter an amount</p>
+          )}
+        </div>
+
+        {/* Title */}
+        <div>
+          <FieldLabel htmlFor="txn-title">
+            {type === 'transfer' ? 'Title (optional)' : 'Title'}
+          </FieldLabel>
+          <Input
+            id="txn-title"
+            value={title}
+            onChange={(e) => handleTitleChange(e.target.value)}
+            placeholder={titlePlaceholder}
+            maxLength={255}
+            className={cn(inputClassName, submitted && !isTitleValid && 'border-destructive')}
+          />
+          {submitted && !isTitleValid && (
+            <p className="text-destructive mt-1 text-sm">Please enter a title</p>
+          )}
         </div>
 
         {/* Category (income/expense only) */}
@@ -316,7 +360,14 @@ export default function CreateTransactionPage() {
               items={categoryItems}
               onValueChange={(v) => handleCategoryChange(v ?? '')}
             >
-              <SelectTrigger id="txn-category" className={cn(inputClassName, 'w-full')}>
+              <SelectTrigger
+                id="txn-category"
+                className={cn(
+                  inputClassName,
+                  'w-full',
+                  submitted && !category && 'border-destructive',
+                )}
+              >
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent>
@@ -339,8 +390,34 @@ export default function CreateTransactionPage() {
                 })}
               </SelectContent>
             </Select>
+            {submitted && !category && (
+              <p className="text-destructive mt-1 text-sm">Please select a category</p>
+            )}
           </div>
         )}
+
+        {/* Date */}
+        <div>
+          <FieldLabel htmlFor="txn-date">Date</FieldLabel>
+          <div className="relative">
+            <Input
+              id="txn-date"
+              type="date"
+              value={date}
+              onChange={(e) => handleDateChange(e.target.value)}
+              max={format(new Date(), 'yyyy-MM-dd')}
+              className={cn(
+                inputClassName,
+                'appearance-none pr-10',
+                submitted && !isDateValid && 'border-destructive',
+              )}
+            />
+            <Calendar className="text-muted-foreground pointer-events-none absolute top-1/2 right-4 size-5 -translate-y-1/2" />
+          </div>
+          {submitted && !isDateValid && (
+            <p className="text-destructive mt-1 text-sm">Please select a date</p>
+          )}
+        </div>
 
         {/* Notes */}
         <div>
@@ -369,11 +446,16 @@ export default function CreateTransactionPage() {
         )}
 
         {/* Submit */}
-        <div className="pt-4">
+        <div className="pt-8">
           <Button
             type="submit"
-            disabled={isPending || !isFormValid}
-            className="h-14 w-full rounded-xl text-base font-bold"
+            disabled={isPending}
+            className={cn(
+              'h-14 w-full rounded-xl text-base font-bold disabled:opacity-100',
+              isFormValid && !isPending
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-muted text-muted-foreground',
+            )}
           >
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {isPending ? 'Saving...' : type === 'transfer' ? 'Save Transfer' : 'Save Transaction'}

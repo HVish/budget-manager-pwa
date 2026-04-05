@@ -202,6 +202,24 @@ export interface BudgetSummaryResponse {
   budgets: BudgetSummaryItem[];
 }
 
+// ── User Profile ───────────────────────────────────────────────────────────
+
+export interface UserProfile {
+  userId: string;
+  email: string;
+  name?: string | null;
+  currency: Currency;
+  timezone: string;
+  createdAt: string;
+}
+
+export interface UpdateProfileRequest {
+  name?: string | null;
+  email?: string;
+  currency?: Currency;
+  timezone?: string;
+}
+
 // ── Errors ──────────────────────────────────────────────────────────────────
 
 export interface ProblemDetail {
