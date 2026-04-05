@@ -8,6 +8,16 @@ import {
 } from 'lucide-react';
 import type { Currency } from '@/api/types';
 
+export const CURRENCY_OPTIONS: { code: Currency; symbol: string; name: string }[] = [
+  { code: 'USD', symbol: '$', name: 'US Dollar' },
+  { code: 'INR', symbol: '₹', name: 'Indian Rupee' },
+  { code: 'EUR', symbol: '€', name: 'Euro' },
+  { code: 'GBP', symbol: '£', name: 'British Pound' },
+  { code: 'JPY', symbol: '¥', name: 'Japanese Yen' },
+  { code: 'AUD', symbol: 'A$', name: 'Australian Dollar' },
+  { code: 'CAD', symbol: 'C$', name: 'Canadian Dollar' },
+];
+
 const currencyIconMap: Record<Currency, LucideIcon> = {
   INR: IndianRupee,
   USD: DollarSign,

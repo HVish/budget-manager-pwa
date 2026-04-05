@@ -1,7 +1,14 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate, Outlet } from 'react-router';
+import { useAuth0 } from '@auth0/auth0-react';
 import { usePopstateViewTransitions } from '@/lib/navigation';
 import { AuthGuard } from '@/features/auth/auth-guard';
+
+function RootRedirect() {
+  const { isAuthenticated, isLoading } = useAuth0();
+  if (isLoading) return null;
+  return <Navigate to={isAuthenticated ? '/dashboard' : '/login'} replace />;
+}
 import AppShell from '@/components/layout/app-shell';
 import CallbackPage from '@/features/auth/callback-page';
 import LoginPage from '@/features/auth/login-page';
@@ -10,6 +17,7 @@ import WalletsPage from '@/features/wallets/page';
 import TransactionsPage from '@/features/transactions/page';
 import BudgetsPage from '@/features/budgets/page';
 import WalletDetailPage from '@/features/wallets/wallet-detail-page';
+const SettingsPage = lazy(() => import('@/features/settings/page'));
 const CreateWalletPage = lazy(() => import('@/features/wallets/create-wallet-page'));
 const EditWalletPage = lazy(() => import('@/features/wallets/edit-wallet-page'));
 const CreateTransactionPage = lazy(() => import('@/features/transactions/create-transaction-page'));
@@ -54,6 +62,7 @@ export default function AppRoutes() {
           </AuthGuard>
         }
       >
+        <Route path="/profile" element={<SettingsPage />} />
         <Route path="/wallets/:id" element={<WalletDetailPage />} />
         <Route path="/wallets/new" element={<CreateWalletPage />} />
         <Route path="/wallets/:id/edit" element={<EditWalletPage />} />
@@ -62,6 +71,7 @@ export default function AppRoutes() {
         <Route path="/budgets/:id/edit" element={<EditBudgetPage />} />
       </Route>
 
+      <Route path="/" element={<RootRedirect />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );

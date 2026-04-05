@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
-    <meta name="theme-color" content="#09090b" />
+    <meta name="theme-color" content="#1a2f2e" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="description" content="Personal budget manager — track expenses, wallets, and budgets" />
@@ -11,6 +11,16 @@
     <link rel="manifest" href="/manifest.json" />
     <link rel="apple-touch-icon" href="/icons/apple-icon-180.png" />
     <title>Budget Manager</title>
+    <script>
+      try {
+        var stored = JSON.parse(localStorage.getItem('budget-theme') || '{}');
+        if (stored.state && stored.state.theme === 'light') {
+          document.documentElement.classList.remove('dark');
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute('content', '#ffffff');
+        }
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

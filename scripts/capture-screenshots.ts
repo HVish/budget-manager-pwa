@@ -10,7 +10,7 @@
  * Available screen names:
  *   login, dashboard-loaded, dashboard-empty, wallets-loaded, wallets-empty,
  *   wallet-detail, wallet-create, wallet-edit, transactions-loaded, transactions-empty,
- *   transaction-create, budgets-loaded, budgets-empty, budget-create, budget-edit
+ *   transaction-create, budgets-loaded, budgets-empty, budget-create, budget-edit, settings
  *
  * Screenshots are saved to screenshots/<viewport>/<name>.png
  */
@@ -163,6 +163,15 @@ async function mockApi(route: Route, overrides: MockOverrides = {}) {
     });
   }
 
+  // Profile
+  if (url.includes('/api/v1/users/profile')) {
+    return route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ currency: 'INR' }),
+    });
+  }
+
   // Fallback — let it through (shouldn't happen with mocks, but safe)
   return route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
 }
@@ -235,6 +244,9 @@ const screens: ScreenshotDef[] = [
 
   // Edit budget form
   { name: 'budget-edit', route: '/budgets/b1/edit' },
+
+  // Settings
+  { name: 'settings', route: '/profile' },
 ];
 
 // ── Main ────────────────────────────────────────────────────────────────────

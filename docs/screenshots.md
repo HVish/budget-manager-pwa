@@ -33,6 +33,7 @@ pnpm screenshots wallet             # Capture by prefix (all wallet screens)
 | `budgets-empty`       | `/budgets`          | Empty state — no budgets           |
 | `budget-create`       | `/budgets/new`      | Create budget form (empty)         |
 | `budget-edit`         | `/budgets/b1/edit`  | Edit budget form (pre-filled)      |
+| `settings`            | `/profile`          | Settings page with profile + prefs |
 
 ## Output
 
