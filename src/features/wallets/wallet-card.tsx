@@ -37,7 +37,7 @@ export function WalletCard({ wallet, sparklineData, onEdit }: WalletCardProps) {
       role="article"
       aria-label={`${wallet.name}, balance ${formatCurrency(wallet.balance, wallet.currency)}`}
       tabIndex={0}
-      className="dark:bg-wallet-card hover:bg-accent/50 focus-visible:ring-ring cursor-pointer gap-0 py-0 transition-all duration-150 focus-visible:ring-2 focus-visible:outline-none active:scale-[0.98]"
+      className="bg-wallet-card hover:bg-accent/50 focus-visible:ring-ring cursor-pointer gap-0 py-0 transition-all duration-150 focus-visible:ring-2 focus-visible:outline-none active:scale-[0.98]"
       onClick={() => navigate(`/wallets/${wallet.id}`)}
       onKeyDown={handleKeyDown}
     >

@@ -26,7 +26,7 @@ export function BudgetCard({ item, primaryCurrency }: BudgetCardProps) {
   const hasId = !!item.id;
 
   return (
-    <Card className="dark:bg-wallet-card gap-0 py-0">
+    <Card className="bg-wallet-card gap-0 py-0">
       <CardContent className="p-4">
         {/* Top row: icon + category info + edit */}
         <div className="flex items-start justify-between gap-3">

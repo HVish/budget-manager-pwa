@@ -74,29 +74,50 @@ All colors use the **oklch** color space for perceptual uniformity.
 
 ### Light Mode
 
-| Token                  | Value                       |
-| ---------------------- | --------------------------- |
-| `--background`         | `oklch(1 0 0)`              |
-| `--foreground`         | `oklch(0.145 0 0)`          |
-| `--card`               | `oklch(1 0 0)`              |
-| `--primary`            | `oklch(0.205 0 0)`          |
-| `--primary-foreground` | `oklch(0.985 0 0)`          |
-| `--secondary`          | `oklch(0.97 0 0)`           |
-| `--muted`              | `oklch(0.97 0 0)`           |
-| `--muted-foreground`   | `oklch(0.556 0 0)`          |
-| `--destructive`        | `oklch(0.577 0.245 27.325)` |
-| `--income`             | `oklch(0.55 0.17 142)`      |
-| `--expense`            | `oklch(0.55 0.22 25)`       |
-| `--surface-elevated`   | `oklch(0.97 0 0)`           |
-| `--accent-soft`        | `oklch(0.205 0 0 / 8%)`     |
+| Token                      | Value                        | Usage                                   |
+| -------------------------- | ---------------------------- | --------------------------------------- |
+| `--background`             | `oklch(0.985 0.005 170)`     | Page background — faint green tint      |
+| `--foreground`             | `oklch(0.18 0.02 176)`       | Primary text — dark teal-black          |
+| `--card`                   | `oklch(1 0.002 170)`         | Card surface — near-white with tint     |
+| `--card-foreground`        | `oklch(0.18 0.02 176)`       | Card text                               |
+| `--primary`                | `oklch(0.45 0.16 152)`       | Primary accent — rich green             |
+| `--primary-foreground`     | `oklch(0.99 0 0)`            | Text on primary — white                 |
+| `--secondary`              | `oklch(0.955 0.015 160)`     | Secondary surface — light green-gray    |
+| `--secondary-foreground`   | `oklch(0.25 0.03 170)`       | Text on secondary — dark teal           |
+| `--muted`                  | `oklch(0.955 0.015 160)`     | Muted surface (same as secondary)       |
+| `--muted-foreground`       | `oklch(0.5 0.02 176)`        | Subdued text — mid teal-gray            |
+| `--accent`                 | `oklch(0.955 0.015 160)`     | Accent surface                          |
+| `--accent-foreground`      | `oklch(0.25 0.03 170)`       | Text on accent                          |
+| `--destructive`            | `oklch(0.577 0.245 27.325)`  | Error/danger — warm red                 |
+| `--border`                 | `oklch(0.9 0.02 165)`        | Borders — green-tinted gray             |
+| `--input`                  | `oklch(0.9 0.02 165)`        | Input borders — matches border          |
+| `--ring`                   | `oklch(0.45 0.16 152)`       | Focus rings — matches primary           |
+| `--income`                 | `oklch(0.45 0.16 152)`       | Income amounts — rich green             |
+| `--expense`                | `oklch(0.55 0.22 25)`        | Expense amounts — warm red/orange       |
+| `--warning`                | `oklch(0.7 0.16 85)`         | Warning — amber                         |
+| `--surface-elevated`       | `oklch(0.97 0.01 165)`       | Elevated surface — subtle green tint    |
+| `--accent-soft`            | `oklch(0.45 0.16 152 / 10%)` | Soft accent background — green at 10%   |
+| `--accent-soft-foreground` | `oklch(0.38 0.12 152)`       | Text on soft accent — darker green      |
+| `--wallet-card`            | `oklch(0.965 0.012 168)`     | Wallet card surface — between bg & card |
+
+### Chart Colors (light mode)
+
+| Token       | Value                  | Description    |
+| ----------- | ---------------------- | -------------- |
+| `--chart-1` | `oklch(0.45 0.16 152)` | Darkest green  |
+| `--chart-2` | `oklch(0.52 0.14 156)` | Dark green     |
+| `--chart-3` | `oklch(0.6 0.12 160)`  | Medium green   |
+| `--chart-4` | `oklch(0.72 0.1 164)`  | Light green    |
+| `--chart-5` | `oklch(0.84 0.07 168)` | Lightest green |
 
 ### Color Design Intent
 
 - Hue 174-176 (teal) is the signature hue for backgrounds, cards, and secondary surfaces
-- Hue 152 (green) is the accent/primary hue — brighter and more saturated than backgrounds
-- Hue 261 (cool gray) for muted foreground text — provides contrast against teal backgrounds
+- Hue 152 (green) is the accent/primary hue — used for primary actions in both light and dark mode
+- Light mode surfaces carry a faint green/teal tint (hue 160-170) rather than pure gray
 - Hue 25 (red/orange) for expenses and destructive actions
 - Dark mode uses solid colored borders matching the secondary/muted surface tone
+- Light mode chart colors go dark-to-light (inverted from dark mode's light-to-dark) for optimal contrast
 
 ---
 
@@ -158,8 +179,8 @@ Cards use `rounded-2xl` (18px). Buttons and inputs use `rounded-lg` (10px). Prim
 - Interactive cards: `active:scale-[0.98]` with cursor-pointer
 - Sub-components: Header (with optional action), Title, Description, Content, Footer
 - Footer: `bg-muted/50` with top border, used for secondary info
-- **`py-0` rule**: The `Card` component defaults to `py-4` and `gap-4`. When a card's only child is `<CardContent className="p-4">`, always add `py-0` to `<Card>` to avoid double vertical padding. Add `gap-0` when no inter-child gap is needed (e.g. wallet/budget cards with `dark:bg-wallet-card`).
-- **Wallet-style cards**: Use `dark:bg-wallet-card gap-0 py-0` for list item cards (wallets, budgets) — gives a subtler surface between `--background` and `--card`.
+- **`py-0` rule**: The `Card` component defaults to `py-4` and `gap-4`. When a card's only child is `<CardContent className="p-4">`, always add `py-0` to `<Card>` to avoid double vertical padding. Add `gap-0` when no inter-child gap is needed (e.g. wallet/budget cards with `bg-wallet-card`).
+- **Wallet-style cards**: Use `bg-wallet-card gap-0 py-0` for list item cards (wallets, budgets) — gives a subtler surface between `--background` and `--card`.
 
 ### Inputs
 

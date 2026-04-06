@@ -43,7 +43,7 @@ export function PageHeader({ title, showMonthPicker = true }: PageHeaderProps) {
         <button
           onClick={() => navigate('/profile')}
           aria-label="Settings"
-          className="bg-card dark:bg-wallet-card ring-foreground/10 flex min-h-11 min-w-11 items-center justify-center rounded-full ring-1"
+          className="bg-wallet-card ring-foreground/10 flex min-h-11 min-w-11 items-center justify-center rounded-full ring-1"
         >
           <Settings className="text-muted-foreground h-5 w-5" />
         </button>
