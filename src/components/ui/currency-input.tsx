@@ -1,7 +1,13 @@
-import React, { useRef, useId, useEffect } from 'react';
+import React, { useRef, useId, useEffect, useLayoutEffect } from 'react';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { getCurrencySymbol } from '@/lib/currency';
+import {
+  getCurrencySymbol,
+  getLocaleSeparators,
+  formatWithGrouping,
+  unformatToRaw,
+  type LocaleSeparators,
+} from '@/lib/currency';
 import { cn } from '@/lib/utils';
 import type { Currency } from '@/api/types';
 
@@ -28,6 +34,26 @@ function formatToTwoDecimals(value: number): string {
   return value.toFixed(2);
 }
 
+/** Count non-grouping (significant) characters to the left of `pos`. */
+function countSignificantChars(str: string, pos: number, seps: LocaleSeparators): number {
+  let count = 0;
+  for (let i = 0; i < pos && i < str.length; i++) {
+    if (str[i] !== seps.group) count++;
+  }
+  return count;
+}
+
+/** Find the index in `str` where `target` significant characters have been seen. */
+function findCursorPosition(str: string, target: number, seps: LocaleSeparators): number {
+  if (target === 0) return 0;
+  let count = 0;
+  for (let i = 0; i < str.length; i++) {
+    if (str[i] !== seps.group) count++;
+    if (count === target) return i + 1;
+  }
+  return str.length;
+}
+
 export function CurrencyInput({
   value,
   onChange,
@@ -41,6 +67,8 @@ export function CurrencyInput({
   const generatedId = useId();
   const inputId = id ?? generatedId;
 
+  const inputRef = useRef<HTMLInputElement>(null);
+  const cursorRef = useRef<number | null>(null);
   const holdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const holdIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const valueRef = useRef(value);
@@ -48,11 +76,25 @@ export function CurrencyInput({
     valueRef.current = value;
   });
 
+  const seps = getLocaleSeparators();
   const currencySymbol = getCurrencySymbol(currency);
   const numericValue = parseDisplayValue(value);
+  const displayValue = formatWithGrouping(value);
+
+  // Restore cursor position after React re-renders (before paint)
+  useLayoutEffect(() => {
+    if (cursorRef.current !== null && inputRef.current) {
+      inputRef.current.setSelectionRange(cursorRef.current, cursorRef.current);
+      cursorRef.current = null;
+    }
+  });
 
   function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const raw = e.target.value;
+    const newDisplay = e.target.value;
+    const cursorPos = e.target.selectionStart ?? newDisplay.length;
+
+    // Strip grouping separators to get the raw decimal string
+    const raw = unformatToRaw(newDisplay, seps);
 
     // Allow empty input
     if (raw === '') {
@@ -68,9 +110,29 @@ export function CurrencyInput({
 
     // Validate against the appropriate decimal pattern
     const regex = allowNegative ? DECIMAL_NEGATIVE_REGEX : DECIMAL_REGEX;
-    if (regex.test(raw)) {
-      onChange(raw);
+    if (!regex.test(raw)) return;
+
+    // Normalize leading zeros: "-007.5" → "-7.5", "007" → "7"
+    // Preserve lone "0" and "0." prefix for decimal entry
+    const normalized = raw.replace(/^(-?)0+(\d)/, '$1$2');
+
+    // Compute cursor position in the reformatted string
+    const reformatted = formatWithGrouping(normalized);
+    const sigBefore = countSignificantChars(newDisplay, cursorPos, seps);
+    const newCursor = findCursorPosition(reformatted, sigBefore, seps);
+
+    // When the user backspaces over a grouping separator the raw value is
+    // unchanged (separator was cosmetic). In that case React won't re-render,
+    // so we manually nudge the cursor back past the separator.
+    if (normalized === value) {
+      if (inputRef.current) {
+        inputRef.current.setSelectionRange(newCursor, newCursor);
+      }
+      return;
     }
+
+    cursorRef.current = newCursor;
+    onChange(normalized);
   }
 
   function handleBlur() {
@@ -133,14 +195,18 @@ export function CurrencyInput({
         {currencySymbol}
       </span>
       <input
+        ref={inputRef}
         id={inputId}
         type="text"
         inputMode="decimal"
         role="spinbutton"
         aria-valuemin={allowNegative ? undefined : 0}
         aria-valuenow={value === '' ? undefined : numericValue}
+        aria-valuetext={
+          value === '' || value === '-' ? undefined : `${currencySymbol}${displayValue}`
+        }
         aria-label={ariaLabel}
-        value={value}
+        value={displayValue}
         onChange={handleInputChange}
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}

@@ -87,11 +87,89 @@ export function setAppLocale(locale: string): boolean {
   _appLocale = locale;
   formatterCache.clear();
   compactFormatterCache.clear();
+  separatorCache.clear();
+  groupingFormatterCache.clear();
   return true;
 }
 
 export function getAppLocale(): string {
   return _appLocale;
+}
+
+// ---------------------------------------------------------------------------
+// Locale separators & live-formatting helpers (for CurrencyInput)
+// ---------------------------------------------------------------------------
+
+export interface LocaleSeparators {
+  group: string; // e.g. "," for en-US/en-IN, "." for de-DE
+  decimal: string; // e.g. "." for en-US/en-IN, "," for de-DE
+}
+
+const separatorCache = new Map<string, LocaleSeparators>();
+
+export function getLocaleSeparators(): LocaleSeparators {
+  const locale = _appLocale;
+  if (separatorCache.has(locale)) return separatorCache.get(locale)!;
+
+  const parts = new Intl.NumberFormat(locale).formatToParts(12345.6);
+  const group = parts.find((p) => p.type === 'group')?.value ?? ',';
+  const decimal = parts.find((p) => p.type === 'decimal')?.value ?? '.';
+
+  const result = { group, decimal };
+  separatorCache.set(locale, result);
+  return result;
+}
+
+const groupingFormatterCache = new Map<string, Intl.NumberFormat>();
+
+function getGroupingFormatter(): Intl.NumberFormat {
+  if (!groupingFormatterCache.has(_appLocale)) {
+    groupingFormatterCache.set(
+      _appLocale,
+      new Intl.NumberFormat(_appLocale, {
+        useGrouping: true,
+        maximumFractionDigits: 0,
+      }),
+    );
+  }
+  return groupingFormatterCache.get(_appLocale)!;
+}
+
+/** Format a raw decimal string (e.g. "123456.78") with locale grouping separators. */
+export function formatWithGrouping(rawValue: string): string {
+  if (rawValue === '' || rawValue === '-') return rawValue;
+
+  const { decimal } = getLocaleSeparators();
+  const isNegative = rawValue.startsWith('-');
+  const abs = isNegative ? rawValue.slice(1) : rawValue;
+
+  const [intPart, fracPart] = abs.split('.');
+
+  const intNum = parseInt(intPart || '0', 10);
+  const formattedInt = getGroupingFormatter().format(intNum);
+
+  let result = isNegative ? '-' + formattedInt : formattedInt;
+
+  // Preserve the decimal portion exactly as typed (e.g. "123." → "123.", "123.4" → "123.4")
+  if (rawValue.includes('.')) {
+    result += decimal + (fracPart ?? '');
+  }
+
+  return result;
+}
+
+/** Strip locale grouping separators and normalise locale decimal to '.'. */
+export function unformatToRaw(displayValue: string, seps: LocaleSeparators): string {
+  let raw = '';
+  for (const ch of displayValue) {
+    if (ch === seps.group) continue;
+    if (ch === seps.decimal) {
+      raw += '.';
+    } else {
+      raw += ch;
+    }
+  }
+  return raw;
 }
 
 // ---------------------------------------------------------------------------
