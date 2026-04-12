@@ -31,7 +31,7 @@ export default function CreateWalletPage() {
   const defaultCurrency = profileQuery.data?.currency ?? 'INR';
 
   const [name, setName] = useState('');
-  const [balance, setBalance] = useState('0.00');
+  const [balance, setBalance] = useState('');
   const [walletType, setWalletType] = useState<WalletType>('checking');
   const [currencyOverride, setCurrencyOverride] = useState<Currency | null>(null);
   const currency = currencyOverride ?? defaultCurrency;
@@ -100,7 +100,10 @@ export default function CreateWalletPage() {
           <CurrencyInput
             id="wallet-balance"
             value={balance}
-            onChange={setBalance}
+            onChange={(v) => {
+              setBalance(v);
+              setError(null);
+            }}
             currency={currency}
             allowNegative={false}
             aria-label="Initial balance"

@@ -74,6 +74,11 @@ export function CurrencyInput({
   }
 
   function handleBlur() {
+    // Keep empty field empty so the placeholder remains visible
+    if (value === '' || value === '-') {
+      onChange('');
+      return;
+    }
     const parsed = parseDisplayValue(value);
     const floored = allowNegative ? parsed : Math.max(0, parsed);
     onChange(formatToTwoDecimals(floored));
@@ -133,7 +138,7 @@ export function CurrencyInput({
         inputMode="decimal"
         role="spinbutton"
         aria-valuemin={allowNegative ? undefined : 0}
-        aria-valuenow={numericValue}
+        aria-valuenow={value === '' ? undefined : numericValue}
         aria-label={ariaLabel}
         value={value}
         onChange={handleInputChange}

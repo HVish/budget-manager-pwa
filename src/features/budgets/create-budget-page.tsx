@@ -34,7 +34,7 @@ export default function CreateBudgetPage() {
   const defaultCurrency = profileQuery.data?.currency ?? 'INR';
 
   const [category, setCategory] = useState('');
-  const [amount, setAmount] = useState('0.00');
+  const [amount, setAmount] = useState('');
   const [currencyOverride, setCurrencyOverride] = useState<Currency | null>(null);
   const currency = currencyOverride ?? defaultCurrency;
   const [error, setError] = useState<string | null>(null);

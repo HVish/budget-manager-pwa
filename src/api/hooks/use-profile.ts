@@ -2,11 +2,12 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/api/client';
 import type { UserProfile, UpdateProfileRequest } from '@/api/types';
 
-export function useProfile() {
+export function useProfile({ enabled = true }: { enabled?: boolean } = {}) {
   return useQuery({
     queryKey: ['profile'],
     queryFn: () => api.get('api/v1/users/profile').json<UserProfile>(),
     staleTime: 5 * 60 * 1000,
+    enabled,
   });
 }
 

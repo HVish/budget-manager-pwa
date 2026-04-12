@@ -2,6 +2,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { useEffect, useRef, useState } from 'react';
 import { setTokenGetter } from '@/api/client';
 import { api } from '@/api/client';
+import { useLocaleSync } from '@/hooks/use-locale-sync';
 
 const isScreenshotMode = Boolean(
   (window as unknown as Record<string, unknown>).__SCREENSHOT_MODE__,
@@ -17,6 +18,8 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   } = useAuth0();
   const [isUserSynced, setIsUserSynced] = useState(false);
   const syncAttempted = useRef(false);
+
+  useLocaleSync({ enabled: isAuthenticated && isUserSynced });
 
   useEffect(() => {
     if (isAuthenticated) {
