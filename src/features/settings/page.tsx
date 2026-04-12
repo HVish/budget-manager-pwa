@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Check, ChevronRight, Coins, Moon, X } from 'lucide-react';
+import { Check, ChevronRight, Coins, Moon, Tag, X } from 'lucide-react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { toast } from 'sonner';
 import { PageHeaderBar } from '@/components/layout/page-header-bar';
@@ -128,6 +128,12 @@ export default function SettingsPage() {
                     <Skeleton className="h-4 w-24 flex-1" />
                     <Skeleton className="h-6 w-11 rounded-full" />
                   </div>
+                  <Separator />
+                  <div className="flex items-center gap-3 px-4 py-3.5">
+                    <Skeleton className="size-10 rounded-xl" />
+                    <Skeleton className="h-4 w-24 flex-1" />
+                    <Skeleton className="h-4 w-4" />
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -171,6 +177,22 @@ export default function SettingsPage() {
                       aria-label="Toggle dark theme"
                     />
                   </div>
+
+                  <Separator />
+
+                  <button
+                    className="active:bg-accent/50 focus-visible:ring-ring/50 flex min-h-11 w-full items-center gap-3 rounded-b-2xl px-4 py-3.5 transition-colors outline-none focus-visible:ring-3"
+                    onClick={() => navigate('/categories')}
+                    aria-label="Manage categories"
+                  >
+                    <div className="bg-secondary flex size-10 shrink-0 items-center justify-center rounded-xl">
+                      <Tag className="text-primary size-5" />
+                    </div>
+                    <span className="text-foreground flex-1 text-left text-sm font-medium">
+                      Categories
+                    </span>
+                    <ChevronRight className="text-muted-foreground size-4" />
+                  </button>
                 </CardContent>
               </Card>
             </section>

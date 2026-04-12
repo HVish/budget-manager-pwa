@@ -1,16 +1,21 @@
 import { format, parseISO } from 'date-fns';
 import { AppLink } from '@/components/ui/app-link';
 import { formatCurrency } from '@/lib/currency';
-import { getCategoryMeta } from '@/lib/categories';
+import { getCategoryMeta, type CategoryMeta } from '@/lib/categories';
 import { cn } from '@/lib/utils';
 import type { DashboardTransaction } from '@/api/types';
 
 interface RecentTransactionsProps {
   transactions: DashboardTransaction[];
   walletMap: Record<string, string>;
+  categoryMetaMap?: Record<string, CategoryMeta>;
 }
 
-export function RecentTransactions({ transactions, walletMap }: RecentTransactionsProps) {
+export function RecentTransactions({
+  transactions,
+  walletMap,
+  categoryMetaMap,
+}: RecentTransactionsProps) {
   return (
     <div className="pt-2">
       {/* Section header */}
@@ -32,11 +37,11 @@ export function RecentTransactions({ transactions, walletMap }: RecentTransactio
       ) : (
         <div className="space-y-3.5">
           {transactions.map((tx) => {
-            const meta = getCategoryMeta(tx.category);
+            const meta = categoryMetaMap?.[tx.category] ?? getCategoryMeta(tx.category);
             const Icon = meta.icon;
             const isIncome = tx.amount > 0;
             const walletName = walletMap[tx.walletId] ?? '';
-            const subtitle = [meta.label, walletName].filter(Boolean).join(' · ');
+            const subtitle = [meta.label, walletName].filter(Boolean).join(' \u00b7 ');
             const time = format(parseISO(tx.transactionDate), 'h:mm a');
             const displayAmount = formatCurrency(Math.abs(tx.amount), tx.currency);
 

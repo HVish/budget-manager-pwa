@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import { useDashboard } from '@/api/hooks/use-dashboard';
 import { useWallets } from '@/api/hooks/use-wallets';
+import { useCategories } from '@/api/hooks/use-categories';
+import { buildCategoryMetaMap } from '@/lib/categories';
 import { useMonthStore } from '@/stores/month-store';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -23,6 +25,13 @@ export default function DashboardPage() {
         {},
       ),
     [wallets.data],
+  );
+
+  // Category display name lookup
+  const categoriesQuery = useCategories();
+  const categoryMetaMap = useMemo(
+    () => buildCategoryMetaMap(categoriesQuery.data ?? []),
+    [categoriesQuery.data],
   );
 
   return (
@@ -93,6 +102,7 @@ export default function DashboardPage() {
           <RecentTransactions
             transactions={dashboard.data.recentTransactions}
             walletMap={walletMap}
+            categoryMetaMap={categoryMetaMap}
           />
         </div>
       )}

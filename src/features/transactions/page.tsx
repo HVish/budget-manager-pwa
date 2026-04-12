@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/layout/page-header';
 import { useTransactions } from '@/api/hooks/use-transactions';
 import { useWallets } from '@/api/hooks/use-wallets';
+import { useCategories } from '@/api/hooks/use-categories';
+import { buildCategoryMetaMap } from '@/lib/categories';
 import { useMonthRange } from '@/stores/month-store';
 import type { Transaction } from '@/api/types';
 import { TRANSACTION_FILTER_TABS } from './transaction-filter-config';
@@ -51,6 +53,13 @@ export default function TransactionsPage() {
     }
     return map;
   }, [walletsQuery.data]);
+
+  // Category display name lookup
+  const categoriesQuery = useCategories();
+  const categoryMetaMap = useMemo(
+    () => buildCategoryMetaMap(categoriesQuery.data ?? []),
+    [categoriesQuery.data],
+  );
 
   // Flatten all infinite query pages into a single sorted array
   const flatTransactions = useMemo(() => data?.pages.flatMap((p) => p.transactions) ?? [], [data]);
@@ -143,6 +152,7 @@ export default function TransactionsPage() {
               dailyNet={group.dailyNet}
               currency={group.currency}
               walletMap={walletMap}
+              categoryMetaMap={categoryMetaMap}
             />
           ))}
 

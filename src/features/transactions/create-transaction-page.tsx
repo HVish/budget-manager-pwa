@@ -1,6 +1,6 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { format } from 'date-fns';
-import { Calendar, Loader2 } from 'lucide-react';
+import { Calendar, ChevronRight, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,16 +14,18 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { PageHeaderBar } from '@/components/layout/page-header-bar';
+import { CategoryPickerSheet } from '@/components/category-picker-sheet';
 import { useCreateTransaction, useCreateTransfer } from '@/api/hooks/use-transactions';
 import { useWallets } from '@/api/hooks/use-wallets';
 import { useProfile } from '@/api/hooks/use-profile';
+import { useCategories } from '@/api/hooks/use-categories';
 import { useScrollIntoViewOnFocus } from '@/hooks/use-scroll-into-view-on-focus';
 import { parseAmount } from '@/lib/currency';
 import { inputClassName } from '@/lib/form-constants';
 import { useAppNavigate } from '@/lib/navigation';
-import { getCategoryMeta, incomeCategories, expenseCategories } from '@/lib/categories';
+import { getCategoryMeta, buildCategoryMetaMap } from '@/lib/categories';
 import { cn } from '@/lib/utils';
-import type { TransactionCategory } from '@/api/types';
+import type { CategoryType } from '@/api/types';
 import { TransactionTypeTabs, type TransactionType } from './transaction-type-tabs';
 
 // ---------------------------------------------------------------------------
@@ -72,6 +74,7 @@ export default function CreateTransactionPage() {
   const [notes, setNotes] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [categorySheetOpen, setCategorySheetOpen] = useState(false);
 
   const formRef = useRef<HTMLFormElement>(null);
   useScrollIntoViewOnFocus(formRef);
@@ -103,12 +106,20 @@ export default function CreateTransactionPage() {
   );
   const currency = selectedWallet?.currency ?? profileQuery.data?.currency ?? 'INR';
 
-  const categories = type === 'income' ? incomeCategories : expenseCategories;
+  const categoryType: CategoryType = type === 'income' ? 'income' : 'expense';
+  const categoriesQuery = useCategories({ type: categoryType, sort: 'relevance' });
+  const categoryMetaMap = useMemo(
+    () => buildCategoryMetaMap(categoriesQuery.data ?? []),
+    [categoriesQuery.data],
+  );
+  const selectedCategoryLabel = category
+    ? (categoryMetaMap[category]?.label ?? getCategoryMeta(category).label)
+    : '';
 
   // Static items map so base-ui can resolve labels when the portal is closed
-  const walletItems = Object.fromEntries(wallets.map((w) => [w.id, w.name]));
-  const categoryItems = Object.fromEntries(
-    categories.map((cat) => [cat, getCategoryMeta(cat).label]),
+  const walletItems = useMemo(
+    () => Object.fromEntries((walletsQuery.data ?? []).map((w) => [w.id, w.name])),
+    [walletsQuery.data],
   );
 
   // ── Form validation ─────────────────────────────────────────────────────
@@ -186,7 +197,7 @@ export default function CreateTransactionPage() {
         await createTransaction.mutateAsync({
           walletId,
           title: title.trim(),
-          category: category as TransactionCategory,
+          category,
           amount: type === 'income' ? amt : -amt,
           transactionDate: date,
           notes: notes.trim() || undefined,
@@ -354,45 +365,53 @@ export default function CreateTransactionPage() {
         {/* Category (income/expense only) */}
         {type !== 'transfer' && (
           <div>
-            <FieldLabel htmlFor="txn-category">Category</FieldLabel>
-            <Select
-              value={category}
-              items={categoryItems}
-              onValueChange={(v) => handleCategoryChange(v ?? '')}
+            <FieldLabel>Category</FieldLabel>
+            <button
+              type="button"
+              onClick={() => setCategorySheetOpen(true)}
+              className={cn(
+                'flex w-full items-center gap-3 border transition-colors',
+                inputClassName,
+                submitted && !category && 'border-destructive',
+              )}
             >
-              <SelectTrigger
-                id="txn-category"
-                className={cn(
-                  inputClassName,
-                  'w-full',
-                  submitted && !category && 'border-destructive',
-                )}
-              >
-                <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((cat) => {
-                  const meta = getCategoryMeta(cat);
-                  const Icon = meta.icon;
-                  return (
-                    <SelectItem key={cat} value={cat}>
-                      <span
-                        className={cn(
-                          'flex size-6 items-center justify-center rounded-full text-white',
-                          meta.color,
-                        )}
-                      >
-                        <Icon className="h-3.5 w-3.5" />
-                      </span>
-                      {meta.label}
-                    </SelectItem>
-                  );
-                })}
-              </SelectContent>
-            </Select>
+              {category ? (
+                <>
+                  {(() => {
+                    const meta = categoryMetaMap[category] ?? getCategoryMeta(category);
+                    const Icon = meta.icon;
+                    return (
+                      <>
+                        <span
+                          className={cn(
+                            'flex size-6 shrink-0 items-center justify-center rounded-full text-white',
+                            meta.color,
+                          )}
+                        >
+                          <Icon className="h-3.5 w-3.5" />
+                        </span>
+                        <span className="text-foreground flex-1 text-left font-medium">
+                          {selectedCategoryLabel}
+                        </span>
+                      </>
+                    );
+                  })()}
+                </>
+              ) : (
+                <span className="text-muted-foreground flex-1 text-left">Select category</span>
+              )}
+              <ChevronRight className="text-muted-foreground size-4 shrink-0" />
+            </button>
             {submitted && !category && (
               <p className="text-destructive mt-1 text-sm">Please select a category</p>
             )}
+            <CategoryPickerSheet
+              open={categorySheetOpen}
+              onOpenChange={setCategorySheetOpen}
+              type={categoryType}
+              value={category}
+              onChange={handleCategoryChange}
+            />
           </div>
         )}
 

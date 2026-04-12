@@ -34,6 +34,9 @@ tags:
   - name: Budgets
     description: Per-category monthly budget rules and spending tracking
     x-displayName: Budgets
+  - name: Categories
+    description: Default and user-custom category management
+    x-displayName: Categories
 paths:
   /api/v1/budgets:
     get:
@@ -214,6 +217,180 @@ paths:
       responses:
         '204':
           description: Budget rule deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - BearerAuth: []
+  /api/v1/categories:
+    get:
+      tags:
+        - Categories
+      summary: List all categories
+      description: >
+        Returns all categories (defaults + user custom) with optional type
+        filter
+
+        and relevance sorting based on 90-day transaction usage.
+      operationId: listCategories
+      parameters:
+        - name: type
+          in: query
+          description: Filter by category type
+          schema:
+            $ref: '#/components/schemas/CategoryType'
+        - name: sort
+          in: query
+          description: Sort order (relevance sorts by 90-day usage count descending)
+          schema:
+            type: string
+            enum:
+              - name
+              - relevance
+            default: name
+      responses:
+        '200':
+          description: Categories retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - BearerAuth: []
+    post:
+      tags:
+        - Categories
+      summary: Create custom category
+      description: >
+        Create a new custom category for the authenticated user.
+
+        The category name must not collide with a default category of the same
+        type.
+
+        If name is not provided, it is auto-generated from display_name
+
+        (uppercase, spaces replaced with underscores).
+      operationId: createCategory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryCreate'
+      responses:
+        '201':
+          description: Category created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: Category with this name and type already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - BearerAuth: []
+  /api/v1/categories/search:
+    get:
+      tags:
+        - Categories
+      summary: Search categories (autocomplete)
+      description: |
+        Search categories by name or display name for autocomplete.
+        Returns matching categories sorted by relevance (90-day usage count).
+      operationId: searchCategories
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Search query (matches against name and display_name)
+          schema:
+            type: string
+            minLength: 1
+        - name: type
+          in: query
+          description: Filter by category type
+          schema:
+            $ref: '#/components/schemas/CategoryType'
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - BearerAuth: []
+  /api/v1/categories/{categoryId}:
+    parameters:
+      - $ref: '#/components/parameters/CategoryId'
+    patch:
+      tags:
+        - Categories
+      summary: Update custom category
+      description: >-
+        Update the display name of a custom category. Default categories cannot
+        be updated.
+      operationId: updateCategory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryUpdate'
+      responses:
+        '200':
+          description: Category updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - BearerAuth: []
+    delete:
+      tags:
+        - Categories
+      summary: Delete custom category
+      description: |
+        Delete a custom category. Default categories cannot be deleted.
+        Existing transactions retain their category string value.
+      operationId: deleteCategory
+      responses:
+        '204':
+          description: Category deleted successfully
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
@@ -1093,6 +1270,89 @@ components:
         - percentageConsumed
         - originalCurrency
         - originalLimit
+    Category:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Category UUID
+          example: 550e8400-e29b-41d4-a716-446655440000
+        name:
+          type: string
+          maxLength: 50
+          description: Internal category key (uppercase)
+          example: GROCERIES
+        displayName:
+          type: string
+          maxLength: 100
+          description: User-facing display label
+          example: Groceries
+        type:
+          $ref: '#/components/schemas/CategoryType'
+        isSystem:
+          type: boolean
+          description: Whether this is a system category (TRANSFER, CORRECTION)
+          example: false
+        source:
+          type: string
+          enum:
+            - default
+            - custom
+          description: Whether the category is a shared default or user-created
+          example: default
+        usageCount:
+          type: integer
+          format: int64
+          description: Number of transactions using this category in the last 90 days
+          example: 42
+      required:
+        - id
+        - name
+        - displayName
+        - type
+        - isSystem
+        - source
+        - usageCount
+    CategoryCreate:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 50
+          description: |
+            Internal category key (uppercase, alphanumeric + underscores).
+            If omitted, auto-generated from displayName.
+          example: EATING_OUT
+        displayName:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: User-facing display label
+          example: Eating Out
+        type:
+          $ref: '#/components/schemas/CategoryType'
+      required:
+        - displayName
+        - type
+    CategoryType:
+      type: string
+      enum:
+        - income
+        - expense
+      description: Category type (income or expense)
+      example: expense
+    CategoryUpdate:
+      type: object
+      properties:
+        displayName:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: New display label
+          example: Dining Out
+      required:
+        - displayName
     DashboardResponse:
       type: object
       properties:
@@ -1822,6 +2082,15 @@ components:
       in: path
       required: true
       description: Budget rule ID (UUID)
+      schema:
+        type: string
+        format: uuid
+      example: 550e8400-e29b-41d4-a716-446655440000
+    CategoryId:
+      name: categoryId
+      in: path
+      required: true
+      description: Category ID (UUID)
       schema:
         type: string
         format: uuid

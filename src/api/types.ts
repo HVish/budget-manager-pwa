@@ -37,30 +37,37 @@ export interface BalanceHistoryEntry {
   balance: number;
 }
 
-// ── Transactions ────────────────────────────────────────────────────────────
+// ── Categories ──────────────────────────────────────────────────────────────
 
-export type TransactionCategory =
-  | 'SALARY'
-  | 'FREELANCE'
-  | 'INVESTMENT'
-  | 'GROCERIES'
-  | 'TRANSPORT'
-  | 'ENTERTAINMENT'
-  | 'SHOPPING'
-  | 'FOOD'
-  | 'UTILITIES'
-  | 'HOUSING'
-  | 'DEBT'
-  | 'HEALTH'
-  | 'OTHER'
-  | 'CORRECTION'
-  | 'TRANSFER';
+export type CategoryType = 'income' | 'expense';
+export type CategorySource = 'default' | 'custom';
+
+export interface Category {
+  id: string;
+  name: string;
+  displayName: string;
+  type: CategoryType;
+  isSystem: boolean;
+  source: CategorySource;
+  usageCount: number;
+}
+
+export interface CategoryCreate {
+  displayName: string;
+  type: CategoryType;
+}
+
+export interface CategoryUpdate {
+  displayName: string;
+}
+
+// ── Transactions ────────────────────────────────────────────────────────────
 
 export interface Transaction {
   id: string;
   walletId: string;
   title: string;
-  category: TransactionCategory;
+  category: string;
   tags?: string[];
   amount: number; // signed int64 minor units (negative=debit, positive=credit)
   currency: Currency;
@@ -74,7 +81,7 @@ export interface Transaction {
 export interface TransactionCreate {
   walletId: string;
   title: string;
-  category: TransactionCategory;
+  category: string;
   tags?: string[];
   amount: number;
   transactionDate: string;
@@ -83,7 +90,7 @@ export interface TransactionCreate {
 
 export interface TransactionUpdate {
   title?: string;
-  category?: TransactionCategory;
+  category?: string;
   tags?: string[];
   amount?: number;
   transactionDate?: string;
@@ -133,7 +140,7 @@ export interface DashboardTransaction {
   id: string;
   walletId: string;
   title: string;
-  category: TransactionCategory;
+  category: string;
   amount: number;
   currency: Currency;
   transactionDate: string;
@@ -160,7 +167,7 @@ export interface DashboardResponse {
 
 export interface Budget {
   id: string;
-  category: TransactionCategory;
+  category: string;
   limitAmount: number;
   currency: Currency;
   spentAmount: number;
@@ -170,7 +177,7 @@ export interface Budget {
 }
 
 export interface BudgetCreate {
-  category: TransactionCategory;
+  category: string;
   limitAmount: number;
   currency: Currency;
 }
@@ -182,7 +189,7 @@ export interface BudgetUpdate {
 
 export interface BudgetSummaryItem {
   id: string;
-  category: TransactionCategory;
+  category: string;
   limitAmount: number;
   spentAmount: number;
   percentageConsumed: number;

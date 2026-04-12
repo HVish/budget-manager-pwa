@@ -11,7 +11,8 @@ import { useMonthStore, useMonthRange } from '@/stores/month-store';
 import { formatCurrency } from '@/lib/currency';
 import { formatMonthYear } from '@/lib/date';
 import { walletTypeConfig, getWalletSubtitle } from '@/lib/wallet-types';
-import { getCategoryMeta } from '@/lib/categories';
+import { useCategories } from '@/api/hooks/use-categories';
+import { getCategoryMeta, buildCategoryMetaMap } from '@/lib/categories';
 import { useAppNavigate } from '@/lib/navigation';
 import { cn } from '@/lib/utils';
 import { BalanceHistoryChart } from './balance-history-chart';
@@ -75,6 +76,12 @@ export default function WalletDetailPage() {
   );
 
   const dateGroups = useMemo(() => groupTransactionsByDate(allTransactions), [allTransactions]);
+
+  const categoriesQuery = useCategories();
+  const categoryMetaMap = useMemo(
+    () => buildCategoryMetaMap(categoriesQuery.data ?? []),
+    [categoriesQuery.data],
+  );
 
   if (isLoading) {
     return (
@@ -205,7 +212,7 @@ export default function WalletDetailPage() {
               {/* Transaction rows */}
               <div className="space-y-3.5">
                 {group.transactions.map((tx) => {
-                  const meta = getCategoryMeta(tx.category);
+                  const meta = categoryMetaMap[tx.category] ?? getCategoryMeta(tx.category);
                   const Icon = meta.icon;
                   const isIncome = tx.amount > 0;
                   const time = format(parseISO(tx.transactionDate), 'h:mm a');

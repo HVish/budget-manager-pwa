@@ -1,5 +1,5 @@
-import { useState, useRef } from 'react';
-import { Loader2 } from 'lucide-react';
+import { useState, useRef, useMemo } from 'react';
+import { ChevronRight, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { CurrencyInput } from '@/components/ui/currency-input';
@@ -12,23 +12,24 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { PageHeaderBar } from '@/components/layout/page-header-bar';
+import { CategoryPickerSheet } from '@/components/category-picker-sheet';
 import { useBudgets, useCreateBudget } from '@/api/hooks/use-budgets';
+import { useCategories } from '@/api/hooks/use-categories';
 import { useProfile } from '@/api/hooks/use-profile';
 import { useScrollIntoViewOnFocus } from '@/hooks/use-scroll-into-view-on-focus';
 import { parseAmount } from '@/lib/currency';
 import { inputClassName } from '@/lib/form-constants';
 import { useAppNavigate } from '@/lib/navigation';
-import { getCategoryMeta, allBudgetableCategories } from '@/lib/categories';
+import { getCategoryMeta, buildCategoryMetaMap } from '@/lib/categories';
 import { cn } from '@/lib/utils';
-import type { TransactionCategory, Currency } from '@/api/types';
+import type { Currency } from '@/api/types';
 import { currencies } from '@/features/wallets/wallet-form-constants';
-
-// TRANSFER and CORRECTION are excluded by allBudgetableCategories
 
 export default function CreateBudgetPage() {
   const navigate = useAppNavigate();
   const profileQuery = useProfile();
   const budgetsQuery = useBudgets();
+  const categoriesQuery = useCategories({ type: 'expense', sort: 'relevance' });
   const createBudget = useCreateBudget();
 
   const defaultCurrency = profileQuery.data?.currency ?? 'INR';
@@ -39,13 +40,27 @@ export default function CreateBudgetPage() {
   const currency = currencyOverride ?? defaultCurrency;
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [categorySheetOpen, setCategorySheetOpen] = useState(false);
 
   const formRef = useRef<HTMLFormElement>(null);
   useScrollIntoViewOnFocus(formRef);
 
-  const existingCategories = new Set((budgetsQuery.data ?? []).map((b) => b.category));
+  const existingCategories = useMemo(
+    () => new Set((budgetsQuery.data ?? []).map((b) => b.category)),
+    [budgetsQuery.data],
+  );
+  const categoryMetaMap = useMemo(
+    () => buildCategoryMetaMap(categoriesQuery.data ?? []),
+    [categoriesQuery.data],
+  );
+  const selectedCategoryLabel = category
+    ? (categoryMetaMap[category]?.label ?? getCategoryMeta(category).label)
+    : '';
 
-  const availableCategories = allBudgetableCategories.filter((cat) => !existingCategories.has(cat));
+  const hasAvailableCategories = useMemo(() => {
+    const allCats = categoriesQuery.data ?? [];
+    return allCats.some((cat) => !cat.isSystem && !existingCategories.has(cat.name));
+  }, [categoriesQuery.data, existingCategories]);
 
   const isAmountValid = parseAmount(amount) > 0;
   const isCategoryValid = !!category;
@@ -70,7 +85,7 @@ export default function CreateBudgetPage() {
 
     try {
       await createBudget.mutateAsync({
-        category: category as TransactionCategory,
+        category,
         limitAmount: parseAmount(amount),
         currency,
       });
@@ -79,10 +94,6 @@ export default function CreateBudgetPage() {
       setError('Failed to create budget. Please try again.');
     }
   }
-
-  const categoryItems = Object.fromEntries(
-    availableCategories.map((cat) => [cat, getCategoryMeta(cat).label]),
-  );
 
   return (
     <div className="bg-background flex h-dvh flex-col">
@@ -95,50 +106,60 @@ export default function CreateBudgetPage() {
       >
         {/* Category */}
         <div>
-          <FieldLabel htmlFor="budget-category">Category</FieldLabel>
-          {availableCategories.length === 0 ? (
+          <FieldLabel>Category</FieldLabel>
+          {!hasAvailableCategories && !categoriesQuery.isLoading ? (
             <p className="text-muted-foreground text-sm">All categories have been budgeted.</p>
           ) : (
-            <Select
-              value={category}
-              items={categoryItems}
-              onValueChange={(v) => {
-                setCategory(v ?? '');
-                setError(null);
-              }}
-            >
-              <SelectTrigger
-                id="budget-category"
+            <>
+              <button
+                type="button"
+                onClick={() => setCategorySheetOpen(true)}
                 className={cn(
+                  'flex w-full items-center gap-3 border transition-colors',
                   inputClassName,
-                  'w-full',
                   submitted && !category && 'border-destructive',
                 )}
               >
-                <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-              <SelectContent>
-                {availableCategories.map((cat) => {
-                  const meta = getCategoryMeta(cat);
-                  const Icon = meta.icon;
-                  return (
-                    <SelectItem key={cat} value={cat}>
-                      <span
-                        className={cn(
-                          'flex size-6 items-center justify-center rounded-full text-white',
-                          meta.color,
-                        )}
-                      >
-                        <Icon className="h-3.5 w-3.5" />
-                      </span>
-                      {meta.label}
-                    </SelectItem>
-                  );
-                })}
-              </SelectContent>
-            </Select>
+                {category ? (
+                  <>
+                    {(() => {
+                      const meta = categoryMetaMap[category] ?? getCategoryMeta(category);
+                      const Icon = meta.icon;
+                      return (
+                        <>
+                          <span
+                            className={cn(
+                              'flex size-6 shrink-0 items-center justify-center rounded-full text-white',
+                              meta.color,
+                            )}
+                          >
+                            <Icon className="h-3.5 w-3.5" />
+                          </span>
+                          <span className="text-foreground flex-1 text-left font-medium">
+                            {selectedCategoryLabel}
+                          </span>
+                        </>
+                      );
+                    })()}
+                  </>
+                ) : (
+                  <span className="text-muted-foreground flex-1 text-left">Select category</span>
+                )}
+                <ChevronRight className="text-muted-foreground size-4 shrink-0" />
+              </button>
+              <CategoryPickerSheet
+                open={categorySheetOpen}
+                onOpenChange={setCategorySheetOpen}
+                type="expense"
+                value={category}
+                onChange={(name) => {
+                  setCategory(name);
+                  setError(null);
+                }}
+              />
+            </>
           )}
-          {submitted && !category && availableCategories.length > 0 && (
+          {submitted && !category && hasAvailableCategories && (
             <p className="text-destructive mt-1 text-sm">Please select a category</p>
           )}
         </div>
@@ -193,7 +214,7 @@ export default function CreateBudgetPage() {
         <div className="pt-8">
           <Button
             type="submit"
-            disabled={isPending || availableCategories.length === 0}
+            disabled={isPending || !hasAvailableCategories}
             className={cn(
               'h-14 w-full rounded-xl text-base font-bold disabled:opacity-100',
               isFormValid && !isPending

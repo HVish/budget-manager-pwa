@@ -1,19 +1,24 @@
 import { format, parseISO } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { formatCurrency } from '@/lib/currency';
-import { getCategoryMeta } from '@/lib/categories';
+import { getCategoryMeta, type CategoryMeta } from '@/lib/categories';
 import type { Transaction } from '@/api/types';
 
 interface TransactionRowProps {
   transaction: Transaction;
   walletName: string;
+  categoryMetaMap?: Record<string, CategoryMeta>;
 }
 
-export function TransactionRow({ transaction: tx, walletName }: TransactionRowProps) {
-  const meta = getCategoryMeta(tx.category);
+export function TransactionRow({
+  transaction: tx,
+  walletName,
+  categoryMetaMap,
+}: TransactionRowProps) {
+  const meta = categoryMetaMap?.[tx.category] ?? getCategoryMeta(tx.category);
   const Icon = meta.icon;
   const isIncome = tx.amount > 0;
-  const subtitle = [meta.label, walletName].filter(Boolean).join(' · ');
+  const subtitle = [meta.label, walletName].filter(Boolean).join(' \u00b7 ');
   const time = format(parseISO(tx.transactionDate), 'h:mm a');
   const displayAmount = formatCurrency(Math.abs(tx.amount), tx.currency);
 

@@ -23,6 +23,7 @@ const EditWalletPage = lazy(() => import('@/features/wallets/edit-wallet-page'))
 const CreateTransactionPage = lazy(() => import('@/features/transactions/create-transaction-page'));
 const CreateBudgetPage = lazy(() => import('@/features/budgets/create-budget-page'));
 const EditBudgetPage = lazy(() => import('@/features/budgets/edit-budget-page'));
+const CategoriesPage = lazy(() => import('@/features/categories/page'));
 
 export default function AppRoutes() {
   usePopstateViewTransitions();
@@ -69,6 +70,7 @@ export default function AppRoutes() {
         <Route path="/transactions/new" element={<CreateTransactionPage />} />
         <Route path="/budgets/new" element={<CreateBudgetPage />} />
         <Route path="/budgets/:id/edit" element={<EditBudgetPage />} />
+        <Route path="/categories" element={<CategoriesPage />} />
       </Route>
 
       <Route path="/" element={<RootRedirect />} />

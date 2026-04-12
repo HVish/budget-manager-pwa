@@ -1,5 +1,6 @@
 import { format, parseISO } from 'date-fns';
 import { formatCurrencyCompact } from '@/lib/currency';
+import type { CategoryMeta } from '@/lib/categories';
 import type { Transaction } from '@/api/types';
 import { TransactionRow } from './transaction-row';
 
@@ -9,6 +10,7 @@ interface TransactionDateGroupProps {
   dailyNet: number; // sum of amounts for this date
   currency: string | null; // null if mixed currencies
   walletMap: Record<string, string>;
+  categoryMetaMap?: Record<string, CategoryMeta>;
 }
 
 export function TransactionDateGroup({
@@ -17,6 +19,7 @@ export function TransactionDateGroup({
   dailyNet,
   currency,
   walletMap,
+  categoryMetaMap,
 }: TransactionDateGroupProps) {
   const formattedDate = format(parseISO(date), 'MMM d, yyyy');
 
@@ -37,7 +40,12 @@ export function TransactionDateGroup({
 
       {/* Transaction rows */}
       {transactions.map((tx) => (
-        <TransactionRow key={tx.id} transaction={tx} walletName={walletMap[tx.walletId] ?? ''} />
+        <TransactionRow
+          key={tx.id}
+          transaction={tx}
+          walletName={walletMap[tx.walletId] ?? ''}
+          categoryMetaMap={categoryMetaMap}
+        />
       ))}
     </section>
   );

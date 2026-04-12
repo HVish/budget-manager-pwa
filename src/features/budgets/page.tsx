@@ -2,6 +2,8 @@ import { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/layout/page-header';
 import { useBudgetSummary } from '@/api/hooks/use-budgets';
+import { useCategories } from '@/api/hooks/use-categories';
+import { buildCategoryMetaMap } from '@/lib/categories';
 import { useMonthStore } from '@/stores/month-store';
 import { BudgetsSkeleton } from './budgets-skeleton';
 import { BudgetEmpty } from './budget-empty';
@@ -11,6 +13,12 @@ import { BudgetCard } from './budget-card';
 export default function BudgetsPage() {
   const { year, month } = useMonthStore();
   const { data, isLoading, isError, refetch } = useBudgetSummary(year, month);
+
+  const categoriesQuery = useCategories({ type: 'expense' });
+  const categoryMetaMap = useMemo(
+    () => buildCategoryMetaMap(categoriesQuery.data ?? []),
+    [categoriesQuery.data],
+  );
 
   const sortedBudgets = useMemo(() => {
     if (!data) return [];
@@ -83,7 +91,12 @@ export default function BudgetsPage() {
         </div>
         <div className="space-y-3 px-4 pb-24">
           {sortedBudgets.map((item) => (
-            <BudgetCard key={item.category} item={item} primaryCurrency={data.primaryCurrency} />
+            <BudgetCard
+              key={item.category}
+              item={item}
+              primaryCurrency={data.primaryCurrency}
+              categoryMetaMap={categoryMetaMap}
+            />
           ))}
         </div>
       </section>

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { useParams } from 'react-router';
 import { Loader2, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -16,11 +16,12 @@ import {
 } from '@/components/ui/select';
 import { PageHeaderBar } from '@/components/layout/page-header-bar';
 import { useBudget, useUpdateBudget } from '@/api/hooks/use-budgets';
+import { useCategories } from '@/api/hooks/use-categories';
 import { useScrollIntoViewOnFocus } from '@/hooks/use-scroll-into-view-on-focus';
 import { formatAmount, parseAmount } from '@/lib/currency';
 import { inputClassName } from '@/lib/form-constants';
 import { useAppNavigate } from '@/lib/navigation';
-import { getCategoryMeta } from '@/lib/categories';
+import { getCategoryMeta, buildCategoryMetaMap } from '@/lib/categories';
 import { cn } from '@/lib/utils';
 import type { Budget, Currency } from '@/api/types';
 import { currencies } from '@/features/wallets/wallet-form-constants';
@@ -46,7 +47,12 @@ function EditBudgetForm({ budget }: EditBudgetFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
   useScrollIntoViewOnFocus(formRef);
 
-  const meta = getCategoryMeta(budget.category);
+  const categoriesQuery = useCategories({ type: 'expense' });
+  const categoryMetaMap = useMemo(
+    () => buildCategoryMetaMap(categoriesQuery.data ?? []),
+    [categoriesQuery.data],
+  );
+  const meta = categoryMetaMap[budget.category] ?? getCategoryMeta(budget.category);
   const Icon = meta.icon;
 
   const newAmount = parseAmount(amount);
@@ -98,11 +104,11 @@ function EditBudgetForm({ budget }: EditBudgetFormProps) {
           <div className="flex items-center gap-3">
             <div
               className={cn(
-                'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
+                'flex size-10 shrink-0 items-center justify-center rounded-full text-white',
                 meta.color,
               )}
             >
-              <Icon className="h-5 w-5 text-white" />
+              <Icon className="size-5" />
             </div>
             <p className="text-foreground text-base font-semibold">{meta.label}</p>
           </div>

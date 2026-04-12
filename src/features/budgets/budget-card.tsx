@@ -2,7 +2,7 @@ import { Pencil } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/currency';
-import { getCategoryMeta } from '@/lib/categories';
+import { getCategoryMeta, type CategoryMeta } from '@/lib/categories';
 import { getProgressColor } from '@/lib/budget';
 import { useAppNavigate } from '@/lib/navigation';
 import { cn } from '@/lib/utils';
@@ -11,12 +11,13 @@ import type { BudgetSummaryItem, Currency } from '@/api/types';
 interface BudgetCardProps {
   item: BudgetSummaryItem;
   primaryCurrency: Currency;
+  categoryMetaMap?: Record<string, CategoryMeta>;
 }
 
-export function BudgetCard({ item, primaryCurrency }: BudgetCardProps) {
+export function BudgetCard({ item, primaryCurrency, categoryMetaMap }: BudgetCardProps) {
   const navigate = useAppNavigate();
 
-  const meta = getCategoryMeta(item.category);
+  const meta = categoryMetaMap?.[item.category] ?? getCategoryMeta(item.category);
   const Icon = meta.icon;
 
   const pct = Math.round(item.percentageConsumed);
