@@ -21,6 +21,7 @@ const SettingsPage = lazy(() => import('@/features/settings/page'));
 const CreateWalletPage = lazy(() => import('@/features/wallets/create-wallet-page'));
 const EditWalletPage = lazy(() => import('@/features/wallets/edit-wallet-page'));
 const TransactionDetailPage = lazy(() => import('@/features/transactions/transaction-detail-page'));
+const EditTransactionPage = lazy(() => import('@/features/transactions/edit-transaction-page'));
 const CreateTransactionPage = lazy(() => import('@/features/transactions/create-transaction-page'));
 const CreateBudgetPage = lazy(() => import('@/features/budgets/create-budget-page'));
 const EditBudgetPage = lazy(() => import('@/features/budgets/edit-budget-page'));
@@ -69,6 +70,7 @@ export default function AppRoutes() {
         <Route path="/wallets/new" element={<CreateWalletPage />} />
         <Route path="/wallets/:id/edit" element={<EditWalletPage />} />
         <Route path="/transactions/:id" element={<TransactionDetailPage />} />
+        <Route path="/transactions/:id/edit" element={<EditTransactionPage />} />
         <Route path="/transactions/new" element={<CreateTransactionPage />} />
         <Route path="/budgets/new" element={<CreateBudgetPage />} />
         <Route path="/budgets/:id/edit" element={<EditBudgetPage />} />
