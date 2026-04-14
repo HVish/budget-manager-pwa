@@ -46,6 +46,7 @@ const fixtures = {
   budgetSummary: loadFixture('budget-summary'),
   walletHistory: loadFixture('wallet-history'),
   transactions: loadFixture('transactions'),
+  categories: loadFixture('categories'),
 };
 
 const emptyDashboard = {
@@ -160,6 +161,19 @@ async function mockApi(route: Route, overrides: MockOverrides = {}) {
           ? { transactions: [], pagination: { nextCursor: null, hasMore: false, limit: 20 } }
           : fixtures.transactions,
       ),
+    });
+  }
+
+  // Categories
+  if (url.includes('/api/v1/categories')) {
+    const typeParam = new URL(url).searchParams.get('type');
+    const categories = typeParam
+      ? fixtures.categories.filter((c: { type: string }) => c.type === typeParam)
+      : fixtures.categories;
+    return route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(categories),
     });
   }
 

@@ -1,0 +1,65 @@
+[
+  {
+    "id": "cat-salary",
+    "name": "SALARY",
+    "displayName": "Salary",
+    "type": "income",
+    "isSystem": true,
+    "source": "default",
+    "usageCount": 12
+  },
+  {
+    "id": "cat-freelance",
+    "name": "FREELANCE",
+    "displayName": "Freelance",
+    "type": "income",
+    "isSystem": true,
+    "source": "default",
+    "usageCount": 5
+  },
+  {
+    "id": "cat-groceries",
+    "name": "GROCERIES",
+    "displayName": "Groceries",
+    "type": "expense",
+    "isSystem": true,
+    "source": "default",
+    "usageCount": 20
+  },
+  {
+    "id": "cat-entertainment",
+    "name": "ENTERTAINMENT",
+    "displayName": "Entertainment",
+    "type": "expense",
+    "isSystem": true,
+    "source": "default",
+    "usageCount": 8
+  },
+  {
+    "id": "cat-transport",
+    "name": "TRANSPORT",
+    "displayName": "Transport",
+    "type": "expense",
+    "isSystem": true,
+    "source": "default",
+    "usageCount": 15
+  },
+  {
+    "id": "cat-utilities",
+    "name": "UTILITIES",
+    "displayName": "Utilities",
+    "type": "expense",
+    "isSystem": true,
+    "source": "default",
+    "usageCount": 6
+  },
+  {
+    "id": "cat-food",
+    "name": "FOOD",
+    "displayName": "Food",
+    "type": "expense",
+    "isSystem": true,
+    "source": "default",
+    "usageCount": 18
+  }
+]
