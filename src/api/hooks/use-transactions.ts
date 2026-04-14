@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/api/client';
 import type {
   TransactionListResponse,
@@ -19,6 +19,14 @@ interface TransactionFilters {
   tags?: string[];
   isTransfer?: boolean;
   limit?: number;
+}
+
+export function useTransaction(transactionId: string) {
+  return useQuery({
+    queryKey: ['transactions', transactionId],
+    queryFn: () => api.get(`api/v1/transactions/${transactionId}`).json<Transaction>(),
+    enabled: !!transactionId,
+  });
 }
 
 export function useTransactions(filters: TransactionFilters = {}) {
@@ -89,7 +97,8 @@ export function useDeleteTransaction() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (transactionId: string) => api.delete(`api/v1/transactions/${transactionId}`),
-    onSuccess: () => {
+    onSuccess: (_data, transactionId) => {
+      queryClient.removeQueries({ queryKey: ['transactions', transactionId] });
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       queryClient.invalidateQueries({ queryKey: ['wallets'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });

@@ -1,3 +1,4 @@
+import { AppLink } from '@/components/ui/app-link';
 import { cn } from '@/lib/utils';
 import { formatCurrency } from '@/lib/currency';
 import { getCategoryMeta, type CategoryMeta } from '@/lib/categories';
@@ -31,8 +32,10 @@ export function TransactionRow({
   const displayAmount = formatCurrency(Math.abs(tx.amount), tx.currency);
 
   return (
-    // TODO: Make rows tappable when transaction detail page is implemented
-    <div className="bg-card ring-foreground/10 flex cursor-pointer items-center gap-3 rounded-2xl p-3 ring-1 transition-transform active:scale-[0.98]">
+    <AppLink
+      to={`/transactions/${tx.id}`}
+      className="bg-card ring-foreground/10 focus-visible:ring-ring/50 flex items-center gap-3 rounded-2xl p-3 ring-1 transition-transform outline-none focus-visible:ring-3 active:scale-[0.98]"
+    >
       {/* Category icon */}
       <div
         className={cn(
@@ -40,7 +43,7 @@ export function TransactionRow({
           meta.color,
         )}
       >
-        <Icon className="h-5 w-5" />
+        <Icon className="size-5" />
       </div>
 
       {/* Title + subtitle */}
@@ -59,6 +62,6 @@ export function TransactionRow({
         {isIncome ? '+' : '-'}
         {displayAmount}
       </span>
-    </div>
+    </AppLink>
   );
 }
