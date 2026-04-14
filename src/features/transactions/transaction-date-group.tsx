@@ -24,9 +24,9 @@ export function TransactionDateGroup({
   const formattedDate = format(parseISO(date), 'MMM d, yyyy');
 
   return (
-    <section aria-label={`Transactions on ${formattedDate}`} className="space-y-3.5">
+    <section aria-label={`Transactions on ${formattedDate}`} className="space-y-3">
       {/* Date header row */}
-      <div className="flex items-center justify-between px-1 pt-1 pb-1.5">
+      <div className="flex items-center justify-between px-1 py-1">
         <h2 className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
           {formattedDate}
         </h2>

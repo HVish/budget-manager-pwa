@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useParams } from 'react-router';
 import { Pencil, Trash2 } from 'lucide-react';
-import { format, parseISO } from 'date-fns';
+import { TransactionDateGroup } from '@/features/transactions/transaction-date-group';
 import { Button } from '@/components/ui/button';
 import { PageHeaderBar } from '@/components/layout/page-header-bar';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -12,42 +12,12 @@ import { formatCurrency } from '@/lib/currency';
 import { formatMonthYear } from '@/lib/date';
 import { walletTypeConfig, getWalletSubtitle } from '@/lib/wallet-types';
 import { useCategories } from '@/api/hooks/use-categories';
-import { getCategoryMeta, buildCategoryMetaMap } from '@/lib/categories';
+import { buildCategoryMetaMap } from '@/lib/categories';
 import { useAppNavigate } from '@/lib/navigation';
 import { cn } from '@/lib/utils';
 import { BalanceHistoryChart } from './balance-history-chart';
 import { DeleteWalletDialog } from './delete-wallet-dialog';
-import type { Transaction } from '@/api/types';
-
-// ---------------------------------------------------------------------------
-// DateGroupedTransactions — groups transactions by date, shows daily totals
-// ---------------------------------------------------------------------------
-
-interface DateGroup {
-  date: string; // ISO date string
-  label: string; // Formatted display: "DEC 31, 2025"
-  total: number; // Sum of all amounts for this day (minor units)
-  transactions: Transaction[];
-}
-
-function groupTransactionsByDate(transactions: Transaction[]): DateGroup[] {
-  const groups = new Map<string, Transaction[]>();
-  for (const tx of transactions) {
-    const dateKey = tx.transactionDate.slice(0, 10);
-    const existing = groups.get(dateKey) ?? [];
-    existing.push(tx);
-    groups.set(dateKey, existing);
-  }
-
-  return Array.from(groups.entries())
-    .sort(([a], [b]) => b.localeCompare(a)) // newest first
-    .map(([dateKey, txs]) => ({
-      date: dateKey,
-      label: format(parseISO(dateKey), 'MMM d, yyyy').toUpperCase(),
-      total: txs.reduce((sum, tx) => sum + tx.amount, 0),
-      transactions: txs,
-    }));
-}
+import { groupTransactionsByDate } from '@/features/transactions/group-by-date';
 
 // ---------------------------------------------------------------------------
 // WalletDetailPage
@@ -75,7 +45,12 @@ export default function WalletDetailPage() {
     [txQuery.data],
   );
 
-  const dateGroups = useMemo(() => groupTransactionsByDate(allTransactions), [allTransactions]);
+  const dateGroups = useMemo(
+    () => groupTransactionsByDate(allTransactions, wallet?.currency),
+    [allTransactions, wallet?.currency],
+  );
+
+  const walletMap = useMemo(() => (wallet ? { [wallet.id]: wallet.name } : {}), [wallet]);
 
   const categoriesQuery = useCategories();
   const categoryMetaMap = useMemo(
@@ -199,62 +174,19 @@ export default function WalletDetailPage() {
             </div>
           )}
 
-          {dateGroups.map((group) => (
-            <div key={group.date} className="mb-4">
-              {/* Date header with daily total */}
-              <div className="mb-2 flex items-center justify-between">
-                <p className="text-muted-foreground text-xs font-medium">{group.label}</p>
-                <p className="text-muted-foreground text-xs font-medium">
-                  {formatCurrency(group.total, wallet.currency)}
-                </p>
-              </div>
-
-              {/* Transaction rows */}
-              <div className="space-y-3.5">
-                {group.transactions.map((tx) => {
-                  const meta = categoryMetaMap[tx.category] ?? getCategoryMeta(tx.category);
-                  const Icon = meta.icon;
-                  const isIncome = tx.amount > 0;
-                  const time = format(parseISO(tx.transactionDate), 'h:mm a');
-                  const displayAmount = formatCurrency(Math.abs(tx.amount), tx.currency);
-
-                  return (
-                    <div
-                      key={tx.id}
-                      className="bg-card ring-foreground/10 flex items-center gap-3 rounded-xl p-3 ring-1"
-                    >
-                      <div
-                        className={cn(
-                          'flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white',
-                          meta.color,
-                        )}
-                      >
-                        <Icon className="h-5 w-5" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-foreground truncate text-sm font-medium">{tx.title}</p>
-                        <p className="text-muted-foreground truncate text-xs">
-                          {meta.label} · {wallet.name}
-                        </p>
-                      </div>
-                      <div className="flex shrink-0 flex-col items-end">
-                        <span
-                          className={cn(
-                            'text-sm font-semibold',
-                            isIncome ? 'text-income' : 'text-foreground',
-                          )}
-                        >
-                          {isIncome ? '+' : '-'}
-                          {displayAmount}
-                        </span>
-                        <span className="text-muted-foreground text-xs">{time}</span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
+          <div className="space-y-4">
+            {dateGroups.map((group) => (
+              <TransactionDateGroup
+                key={group.date}
+                date={group.date}
+                transactions={group.transactions}
+                dailyNet={group.dailyNet}
+                currency={wallet.currency}
+                walletMap={walletMap}
+                categoryMetaMap={categoryMetaMap}
+              />
+            ))}
+          </div>
 
           {/* Load more */}
           {txQuery.hasNextPage && (
@@ -262,6 +194,7 @@ export default function WalletDetailPage() {
               <Button
                 variant="ghost"
                 size="sm"
+                className="min-h-11"
                 onClick={() => txQuery.fetchNextPage()}
                 disabled={txQuery.isFetchingNextPage}
               >

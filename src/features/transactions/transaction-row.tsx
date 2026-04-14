@@ -1,11 +1,20 @@
-import { format, parseISO } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { formatCurrency } from '@/lib/currency';
 import { getCategoryMeta, type CategoryMeta } from '@/lib/categories';
-import type { Transaction } from '@/api/types';
+import type { Currency } from '@/api/types';
+
+/** Minimal transaction shape — works with both Transaction and DashboardTransaction */
+export interface TransactionLike {
+  id: string;
+  title: string;
+  category: string;
+  amount: number;
+  currency: Currency;
+  walletId: string;
+}
 
 interface TransactionRowProps {
-  transaction: Transaction;
+  transaction: TransactionLike;
   walletName: string;
   categoryMetaMap?: Record<string, CategoryMeta>;
 }
@@ -19,12 +28,11 @@ export function TransactionRow({
   const Icon = meta.icon;
   const isIncome = tx.amount > 0;
   const subtitle = [meta.label, walletName].filter(Boolean).join(' \u00b7 ');
-  const time = format(parseISO(tx.transactionDate), 'h:mm a');
   const displayAmount = formatCurrency(Math.abs(tx.amount), tx.currency);
 
   return (
     // TODO: Make rows tappable when transaction detail page is implemented
-    <div className="bg-card ring-foreground/10 flex cursor-pointer items-center gap-3 rounded-xl p-3 ring-1 transition-transform active:scale-[0.98]">
+    <div className="bg-card ring-foreground/10 flex cursor-pointer items-center gap-3 rounded-2xl p-3 ring-1 transition-transform active:scale-[0.98]">
       {/* Category icon */}
       <div
         className={cn(
@@ -41,14 +49,16 @@ export function TransactionRow({
         <p className="text-muted-foreground truncate text-xs">{subtitle}</p>
       </div>
 
-      {/* Amount + time */}
-      <div className="flex shrink-0 flex-col items-end">
-        <span className={cn('text-sm font-semibold', isIncome ? 'text-income' : 'text-foreground')}>
-          {isIncome ? '+' : '-'}
-          {displayAmount}
-        </span>
-        <span className="text-muted-foreground text-xs">{time}</span>
-      </div>
+      {/* Amount */}
+      <span
+        className={cn(
+          'shrink-0 text-sm font-semibold',
+          isIncome ? 'text-income' : 'text-foreground',
+        )}
+      >
+        {isIncome ? '+' : '-'}
+        {displayAmount}
+      </span>
     </div>
   );
 }

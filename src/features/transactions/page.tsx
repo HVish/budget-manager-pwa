@@ -7,24 +7,13 @@ import { useWallets } from '@/api/hooks/use-wallets';
 import { useCategories } from '@/api/hooks/use-categories';
 import { buildCategoryMetaMap } from '@/lib/categories';
 import { useMonthRange } from '@/stores/month-store';
-import type { Transaction } from '@/api/types';
 import { TRANSACTION_FILTER_TABS } from './transaction-filter-config';
+import { groupTransactionsByDate } from './group-by-date';
 import type { TransactionFilterTab } from './transaction-filter-config';
 import { TransactionFilterTabs } from './transaction-filter-tabs';
 import { TransactionDateGroup } from './transaction-date-group';
 import { TransactionsPageSkeleton } from './transactions-skeleton';
 import { TransactionsEmpty } from './transactions-empty';
-
-// ---------------------------------------------------------------------------
-// Date group type
-// ---------------------------------------------------------------------------
-
-interface DateGroup {
-  date: string;
-  transactions: Transaction[];
-  dailyNet: number;
-  currency: string | null; // null if mixed currencies
-}
 
 // ---------------------------------------------------------------------------
 // TransactionsPage
@@ -64,28 +53,8 @@ export default function TransactionsPage() {
   // Flatten all infinite query pages into a single sorted array
   const flatTransactions = useMemo(() => data?.pages.flatMap((p) => p.transactions) ?? [], [data]);
 
-  // Group transactions by date (Map preserves insertion order = API's descending date order)
-  const dateGroups = useMemo<DateGroup[]>(() => {
-    const map = new Map<string, Transaction[]>();
-
-    for (const tx of flatTransactions) {
-      const dateKey = tx.transactionDate.split('T')[0];
-      const existing = map.get(dateKey);
-      if (existing) {
-        existing.push(tx);
-      } else {
-        map.set(dateKey, [tx]);
-      }
-    }
-
-    return Array.from(map.entries()).map(([date, txs]) => {
-      const currencies = new Set(txs.map((t) => t.currency));
-      const singleCurrency = currencies.size === 1 ? txs[0].currency : null;
-      const dailyNet = singleCurrency ? txs.reduce((sum, t) => sum + t.amount, 0) : 0;
-
-      return { date, transactions: txs, dailyNet, currency: singleCurrency };
-    });
-  }, [flatTransactions]);
+  // Group transactions by date (newest first) with daily net totals
+  const dateGroups = useMemo(() => groupTransactionsByDate(flatTransactions), [flatTransactions]);
 
   // Derive the active tab's label for the empty state message
   const activeTabLabel =
