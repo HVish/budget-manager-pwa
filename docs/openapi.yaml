@@ -851,13 +851,7 @@ paths:
           in: query
           description: Filter by wallet type
           schema:
-            type: string
-            enum:
-              - checking
-              - savings
-              - cash
-              - credit
-              - investment
+            $ref: '#/components/schemas/WalletType'
       responses:
         '200':
           description: Wallets retrieved successfully
@@ -1906,15 +1900,7 @@ components:
         currency:
           $ref: '#/components/schemas/Currency'
         walletType:
-          type: string
-          enum:
-            - checking
-            - savings
-            - cash
-            - credit
-            - investment
-          description: Type of wallet
-          example: checking
+          $ref: '#/components/schemas/WalletType'
         accountNumber:
           type: string
           maxLength: 255
@@ -1948,21 +1934,12 @@ components:
         balance:
           type: integer
           format: int64
-          minimum: 0
           description: Initial balance in minor units/cents (default 0)
           example: 100000
         currency:
           $ref: '#/components/schemas/Currency'
         walletType:
-          type: string
-          enum:
-            - checking
-            - savings
-            - cash
-            - credit
-            - investment
-          description: Type of wallet (defaults to checking)
-          example: savings
+          $ref: '#/components/schemas/WalletType'
         accountNumber:
           type: string
           maxLength: 255
@@ -2011,6 +1988,17 @@ components:
       required:
         - date
         - balance
+    WalletType:
+      type: string
+      enum:
+        - checking
+        - savings
+        - cash
+        - credit
+        - investment
+        - loan
+      description: Type of financial account
+      example: checking
   responses:
     BadRequest:
       description: Bad request

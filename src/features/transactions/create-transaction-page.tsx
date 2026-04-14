@@ -246,7 +246,7 @@ export default function CreateTransactionPage() {
               </SelectTrigger>
               <SelectContent>
                 {wallets.map((w) => (
-                  <SelectItem key={w.id} value={w.id}>
+                  <SelectItem key={w.id} value={w.id} label={w.name}>
                     {w.name}
                   </SelectItem>
                 ))}
@@ -280,7 +280,7 @@ export default function CreateTransactionPage() {
                 </SelectTrigger>
                 <SelectContent>
                   {wallets.map((w) => (
-                    <SelectItem key={w.id} value={w.id}>
+                    <SelectItem key={w.id} value={w.id} label={w.name}>
                       {w.name}
                     </SelectItem>
                   ))}
@@ -310,7 +310,7 @@ export default function CreateTransactionPage() {
                 </SelectTrigger>
                 <SelectContent>
                   {wallets.map((w) => (
-                    <SelectItem key={w.id} value={w.id}>
+                    <SelectItem key={w.id} value={w.id} label={w.name}>
                       {w.name}
                     </SelectItem>
                   ))}

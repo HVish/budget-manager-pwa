@@ -135,6 +135,7 @@ function EditBudgetForm({ budget }: EditBudgetFormProps) {
           <FieldLabel htmlFor="budget-currency">Currency</FieldLabel>
           <Select
             value={currency}
+            items={currencies}
             onValueChange={(v) => setCurrency((v ?? budget.currency) as Currency)}
           >
             <SelectTrigger id="budget-currency" className={cn(inputClassName, 'w-full')}>
@@ -142,7 +143,7 @@ function EditBudgetForm({ budget }: EditBudgetFormProps) {
             </SelectTrigger>
             <SelectContent>
               {currencies.map((c) => (
-                <SelectItem key={c.value} value={c.value}>
+                <SelectItem key={c.value} value={c.value} label={c.label}>
                   {c.label}
                 </SelectItem>
               ))}

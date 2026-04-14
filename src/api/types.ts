@@ -4,7 +4,7 @@ export type Currency = 'USD' | 'INR' | 'EUR' | 'GBP' | 'JPY' | 'AUD' | 'CAD';
 
 // ── Wallets ─────────────────────────────────────────────────────────────────
 
-export type WalletType = 'checking' | 'savings' | 'cash' | 'credit' | 'investment';
+export type WalletType = 'checking' | 'savings' | 'cash' | 'credit' | 'investment' | 'loan';
 
 export interface Wallet {
   id: string;

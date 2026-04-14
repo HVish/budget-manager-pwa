@@ -188,6 +188,7 @@ export default function CreateBudgetPage() {
           <FieldLabel htmlFor="budget-currency">Currency</FieldLabel>
           <Select
             value={currency}
+            items={currencies}
             onValueChange={(v) => setCurrencyOverride((v ?? defaultCurrency) as Currency)}
           >
             <SelectTrigger id="budget-currency" className={cn(inputClassName, 'w-full')}>
@@ -195,7 +196,7 @@ export default function CreateBudgetPage() {
             </SelectTrigger>
             <SelectContent>
               {currencies.map((c) => (
-                <SelectItem key={c.value} value={c.value}>
+                <SelectItem key={c.value} value={c.value} label={c.label}>
                   {c.label}
                 </SelectItem>
               ))}

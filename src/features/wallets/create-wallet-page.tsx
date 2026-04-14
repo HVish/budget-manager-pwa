@@ -105,7 +105,7 @@ export default function CreateWalletPage() {
               setError(null);
             }}
             currency={currency}
-            allowNegative={false}
+            allowNegative={true}
             aria-label="Initial balance"
           />
         </div>
@@ -114,13 +114,17 @@ export default function CreateWalletPage() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <FieldLabel htmlFor="wallet-type">Wallet Type</FieldLabel>
-            <Select value={walletType} onValueChange={(v) => setWalletType(v as WalletType)}>
+            <Select
+              value={walletType}
+              items={walletTypes}
+              onValueChange={(v) => setWalletType(v as WalletType)}
+            >
               <SelectTrigger id="wallet-type" className={cn(inputClassName, 'w-full')}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {walletTypes.map((t) => (
-                  <SelectItem key={t.value} value={t.value}>
+                  <SelectItem key={t.value} value={t.value} label={t.label}>
                     {t.label}
                   </SelectItem>
                 ))}
@@ -130,13 +134,17 @@ export default function CreateWalletPage() {
 
           <div>
             <FieldLabel htmlFor="wallet-currency">Currency</FieldLabel>
-            <Select value={currency} onValueChange={(v) => setCurrencyOverride(v as Currency)}>
+            <Select
+              value={currency}
+              items={currencies}
+              onValueChange={(v) => setCurrencyOverride(v as Currency)}
+            >
               <SelectTrigger id="wallet-currency" className={cn(inputClassName, 'w-full')}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {currencies.map((c) => (
-                  <SelectItem key={c.value} value={c.value}>
+                  <SelectItem key={c.value} value={c.value} label={c.label}>
                     {c.label}
                   </SelectItem>
                 ))}

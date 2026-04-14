@@ -1,7 +1,15 @@
-import { Landmark, PiggyBank, Banknote, CreditCard, TrendingUp } from 'lucide-react';
+import { Landmark, PiggyBank, Banknote, CreditCard, TrendingUp, HandCoins } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { WalletType, Wallet } from '@/api/types';
 import { maskAccountNumber } from '@/lib/currency';
+
+/** Returns "Current" for non-US English locales, "Checking" otherwise. */
+export function getCheckingLabel(): string {
+  const lang = typeof navigator !== 'undefined' ? navigator.language : 'en-US';
+  // US English uses "Checking", most other English locales use "Current"
+  if (lang.startsWith('en') && !lang.startsWith('en-US')) return 'Current';
+  return 'Checking';
+}
 
 export interface WalletTypeConfig {
   icon: LucideIcon;
@@ -12,11 +20,13 @@ export interface WalletTypeConfig {
   iconColor: string;
 }
 
+const checkingLabel = getCheckingLabel();
+
 export const walletTypeConfig: Record<WalletType, WalletTypeConfig> = {
   checking: {
     icon: Landmark,
-    label: 'Checking',
-    groupLabel: 'Checking',
+    label: checkingLabel,
+    groupLabel: checkingLabel,
     balanceLabel: 'Available Balance',
     iconBg: 'bg-chart-1/15',
     iconColor: 'text-chart-1',
@@ -53,6 +63,14 @@ export const walletTypeConfig: Record<WalletType, WalletTypeConfig> = {
     iconBg: 'bg-chart-3/15',
     iconColor: 'text-chart-3',
   },
+  loan: {
+    icon: HandCoins,
+    label: 'Loan',
+    groupLabel: 'Loans',
+    balanceLabel: 'Outstanding Balance',
+    iconBg: 'bg-chart-2/15',
+    iconColor: 'text-chart-2',
+  },
 };
 
 /** Ordered list of wallet types for consistent group rendering. */
@@ -62,6 +80,7 @@ export const WALLET_TYPE_ORDER: WalletType[] = [
   'cash',
   'investment',
   'credit',
+  'loan',
 ];
 
 /** Build the subtitle line shown below the wallet name on a card. */

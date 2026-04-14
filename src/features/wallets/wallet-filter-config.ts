@@ -11,6 +11,6 @@ export interface FilterTabConfig {
 export const FILTER_TABS: FilterTabConfig[] = [
   { id: 'all', label: 'All', types: [] },
   { id: 'liquid', label: 'Liquid', types: ['checking', 'savings', 'cash'] },
-  { id: 'loans', label: 'Loans', types: ['credit'] },
+  { id: 'loans', label: 'Loans', types: ['credit', 'loan'] },
   { id: 'investments', label: 'Investments', types: ['investment'] },
 ];

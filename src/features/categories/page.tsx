@@ -228,14 +228,22 @@ export default function CategoriesPage() {
                   />
                   <Select
                     value={newType}
+                    items={[
+                      { value: 'expense', label: 'Expense' },
+                      { value: 'income', label: 'Income' },
+                    ]}
                     onValueChange={(v) => setNewType((v ?? 'expense') as CategoryType)}
                   >
                     <SelectTrigger className="h-11 rounded-lg text-sm">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="expense">Expense</SelectItem>
-                      <SelectItem value="income">Income</SelectItem>
+                      <SelectItem value="expense" label="Expense">
+                        Expense
+                      </SelectItem>
+                      <SelectItem value="income" label="Income">
+                        Income
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                   <div className="flex gap-2">
