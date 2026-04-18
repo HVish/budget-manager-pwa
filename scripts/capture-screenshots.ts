@@ -8,7 +8,7 @@
  *   4. Capture by prefix:     pnpm screenshots wallet
  *
  * Available screen names:
- *   login, dashboard-loaded, dashboard-empty, wallets-loaded, wallets-empty,
+ *   landing, dashboard-loaded, dashboard-empty, wallets-loaded, wallets-empty,
  *   wallet-detail, wallet-create, wallet-edit, transactions-loaded, transactions-empty,
  *   transaction-create, budgets-loaded, budgets-empty, budget-create, budget-edit, settings
  *
@@ -227,8 +227,8 @@ interface ScreenshotDef {
 }
 
 const screens: ScreenshotDef[] = [
-  // Login (no auth needed, separate handling)
-  { name: 'login', route: '/login' },
+  // Landing page (no auth needed, separate handling)
+  { name: 'landing', route: '/' },
 
   // Dashboard states
   { name: 'dashboard-loaded', route: '/dashboard' },
@@ -317,8 +317,8 @@ async function main() {
         }).observe(document, { childList: true, subtree: true });
       });
 
-      // Inject auth (except for login page)
-      if (screen.route !== '/login') {
+      // Inject auth (except for landing page)
+      if (screen.route !== '/') {
         await injectAuth(page);
       }
 
@@ -326,7 +326,7 @@ async function main() {
       await page.route('**/api/v1/**', (route) => mockApi(route, screen.overrides));
 
       // Block Auth0 network calls (prevent background token refresh noise)
-      if (screen.route !== '/login') {
+      if (screen.route !== '/') {
         await page.route('https://**auth0.com/**', (route) => route.abort('connectionrefused'));
       }
 

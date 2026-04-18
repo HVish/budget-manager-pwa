@@ -48,7 +48,7 @@ export default function SettingsPage() {
   }
 
   function handleSignOut() {
-    logout({ logoutParams: { returnTo: `${window.location.origin}/login` } });
+    logout({ logoutParams: { returnTo: window.location.origin } });
   }
 
   function handleDeleteAccount() {

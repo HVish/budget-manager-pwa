@@ -15,7 +15,12 @@ import {
 function RootRedirect() {
   const { isAuthenticated, isLoading } = useAuth0();
   if (isLoading) return null;
-  return <Navigate to={isAuthenticated ? '/dashboard' : '/login'} replace />;
+  if (isAuthenticated) return <Navigate to="/dashboard" replace />;
+  return (
+    <Suspense fallback={null}>
+      <LandingPage />
+    </Suspense>
+  );
 }
 
 /** Wraps a lazy component in its own Suspense boundary so the skeleton
@@ -35,12 +40,13 @@ function lazyPage(importFn: () => Promise<{ default: ComponentType }>, Fallback:
 
 import AppShell from '@/components/layout/app-shell';
 import CallbackPage from '@/features/auth/callback-page';
-import LoginPage from '@/features/auth/login-page';
 import DashboardPage from '@/features/dashboard/page';
 import WalletsPage from '@/features/wallets/page';
 import TransactionsPage from '@/features/transactions/page';
 import BudgetsPage from '@/features/budgets/page';
 import WalletDetailPage from '@/features/wallets/wallet-detail-page';
+
+const LandingPage = lazy(() => import('@/features/landing/landing-page'));
 
 const SettingsPage = lazyPage(() => import('@/features/settings/page'), ListPageSkeleton);
 const CreateWalletPage = lazyPage(
@@ -80,6 +86,7 @@ const CreateCategoryPage = lazyPage(
   () => import('@/features/categories/create-category-page'),
   FormPageSkeleton,
 );
+const PrivacyPage = lazy(() => import('@/features/landing/privacy-page'));
 
 /** On desktop, full-screen routes get the sidebar + top bar.
  *  On mobile, they render standalone (no chrome). */
@@ -106,7 +113,6 @@ export default function AppRoutes() {
 
   return (
     <Routes>
-      <Route path="/login" element={<LoginPage />} />
       <Route path="/callback" element={<CallbackPage />} />
 
       {/* AppShell routes: include bottom nav */}
@@ -145,8 +151,16 @@ export default function AppRoutes() {
         <Route path="/categories/new" element={<CreateCategoryPage />} />
       </Route>
 
+      <Route
+        path="/privacy"
+        element={
+          <Suspense fallback={null}>
+            <PrivacyPage />
+          </Suspense>
+        }
+      />
       <Route path="/" element={<RootRedirect />} />
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

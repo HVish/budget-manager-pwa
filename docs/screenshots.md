@@ -18,7 +18,7 @@ pnpm screenshots wallet             # Capture by prefix (all wallet screens)
 
 | Name                  | Route               | Description                        |
 | --------------------- | ------------------- | ---------------------------------- |
-| `login`               | `/login`            | Unauthenticated login page         |
+| `landing`             | `/`                 | Public landing page (unauthenticated) |
 | `dashboard-loaded`    | `/dashboard`        | Dashboard with mock financial data |
 | `dashboard-empty`     | `/dashboard`        | Dashboard with zero balances       |
 | `wallets-loaded`      | `/wallets`          | Wallet list with grouped cards     |
@@ -45,7 +45,7 @@ Screenshots are saved to `screenshots/<viewport>/<name>.png` at three viewports:
 | `mobile-large` | 430 x 932  | iPhone 15 Pro Max |
 | `desktop`      | 1280 x 800 | Laptop            |
 
-All captures use 2x device scale factor with dark color scheme.
+All captures use 3x device scale factor with dark color scheme.
 
 Desktop screenshots show the `DesktopShell` layout (sidebar + top bar + centered content). Mobile screenshots show the `AppShell` layout (bottom nav + FAB + greeting bar).
 
