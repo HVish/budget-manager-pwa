@@ -27,7 +27,23 @@ export function BudgetCard({ item, primaryCurrency, categoryMetaMap }: BudgetCar
   const hasId = !!item.id;
 
   return (
-    <Card className="bg-wallet-card gap-0 py-0">
+    <Card
+      className={cn(
+        'bg-wallet-card gap-0 py-0',
+        hasId &&
+          'hover:bg-accent/50 focus-visible:ring-ring cursor-pointer transition-all duration-150 focus-visible:ring-2 focus-visible:outline-none active:scale-[0.98]',
+      )}
+      role={hasId ? 'article' : undefined}
+      tabIndex={hasId ? 0 : undefined}
+      aria-label={hasId ? `${meta.label} budget, ${pct}% used` : undefined}
+      onClick={() => hasId && navigate(`/budgets/${item.id}/transactions`)}
+      onKeyDown={(e) => {
+        if (hasId && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault();
+          navigate(`/budgets/${item.id}/transactions`);
+        }
+      }}
+    >
       <CardContent className="p-4">
         {/* Top row: icon + category info + edit */}
         <div className="flex items-start justify-between gap-3">
@@ -54,7 +70,10 @@ export function BudgetCard({ item, primaryCurrency, categoryMetaMap }: BudgetCar
             <Button
               variant="ghost"
               size="icon-sm"
-              onClick={() => navigate(`/budgets/${item.id}/edit`)}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/budgets/${item.id}/edit`);
+              }}
               aria-label={`Edit ${meta.label} budget`}
             >
               <Pencil className="text-muted-foreground h-3.5 w-3.5" />

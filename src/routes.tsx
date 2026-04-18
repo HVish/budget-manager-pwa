@@ -68,6 +68,10 @@ const EditBudgetPage = lazyPage(
   () => import('@/features/budgets/edit-budget-page'),
   FormPageSkeleton,
 );
+const BudgetTransactionsPage = lazyPage(
+  () => import('@/features/budgets/budget-transactions-page'),
+  DetailPageSkeleton,
+);
 const CategoriesPage = lazyPage(() => import('@/features/categories/page'), ListPageSkeleton);
 
 export default function AppRoutes() {
@@ -109,6 +113,7 @@ export default function AppRoutes() {
         <Route path="/transactions/new" element={<CreateTransactionPage />} />
         <Route path="/budgets/new" element={<CreateBudgetPage />} />
         <Route path="/budgets/:id/edit" element={<EditBudgetPage />} />
+        <Route path="/budgets/:id/transactions" element={<BudgetTransactionsPage />} />
         <Route path="/categories" element={<CategoriesPage />} />
       </Route>
 

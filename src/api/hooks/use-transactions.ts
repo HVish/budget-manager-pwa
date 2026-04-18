@@ -20,6 +20,7 @@ interface TransactionFilters {
   isTransfer?: boolean;
   limit?: number;
   title?: string;
+  enabled?: boolean;
 }
 
 export function useTransaction(transactionId: string) {
@@ -31,21 +32,24 @@ export function useTransaction(transactionId: string) {
 }
 
 export function useTransactions(filters: TransactionFilters = {}) {
+  const { enabled, ...queryFilters } = filters;
   return useInfiniteQuery({
-    queryKey: ['transactions', filters],
+    queryKey: ['transactions', queryFilters],
+    enabled: enabled ?? true,
     queryFn: ({ pageParam }) => {
       const searchParams: Record<string, string | number | boolean> = {};
 
-      if (filters.walletIds?.length) searchParams.walletIds = filters.walletIds.join(',');
-      if (filters.startDate) searchParams.startDate = filters.startDate;
-      if (filters.endDate) searchParams.endDate = filters.endDate;
-      if (filters.minAmount !== undefined) searchParams.minAmount = filters.minAmount;
-      if (filters.maxAmount !== undefined) searchParams.maxAmount = filters.maxAmount;
-      if (filters.category) searchParams.category = filters.category;
-      if (filters.tags?.length) searchParams.tags = filters.tags.join(',');
-      if (filters.isTransfer !== undefined) searchParams.isTransfer = filters.isTransfer;
-      if (filters.limit) searchParams.limit = filters.limit;
-      if (filters.title) searchParams.title = filters.title;
+      if (queryFilters.walletIds?.length)
+        searchParams.walletIds = queryFilters.walletIds.join(',');
+      if (queryFilters.startDate) searchParams.startDate = queryFilters.startDate;
+      if (queryFilters.endDate) searchParams.endDate = queryFilters.endDate;
+      if (queryFilters.minAmount !== undefined) searchParams.minAmount = queryFilters.minAmount;
+      if (queryFilters.maxAmount !== undefined) searchParams.maxAmount = queryFilters.maxAmount;
+      if (queryFilters.category) searchParams.category = queryFilters.category;
+      if (queryFilters.tags?.length) searchParams.tags = queryFilters.tags.join(',');
+      if (queryFilters.isTransfer !== undefined) searchParams.isTransfer = queryFilters.isTransfer;
+      if (queryFilters.limit) searchParams.limit = queryFilters.limit;
+      if (queryFilters.title) searchParams.title = queryFilters.title;
       if (pageParam) searchParams.cursor = pageParam;
 
       return api.get('api/v1/transactions', { searchParams }).json<TransactionListResponse>();
