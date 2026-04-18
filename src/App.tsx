@@ -1,5 +1,6 @@
 import { Auth0Provider } from '@auth0/auth0-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { HTTPError } from 'ky';
 import { BrowserRouter } from 'react-router';
 import { Toaster } from 'sonner';
 import AppRoutes from '@/routes';
@@ -8,7 +9,11 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 2, // 2 minutes
-      retry: 1,
+      retry: (count, error) => {
+        // Don't retry 401s — ky's afterResponse hook handles token refresh
+        if (error instanceof HTTPError && error.response.status === 401) return false;
+        return count < 1;
+      },
     },
   },
 });
@@ -22,6 +27,7 @@ export default function App() {
         redirect_uri: `${window.location.origin}/callback`,
         audience: import.meta.env.VITE_AUTH0_AUDIENCE,
       }}
+      useRefreshTokens
       cacheLocation="localstorage"
     >
       <QueryClientProvider client={queryClient}>

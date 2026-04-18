@@ -1,6 +1,6 @@
 import { useAuth0 } from '@auth0/auth0-react';
 import { useEffect, useRef, useState } from 'react';
-import { setTokenGetter } from '@/api/client';
+import { setLogout, setTokenGetter, setTokenRefresher } from '@/api/client';
 import { api } from '@/api/client';
 import { useLocaleSync } from '@/hooks/use-locale-sync';
 
@@ -15,6 +15,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     loginWithRedirect,
     getAccessTokenSilently,
     getIdTokenClaims,
+    logout,
   } = useAuth0();
   const [isUserSynced, setIsUserSynced] = useState(false);
   const syncAttempted = useRef(false);
@@ -24,8 +25,15 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (isAuthenticated) {
       setTokenGetter(() => getAccessTokenSilently());
+      setTokenRefresher(() => getAccessTokenSilently({ cacheMode: 'off' }));
+      setLogout(() => logout({ logoutParams: { returnTo: window.location.origin } }));
     }
-  }, [isAuthenticated, getAccessTokenSilently]);
+    return () => {
+      setTokenGetter(null);
+      setTokenRefresher(null);
+      setLogout(null);
+    };
+  }, [isAuthenticated, getAccessTokenSilently, logout]);
 
   useEffect(() => {
     if (!isAuthenticated || syncAttempted.current) return;
