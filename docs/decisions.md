@@ -36,14 +36,14 @@ Key decisions where someone could reasonably make the wrong choice without conte
 - **Why:** Bottom sheets fight the virtual keyboard on mobile — inputs get obscured, scroll becomes unpredictable. Full-screen pages at `/wallets/new` and `/wallets/:id/edit` give proper scroll, safe-area handling, and view transition support.
 - **Rejected:** Sheet-based `WalletForm` component (original implementation, deleted).
 
-### View transitions: manual `startViewTransition`, not React Router's `viewTransition` option
+### View transitions: manual `startViewTransition` + per-route Suspense skeletons
 
-- **Why:** React Router's `viewTransition: true` doesn't support custom transition types (push vs pop vs modal) and doesn't animate browser back/forward. We call `document.startViewTransition()` ourselves with `flushSync` for synchronous DOM capture.
-- **Programmatic nav:** `useAppNavigate` wraps `routerNavigate(path)` in `startViewTransition(() => flushSync(...))`. For `navigate(-1)`, delegates to the Navigation API handler since `history.go(-1)` fires popstate asynchronously.
+- **Why:** We call `document.startViewTransition()` ourselves with `flushSync` for synchronous DOM capture. Each lazy route is wrapped in its own `Suspense` via `lazyPage()` with an eagerly-imported skeleton fallback. A fresh Suspense boundary (never showed content before) always displays its fallback, so `flushSync` renders the skeleton synchronously — the view transition captures it instantly, even on first visit before the chunk has loaded.
+- **Skeletons:** Three variants in `page-skeleton.tsx` — `FormPageSkeleton` (edit/create pages), `DetailPageSkeleton` (transaction detail), `ListPageSkeleton` (settings, categories). Eagerly bundled (~1.7 KB total), actual page logic stays lazy.
 - **Browser back/forward:** `usePopstateViewTransitions` uses the Navigation API (`window.navigation` 'navigate' event) on Chrome. `event.intercept()` takes over the traverse, then dispatches a synthetic popstate inside `startViewTransition + flushSync` so React Router processes it synchronously. Falls back to a capture-phase popstate listener with timeout on Safari/Firefox.
 - **All links:** `AppLink` component wraps `NavLink` and routes clicks through `useAppNavigate` instead of React Router's default navigation.
 - **Transition type:** Auto-detected from route patterns via `getTransitionType()`, set as `data-vt-type` on `<html>`, matched by CSS `::view-transition-*` selectors.
-- **Rejected:** React Router's `viewTransition: true` (no custom types, no back/forward support), Framer Motion (heavy bundle).
+- **Rejected:** React Router's `viewTransition: true` (remembers forward transitions and auto-applies its own `startViewTransition` on POP, conflicting with our popstate handler and breaking scroll restoration), preloading chunks before transition (freezes UI while downloading on first visit), Framer Motion (heavy bundle).
 
 ### Service worker: network-first HTML, cache-first hashed assets
 
