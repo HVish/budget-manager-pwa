@@ -55,10 +55,15 @@ Key decisions where someone could reasonably make the wrong choice without conte
 
 ## Transactions Screen (2026-04-05)
 
-### No search bar: API has no text search
+### Search: debounce at 300ms, skip date bounds
 
-- **Why:** `GET /api/v1/transactions` has no `search`, `q`, or `title` parameter. Client-side filtering on cursor-paginated data would only search loaded pages, producing incomplete results.
-- **When to add:** API adds a `search` query parameter — then wire it into the filter bar.
+- **Why:** API `title` parameter requires min 2 chars. `useDebouncedValue(query, 300)` avoids API spam. When search is active (`>= 2 chars`), date bounds are omitted so results span all time — users searching "Grocery" expect to find it regardless of the selected month.
+- **Rejected:** Client-side filtering of loaded pages (cursor pagination means incomplete results).
+
+### Advanced filters: draft-state pattern in filter sheet
+
+- **Why:** The filter sheet uses a conditional-render pattern (`{open && <FilterSheetBody />}`) so the inner component mounts fresh with `useState(initialFilters)` each time. No `useEffect` sync needed — the draft is always initialized from committed state. Changes are only applied on "Apply" button press.
+- **Rejected:** Keeping draft state in the parent (applies partial changes on every toggle), `useEffect` to sync props to state (complex, easy to get wrong).
 
 ### Income/Expenses filter: use minAmount/maxAmount
 

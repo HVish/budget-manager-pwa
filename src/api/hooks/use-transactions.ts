@@ -19,6 +19,7 @@ interface TransactionFilters {
   tags?: string[];
   isTransfer?: boolean;
   limit?: number;
+  title?: string;
 }
 
 export function useTransaction(transactionId: string) {
@@ -44,6 +45,7 @@ export function useTransactions(filters: TransactionFilters = {}) {
       if (filters.tags?.length) searchParams.tags = filters.tags.join(',');
       if (filters.isTransfer !== undefined) searchParams.isTransfer = filters.isTransfer;
       if (filters.limit) searchParams.limit = filters.limit;
+      if (filters.title) searchParams.title = filters.title;
       if (pageParam) searchParams.cursor = pageParam;
 
       return api.get('api/v1/transactions', { searchParams }).json<TransactionListResponse>();

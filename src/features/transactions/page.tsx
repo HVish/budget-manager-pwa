@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/layout/page-header';
@@ -7,6 +7,7 @@ import { useWallets } from '@/api/hooks/use-wallets';
 import { useCategories } from '@/api/hooks/use-categories';
 import { buildCategoryMetaMap } from '@/lib/categories';
 import { useMonthRange } from '@/stores/month-store';
+import { useDebouncedValue } from '@/lib/use-debounce';
 import { TRANSACTION_FILTER_TABS } from './transaction-filter-config';
 import { groupTransactionsByDate } from './group-by-date';
 import type { TransactionFilterTab } from './transaction-filter-config';
@@ -14,6 +15,9 @@ import { TransactionFilterTabs } from './transaction-filter-tabs';
 import { TransactionDateGroup } from './transaction-date-group';
 import { TransactionsPageSkeleton } from './transactions-skeleton';
 import { TransactionsEmpty } from './transactions-empty';
+import { TransactionSearchBar } from './transaction-search-bar';
+import { TransactionFilterSheet } from './transaction-filter-sheet';
+import type { TransactionFilterState } from './transaction-filter-sheet';
 
 // ---------------------------------------------------------------------------
 // TransactionsPage
@@ -23,12 +27,48 @@ export default function TransactionsPage() {
   const { startDate, endDate } = useMonthRange();
   const [activeTab, setActiveTab] = useState<TransactionFilterTab>('all');
 
+  const [searchQuery, setSearchQuery] = useState('');
+  const [advancedFilters, setAdvancedFilters] = useState<TransactionFilterState>({
+    walletIds: [],
+    category: undefined,
+  });
+  const [filterSheetOpen, setFilterSheetOpen] = useState(false);
+
+  // Stable setter: only update state when the filter content actually changed,
+  // so the query key (and therefore the cache entry) stays stable.
+  const applyAdvancedFilters = useCallback((next: TransactionFilterState) => {
+    setAdvancedFilters((prev) => {
+      const same =
+        prev.category === next.category &&
+        prev.walletIds.length === next.walletIds.length &&
+        prev.walletIds.every((id, i) => id === next.walletIds[i]);
+      return same ? prev : next;
+    });
+  }, []);
+
+  const debouncedSearch = useDebouncedValue(searchQuery, 300);
+  const isSearchActive = debouncedSearch.length >= 2;
+  const hasAdvancedFilters =
+    advancedFilters.walletIds.length > 0 || advancedFilters.category !== undefined;
+  const hasActiveFilters = hasAdvancedFilters;
+
   // Memoize the filters object so the query key only changes when inputs change,
   // not on every render. This avoids spurious refetches.
   const filters = useMemo(() => {
     const tabConfig = TRANSACTION_FILTER_TABS.find((t) => t.id === activeTab)!;
-    return { startDate, endDate, ...tabConfig.filters };
-  }, [activeTab, startDate, endDate]);
+    const base = { ...tabConfig.filters };
+
+    // When search is active, omit date range so search spans all time
+    const dateBounds = isSearchActive ? {} : { startDate, endDate };
+
+    return {
+      ...dateBounds,
+      ...base,
+      ...(isSearchActive ? { title: debouncedSearch } : {}),
+      ...(advancedFilters.walletIds.length ? { walletIds: advancedFilters.walletIds } : {}),
+      ...(advancedFilters.category ? { category: advancedFilters.category } : {}),
+    };
+  }, [activeTab, startDate, endDate, debouncedSearch, isSearchActive, advancedFilters]);
 
   const { data, isLoading, isError, hasNextPage, isFetchingNextPage, fetchNextPage, refetch } =
     useTransactions(filters);
@@ -91,8 +131,26 @@ export default function TransactionsPage() {
     <div className="pt-[max(env(safe-area-inset-top),16px)]">
       <PageHeader title="Transactions" />
 
+      <TransactionSearchBar
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        hasActiveFilters={hasActiveFilters}
+        onFilterPress={() => setFilterSheetOpen(true)}
+      />
+
       {/* Filter tabs — always visible above skeleton/content */}
       <TransactionFilterTabs activeTab={activeTab} onTabChange={setActiveTab} />
+
+      {isSearchActive && (
+        <div className="px-4 pb-2">
+          <div className="bg-card ring-foreground/10 flex items-center gap-2 rounded-xl px-3 py-2 ring-1">
+            <div className="bg-primary h-2 w-2 shrink-0 rounded-full" />
+            <p className="text-muted-foreground text-xs">
+              Searching across <span className="text-foreground font-medium">all months</span>
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Loading (initial) */}
       {isLoading && <TransactionsPageSkeleton />}
@@ -108,7 +166,12 @@ export default function TransactionsPage() {
       )}
 
       {/* Empty */}
-      {data && flatTransactions.length === 0 && <TransactionsEmpty filterLabel={activeTabLabel} />}
+      {data && flatTransactions.length === 0 && (
+        <TransactionsEmpty
+          filterLabel={activeTabLabel}
+          isSearching={isSearchActive || hasAdvancedFilters}
+        />
+      )}
 
       {/* Content */}
       {data && flatTransactions.length > 0 && (
@@ -151,6 +214,13 @@ export default function TransactionsPage() {
             : `Showing ${activeTabLabel ?? 'all'} transactions`}
         </div>
       )}
+
+      <TransactionFilterSheet
+        open={filterSheetOpen}
+        onOpenChange={setFilterSheetOpen}
+        filters={advancedFilters}
+        onApply={applyAdvancedFilters}
+      />
     </div>
   );
 }
