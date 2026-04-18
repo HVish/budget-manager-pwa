@@ -90,7 +90,7 @@ function EditBudgetForm({ budget }: EditBudgetFormProps) {
   }
 
   return (
-    <div className="bg-background flex h-dvh flex-col">
+    <div className="flex flex-1 flex-col">
       <PageHeaderBar title="Edit Budget" onClose={() => navigate(-1)} />
 
       <form
@@ -210,7 +210,7 @@ export default function EditBudgetPage() {
 
   if (isLoading) {
     return (
-      <div className="bg-background flex h-dvh flex-col">
+      <div className="flex flex-1 flex-col">
         <div className="relative flex min-h-14 items-center px-4 pt-[max(env(safe-area-inset-top),16px)]">
           <Skeleton className="h-7 w-7 rounded-lg" />
           <Skeleton className="absolute left-1/2 h-6 w-28 -translate-x-1/2" />
@@ -239,7 +239,7 @@ export default function EditBudgetPage() {
 
   if (isError || !budget) {
     return (
-      <div className="bg-background flex h-dvh flex-col items-center justify-center gap-2 px-4 text-center">
+      <div className="flex flex-1 flex-col items-center justify-center gap-2 px-4 text-center">
         <p className="text-destructive text-sm">Budget not found</p>
         <AppLink
           to="/budgets"

@@ -102,6 +102,44 @@ Key decisions where someone could reasonably make the wrong choice without conte
 
 ---
 
+## Desktop Responsive Architecture (2026-04-18)
+
+### LayoutContext over CSS-only responsive
+
+- **Why:** Tab pages render inside `AppShell` (mobile) or `DesktopShell` (desktop) -- the shell already knows the variant. Passing it via context avoids redundant `matchMedia` calls in every child and lets components like `PageHeaderBar` and `ActionButton` make structural decisions (show/hide back buttons, icon-only vs labeled) rather than just CSS overrides.
+- **Rejected:** Pure CSS `lg:` breakpoints for everything (can't conditionally render DOM nodes), a global Zustand `layout` store (context already scoped to the shell subtree).
+
+### ResponsiveSheet uses SheetClose / SheetTitle inside Dialog mode
+
+- **Why:** Both `Sheet` and `Dialog` in this project are built on `@base-ui/react/dialog`, which means they share the same React context. `SheetClose` works inside a `Dialog.Root` because the underlying `Dialog.Close` primitive is identical. This is intentional -- it avoids creating wrapper re-exports -- but it's a coupling to the base-ui internals.
+- **Risk:** If the project ever swaps Sheet or Dialog for a different primitive library, this assumption breaks. Grep for `SheetClose` + `SheetTitle` inside `ResponsiveSheet` consumers.
+
+### Pre-built layout value objects avoid re-renders
+
+- **Why:** `COMPACT_LAYOUT`, `EXPANDED_LAYOUT`, etc. are module-level constants. Passing a new `{ variant, safeAreaHandled }` object literal as the context value would cause all `useLayout()` consumers to re-render on every shell render, even when the variant hasn't changed.
+
+### Shell routing: FullScreenLayout wraps all non-tab routes
+
+- **Why:** On mobile, detail/form pages render full-screen (no bottom nav). On desktop, they need the sidebar+top bar. `FullScreenLayout` in `routes.tsx` conditionally wraps `<Outlet>` with `DesktopShell` (desktop) or a bare `min-h-dvh` flex container (mobile). This keeps the route definitions unchanged — the shell selection is automatic.
+- **Rejected:** Moving all routes into `AppShell` (would show bottom nav on mobile form pages), per-page shell selection (pages shouldn't know about platform).
+
+### Desktop view transitions scoped to main-content
+
+- **Why:** `DesktopShell` sets `view-transition-name: main-content` on the content wrapper. CSS `@media (min-width: 1024px)` suppresses `::view-transition-*(root)` and targets `::view-transition-*(main-content)` with a fade. Sidebar and top bar stay completely static during navigation.
+- **Rejected:** Animating the full page (sidebar/top bar flicker), disabling transitions entirely on desktop (jarring).
+
+### Content max-width: 650px
+
+- **Why:** Single-column layout at 650px keeps content readable and consistent with the mobile experience. Wider layouts (multi-column dashboards) were evaluated but added complexity without proportional benefit for a personal budget app. The 230px sidebar + 80px padding + 650px content = 960px minimum, which fits comfortably on 1024px+ screens.
+- **Rejected:** 1100px (too wide, content stretches), multi-column dashboard (added complexity for marginal benefit), no max-width (content unreadable on ultra-wide monitors).
+
+### isDesktopViewport() for event handlers
+
+- **Why:** `navigation.ts` popstate handlers can't call React hooks. `isDesktopViewport()` reads the cached `matchMedia` result synchronously. This replaces the previous `setDesktopMode()` module-level mutable which was a render-phase side effect.
+- **Rejected:** Module-level mutable with `setDesktopMode()` (render-phase side effect, stale reads), Zustand store for a single boolean (overkill).
+
+---
+
 ## shadcn Components (2026-04-04)
 
 ### Scaffold via CLI, then customize freely

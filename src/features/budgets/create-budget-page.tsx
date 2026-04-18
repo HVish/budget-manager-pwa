@@ -96,7 +96,7 @@ export default function CreateBudgetPage() {
   }
 
   return (
-    <div className="bg-background flex h-dvh flex-col">
+    <div className="flex flex-1 flex-col">
       <PageHeaderBar title="New Budget" onClose={() => navigate(-1)} />
 
       <form

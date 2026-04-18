@@ -35,31 +35,18 @@ export default function DashboardPage() {
   );
 
   return (
-    <div className="pt-[max(env(safe-area-inset-top),16px)]">
-      {/* Header always renders — greeting, avatar, month selector */}
+    <div className="pt-[max(env(safe-area-inset-top),16px)] lg:pt-0">
       <PageHeader title="Dashboard" />
 
       {/* Loading state */}
       {dashboard.isLoading && (
-        <div className="space-y-4 px-4 pb-4">
-          {/* Net worth card */}
+        <div className="space-y-4 px-4 pb-4 lg:px-0">
           <Skeleton className="h-30 w-full rounded-2xl" />
-          {/* Income / Spent stat cards */}
           <div className="grid grid-cols-2 gap-3">
             <Skeleton className="h-28 rounded-2xl" />
             <Skeleton className="h-28 rounded-2xl" />
           </div>
-          {/* Budget card */}
           <Skeleton className="h-24 w-full rounded-2xl" />
-          {/* Recent transactions */}
-          <div>
-            <Skeleton className="mb-3 h-4 w-40" />
-            <div className="space-y-3">
-              <Skeleton className="h-16 rounded-2xl" />
-              <Skeleton className="h-16 rounded-2xl" />
-              <Skeleton className="h-16 rounded-2xl" />
-            </div>
-          </div>
         </div>
       )}
 
@@ -75,7 +62,7 @@ export default function DashboardPage() {
 
       {/* Content */}
       {dashboard.data && (
-        <div className="space-y-4 px-4 pb-4">
+        <div className="space-y-4 px-4 pb-4 lg:px-0">
           <NetWorthCard
             netWorth={dashboard.data.netWorth}
             currency={dashboard.data.primaryCurrency}

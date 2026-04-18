@@ -8,13 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetTitle,
-} from '@/components/ui/sheet';
+import { SheetClose, SheetDescription, SheetTitle } from '@/components/ui/sheet';
+import { ResponsiveSheet } from '@/components/ui/responsive-sheet';
 import { useProfile, useUpdateProfile } from '@/api/hooks/use-profile';
 import { useThemeStore } from '@/stores/theme-store';
 import { CURRENCY_OPTIONS } from '@/lib/currency';
@@ -61,7 +56,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="bg-background min-h-dvh pb-[max(env(safe-area-inset-bottom),24px)]">
+    <div className="pb-[max(env(safe-area-inset-bottom),24px)]">
       <PageHeaderBar title="Settings" onBack={() => navigate(-1)} />
 
       {isError ? (
@@ -240,69 +235,67 @@ export default function SettingsPage() {
       )}
 
       {/* Currency bottom sheet */}
-      <Sheet open={currencySheetOpen} onOpenChange={setCurrencySheetOpen}>
-        <SheetContent
-          side="bottom"
-          showCloseButton={false}
-          className="flex max-h-[60dvh] flex-col gap-0 rounded-t-2xl p-0"
-        >
-          <div className="flex justify-center pt-3 pb-1">
-            <div className="bg-muted-foreground/30 h-1 w-10 rounded-full" />
-          </div>
+      <ResponsiveSheet
+        open={currencySheetOpen}
+        onOpenChange={setCurrencySheetOpen}
+        title="Default Currency"
+      >
+        <div className="flex justify-center pt-3 pb-1 lg:hidden">
+          <div className="bg-muted-foreground/30 h-1 w-10 rounded-full" />
+        </div>
 
-          <div className="flex items-center justify-between px-4 py-2">
-            <SheetTitle className="text-base font-semibold">Default Currency</SheetTitle>
-            <SheetDescription className="sr-only">
-              Choose your default currency for the budget manager
-            </SheetDescription>
-            <SheetClose
-              render={
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  className="min-h-11 min-w-11"
-                  aria-label="Close"
-                />
-              }
-            >
-              <X className="h-4 w-4" />
-            </SheetClose>
-          </div>
+        <div className="flex items-center justify-between px-4 py-2">
+          <SheetTitle className="text-base font-semibold">Default Currency</SheetTitle>
+          <SheetDescription className="sr-only">
+            Choose your default currency for the budget manager
+          </SheetDescription>
+          <SheetClose
+            render={
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="min-h-11 min-w-11"
+                aria-label="Close"
+              />
+            }
+          >
+            <X className="h-4 w-4" />
+          </SheetClose>
+        </div>
 
-          <Separator />
+        <Separator />
 
-          <div className="flex-1 space-y-1 overflow-y-auto p-2 pb-[env(safe-area-inset-bottom)]">
-            {CURRENCY_OPTIONS.map((option) => {
-              const isSelected = profile?.currency === option.code;
-              return (
-                <button
-                  key={option.code}
-                  onClick={() => handleCurrencySelect(option.code)}
-                  aria-label={`${option.code}, ${option.name}`}
-                  aria-current={isSelected ? 'true' : undefined}
+        <div className="flex-1 space-y-1 overflow-y-auto p-2 pb-[env(safe-area-inset-bottom)]">
+          {CURRENCY_OPTIONS.map((option) => {
+            const isSelected = profile?.currency === option.code;
+            return (
+              <button
+                key={option.code}
+                onClick={() => handleCurrencySelect(option.code)}
+                aria-label={`${option.code}, ${option.name}`}
+                aria-current={isSelected ? 'true' : undefined}
+                className={cn(
+                  'active:bg-accent/50 focus-visible:ring-ring/50 flex min-h-11 w-full items-center gap-3 rounded-xl px-3 py-2.5 transition-colors outline-none focus-visible:ring-3',
+                  isSelected ? 'bg-accent-soft' : 'hover:bg-accent/20',
+                )}
+              >
+                <span
                   className={cn(
-                    'active:bg-accent/50 focus-visible:ring-ring/50 flex min-h-11 w-full items-center gap-3 rounded-xl px-3 py-2.5 transition-colors outline-none focus-visible:ring-3',
-                    isSelected ? 'bg-accent-soft' : 'hover:bg-accent/20',
+                    'flex-1 text-left text-sm font-medium',
+                    isSelected ? 'text-primary' : 'text-foreground',
                   )}
                 >
-                  <span
-                    className={cn(
-                      'flex-1 text-left text-sm font-medium',
-                      isSelected ? 'text-primary' : 'text-foreground',
-                    )}
-                  >
-                    {option.code}
-                  </span>
-                  <span className="text-muted-foreground text-sm">
-                    {option.symbol} — {option.name}
-                  </span>
-                  {isSelected && <Check className="text-primary size-4" />}
-                </button>
-              );
-            })}
-          </div>
-        </SheetContent>
-      </Sheet>
+                  {option.code}
+                </span>
+                <span className="text-muted-foreground text-sm">
+                  {option.symbol} — {option.name}
+                </span>
+                {isSelected && <Check className="text-primary size-4" />}
+              </button>
+            );
+          })}
+        </div>
+      </ResponsiveSheet>
     </div>
   );
 }

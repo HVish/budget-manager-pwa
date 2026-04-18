@@ -33,7 +33,7 @@ export function RecentTransactions({
           <p className="text-muted-foreground text-sm">No transactions this month</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {transactions.map((tx) => (
             <TransactionRow
               key={tx.id}

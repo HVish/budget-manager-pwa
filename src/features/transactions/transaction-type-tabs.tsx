@@ -23,7 +23,7 @@ export function TransactionTypeTabs({ value, onChange }: TransactionTypeTabsProp
     <div
       role="tablist"
       aria-label="Transaction type"
-      className="flex items-center justify-center gap-2 px-5 pt-2 pb-1"
+      className="flex items-center gap-2 px-5 pt-2 pb-1"
     >
       {tabs.map((tab) => (
         <button
@@ -32,7 +32,7 @@ export function TransactionTypeTabs({ value, onChange }: TransactionTypeTabsProp
           role="tab"
           aria-selected={value === tab.value}
           className={cn(
-            'min-h-11 rounded-4xl px-5 text-sm font-medium transition-colors',
+            'min-h-11 min-w-20 rounded-4xl px-5 text-sm font-medium transition-colors',
             value === tab.value
               ? 'bg-primary text-primary-foreground font-semibold'
               : 'text-muted-foreground ring-border ring-1',

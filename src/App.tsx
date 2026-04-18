@@ -4,6 +4,7 @@ import { HTTPError } from 'ky';
 import { BrowserRouter } from 'react-router';
 import { Toaster } from 'sonner';
 import AppRoutes from '@/routes';
+import { useIsDesktop } from '@/hooks/use-breakpoint';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -17,6 +18,18 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+function ResponsiveToaster() {
+  const isDesktop = useIsDesktop();
+  return (
+    <Toaster
+      theme="system"
+      position={isDesktop ? 'bottom-right' : 'bottom-center'}
+      offset={isDesktop ? 24 : 96}
+      toastOptions={{ className: 'bg-card text-foreground ring-1 ring-foreground/10' }}
+    />
+  );
+}
 
 export default function App() {
   return (
@@ -33,12 +46,7 @@ export default function App() {
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
           <AppRoutes />
-          <Toaster
-            theme="system"
-            position="bottom-center"
-            offset={96} /* 96px = pb-24 content bottom pad, clears bottom nav */
-            toastOptions={{ className: 'bg-card text-foreground ring-1 ring-foreground/10' }}
-          />
+          <ResponsiveToaster />
         </BrowserRouter>
       </QueryClientProvider>
     </Auth0Provider>

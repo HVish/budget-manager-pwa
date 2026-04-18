@@ -2,7 +2,10 @@ import { lazy, Suspense, type ComponentType } from 'react';
 import { Routes, Route, Navigate, Outlet } from 'react-router';
 import { useAuth0 } from '@auth0/auth0-react';
 import { usePopstateViewTransitions } from '@/lib/navigation';
+import { useIsDesktop } from '@/hooks/use-breakpoint';
 import { AuthGuard } from '@/features/auth/auth-guard';
+import { DesktopShell } from '@/components/layout/desktop-shell';
+import { LayoutProvider, COMPACT_LAYOUT_NO_SAFE_AREA } from '@/components/layout/layout-context';
 import {
   FormPageSkeleton,
   DetailPageSkeleton,
@@ -73,6 +76,30 @@ const BudgetTransactionsPage = lazyPage(
   DetailPageSkeleton,
 );
 const CategoriesPage = lazyPage(() => import('@/features/categories/page'), ListPageSkeleton);
+const CreateCategoryPage = lazyPage(
+  () => import('@/features/categories/create-category-page'),
+  FormPageSkeleton,
+);
+
+/** On desktop, full-screen routes get the sidebar + top bar.
+ *  On mobile, they render standalone (no chrome). */
+function FullScreenLayout() {
+  const isDesktop = useIsDesktop();
+  if (isDesktop) {
+    return (
+      <DesktopShell>
+        <Outlet />
+      </DesktopShell>
+    );
+  }
+  return (
+    <LayoutProvider value={COMPACT_LAYOUT_NO_SAFE_AREA}>
+      <div className="bg-background flex min-h-dvh flex-col">
+        <Outlet />
+      </div>
+    </LayoutProvider>
+  );
+}
 
 export default function AppRoutes() {
   usePopstateViewTransitions();
@@ -96,11 +123,11 @@ export default function AppRoutes() {
         <Route path="/budgets" element={<BudgetsPage />} />
       </Route>
 
-      {/* Full-screen routes: each lazy route has its own Suspense skeleton */}
+      {/* Full-screen routes: no bottom nav on mobile, desktop shell on large screens */}
       <Route
         element={
           <AuthGuard>
-            <Outlet />
+            <FullScreenLayout />
           </AuthGuard>
         }
       >
@@ -115,6 +142,7 @@ export default function AppRoutes() {
         <Route path="/budgets/:id/edit" element={<EditBudgetPage />} />
         <Route path="/budgets/:id/transactions" element={<BudgetTransactionsPage />} />
         <Route path="/categories" element={<CategoriesPage />} />
+        <Route path="/categories/new" element={<CreateCategoryPage />} />
       </Route>
 
       <Route path="/" element={<RootRedirect />} />

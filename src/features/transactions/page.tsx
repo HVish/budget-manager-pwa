@@ -128,7 +128,7 @@ export default function TransactionsPage() {
   // ---------------------------------------------------------------------------
 
   return (
-    <div className="pt-[max(env(safe-area-inset-top),16px)]">
+    <div className="pt-[max(env(safe-area-inset-top),16px)] lg:pt-0">
       <PageHeader title="Transactions" />
 
       <TransactionSearchBar
@@ -142,7 +142,7 @@ export default function TransactionsPage() {
       <TransactionFilterTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
       {isSearchActive && (
-        <div className="px-4 pb-2">
+        <div className="px-4 pb-2 lg:px-0">
           <div className="bg-card ring-foreground/10 flex items-center gap-2 rounded-xl px-3 py-2 ring-1">
             <div className="bg-primary h-2 w-2 shrink-0 rounded-full" />
             <p className="text-muted-foreground text-xs">
@@ -175,7 +175,7 @@ export default function TransactionsPage() {
 
       {/* Content */}
       {data && flatTransactions.length > 0 && (
-        <div className="space-y-4 px-4">
+        <div className="space-y-4 px-4 lg:px-0">
           {dateGroups.map((group) => (
             <TransactionDateGroup
               key={group.date}

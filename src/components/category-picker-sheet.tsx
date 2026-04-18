@@ -4,15 +4,11 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetTitle,
-} from '@/components/ui/sheet';
+import { SheetClose, SheetDescription, SheetTitle } from '@/components/ui/sheet';
+import { ResponsiveSheet } from '@/components/ui/responsive-sheet';
 import { useCategories, useCategorySearch, useCreateCategory } from '@/api/hooks/use-categories';
 import { useVisualViewportHeight } from '@/hooks/use-visual-viewport-height';
+import { useIsDesktop } from '@/hooks/use-breakpoint';
 import { getCategoryMeta } from '@/lib/categories';
 import { cn } from '@/lib/utils';
 import type { Category, CategoryType } from '@/api/types';
@@ -38,8 +34,9 @@ export function CategoryPickerSheet({
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newDisplayName, setNewDisplayName] = useState('');
 
-  const vpHeight = useVisualViewportHeight(open);
-  const sheetHeight = Math.round(vpHeight * 0.7);
+  const isDesktop = useIsDesktop();
+  const vpHeight = useVisualViewportHeight(open && !isDesktop);
+  const sheetHeight = isDesktop ? undefined : Math.round(vpHeight * 0.7);
 
   // Fetch all categories sorted by relevance (for initial/empty search state)
   const categoriesQuery = useCategories({ type, sort: 'relevance' });
@@ -107,15 +104,13 @@ export function CategoryPickerSheet({
   }
 
   return (
-    <Sheet open={open} onOpenChange={handleOpenChange}>
-      <SheetContent
-        side="bottom"
-        showCloseButton={false}
-        style={{ height: sheetHeight }}
-        className="flex flex-col gap-0 rounded-t-2xl p-0"
+    <ResponsiveSheet open={open} onOpenChange={handleOpenChange} title="Select Category">
+      <div
+        style={sheetHeight ? { height: sheetHeight } : undefined}
+        className="flex flex-col gap-0"
       >
         {/* Drag handle */}
-        <div className="flex justify-center pt-3 pb-1">
+        <div className="flex justify-center pt-3 pb-1 lg:hidden">
           <div className="bg-muted-foreground/30 h-1 w-10 rounded-full" />
         </div>
 
@@ -278,7 +273,7 @@ export function CategoryPickerSheet({
             </>
           )}
         </div>
-      </SheetContent>
-    </Sheet>
+      </div>
+    </ResponsiveSheet>
   );
 }

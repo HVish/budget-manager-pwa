@@ -62,7 +62,7 @@ src/
 ├── api/            # ky client + TanStack Query hooks per resource
 ├── components/
 │   ├── ui/         # shadcn/ui primitives (scaffold via CLI, then customize freely)
-│   └── layout/     # app-shell, bottom-nav, page-header
+│   └── layout/     # app-shell, desktop-shell, sidebar-nav, top-bar, page-header
 ├── features/       # Feature pages (auth, dashboard, wallets)
 ├── stores/         # Zustand stores
 ├── lib/            # Utilities (currency, date, categories, cn)
@@ -86,15 +86,36 @@ src/
 
 - Dark mode default (`<html class="dark">`) with green-tinted oklch color tokens.
 - Mobile-first layout with bottom navigation, FAB, and safe area insets.
+- Desktop layout (≥1024px) with sidebar navigation, top bar, and `max-w-[650px]` content area.
 - Use `cn()` from `@/lib/utils` for conditional class merging — no template literal concatenation.
 - shadcn components live in `src/components/ui/` — scaffold new ones via `pnpm dlx shadcn@latest add <name>`, then customize freely. Don't re-run the add command on already-customized components (it overwrites). Don't hand-write a shadcn primitive from scratch — always start from the generated output.
 - Semantic color tokens: `text-income` / `text-expense` for financial values.
+
+### Responsive Layout
+
+The app uses a **layout composition** architecture — pages don't know what platform they're on. The shell provides the layout contract.
+
+- **`LayoutContext`** (`@/components/layout/layout-context`) — provides `variant` (`'compact'` | `'expanded'`) and `safeAreaHandled` to all children. Use `useLayout()` to read.
+- **`AppShell`** — mobile: `BottomNav` + `MobileGreetingBar` + content. Desktop: delegates to `DesktopShell`.
+- **`DesktopShell`** — `TopBar` + `SidebarNav` + padded max-width content area. Provides `view-transition-name: main-content` for scoped transitions.
+- **`FullScreenLayout`** (in `routes.tsx`) — wraps detail/form routes. Desktop: `DesktopShell`. Mobile: bare `<Outlet>` with `LayoutProvider`.
+- **Safe-area insets**: on mobile, `AppShell` handles top inset on `<main>`. Full-screen mobile routes handle their own via `PageHeaderBar` (reads `safeAreaHandled` from context). Desktop shell ignores safe-area (not applicable).
+
+**Key rule:** If a component needs to adapt between mobile/desktop, use `useLayout()` context or create a layout-aware primitive. **Never use `useIsDesktop()` in page components** — it belongs only in shells, routing boundaries, and genuinely viewport-dependent utilities (toaster, keyboard hook, view transitions).
+
+**Layout-aware primitives:**
+
+- **`ActionButton`** (`@/components/ui/action-button`) — icon-only on compact, icon+text on expanded. Use for edit/delete actions in page headers.
+- **`ResponsiveSheet`** (`@/components/ui/responsive-sheet`) — bottom Sheet on mobile, centered Dialog on desktop. Use instead of raw `Sheet` for overlays that should adapt.
+- **`PageHeaderBar`** — hides back/close buttons on expanded layout (sidebar provides navigation). Safe-area padding via context.
+- **`PageHeader`** — simplified title header. Greeting bar and month picker are shell chrome.
 
 ### Navigation
 
 - Use **`AppLink`** (`@/components/ui/app-link`) instead of React Router's `Link` / `NavLink` for all in-app links — it routes through the view transition system.
 - Use **`useAppNavigate`** (`@/lib/navigation`) for programmatic navigation — never import `useNavigate` directly from `react-router` (except in `navigation.ts` itself).
-- Use **`PageHeaderBar`** (`@/components/layout/page-header-bar`) for detail/form page headers — handles safe-area insets, back/close buttons (size-6), and trailing action slots (size-5).
+- Use **`PageHeaderBar`** (`@/components/layout/page-header-bar`) for detail/form page headers — handles safe-area insets and back/close buttons via layout context.
+- On desktop, view transitions are scoped to `main-content` — sidebar and top bar stay static.
 
 ### State
 

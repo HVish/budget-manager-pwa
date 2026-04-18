@@ -22,7 +22,7 @@ import { NetWorthSummary } from './net-worth-summary';
 
 function WalletsPageSkeleton() {
   return (
-    <div className="pt-[max(env(safe-area-inset-top),16px)] pb-6">
+    <div className="pt-[max(env(safe-area-inset-top),16px)] pb-6 lg:pt-0">
       {/* Header skeleton */}
       <div className="flex items-center justify-between px-4 pt-4 pb-2">
         <div className="flex items-center gap-3">
@@ -51,7 +51,7 @@ function WalletsPageSkeleton() {
       </div>
 
       {/* Card skeletons */}
-      <div className="space-y-3 px-4">
+      <div className="space-y-4 px-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <Skeleton key={i} className="h-30 w-full rounded-xl" />
         ))}
@@ -151,7 +151,7 @@ export default function WalletsPage() {
 
   if (wallets.length === 0) {
     return (
-      <div className="pt-[max(env(safe-area-inset-top),16px)]">
+      <div className="pt-[max(env(safe-area-inset-top),16px)] lg:pt-0">
         <PageHeader title="Wallets" />
         <div className="flex flex-col items-center justify-center gap-4 px-4 pt-20 text-center">
           <WalletCards className="text-muted-foreground/50 h-12 w-12" />
@@ -175,7 +175,7 @@ export default function WalletsPage() {
 
   return (
     <>
-      <div className="pt-[max(env(safe-area-inset-top),16px)] pb-6">
+      <div className="pt-[max(env(safe-area-inset-top),16px)] pb-6 lg:pt-0">
         {/* Header */}
         <PageHeader title="Wallets" />
 
@@ -203,12 +203,12 @@ export default function WalletsPage() {
         {/* Wallet groups */}
         {groups.map((group) => (
           <section key={group.type} aria-label={`${group.config.groupLabel} wallets`}>
-            <div className="px-4 pt-4 pb-2">
+            <div className="px-4 pt-4 pb-2 lg:px-0">
               <h2 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
                 {group.config.groupLabel}
               </h2>
             </div>
-            <div className="space-y-3 px-4">
+            <div className="space-y-4 px-4 lg:px-0">
               {group.wallets.map((wallet) => (
                 <WalletCard
                   key={wallet.id}

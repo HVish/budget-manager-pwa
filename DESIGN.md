@@ -198,13 +198,21 @@ Cards use `rounded-2xl` (18px). Buttons and inputs use `rounded-lg` (10px). Prim
 - Stepper buttons: `icon-sm` ghost buttons stacked vertically with `gap-2` (right side)
 - Skeleton placeholder height: `h-16 rounded-xl`
 
-### Bottom Sheets
+### Bottom Sheets / ResponsiveSheet
 
-- Slide up from bottom, max height `85dvh`
-- Top corners rounded, drag handle at top center
+- **Mobile**: Slide up from bottom, max height `85dvh`, rounded top corners, drag handle
+- **Desktop**: Centered dialog, max width `max-w-lg`, rounded all corners, no drag handle
+- `ResponsiveSheet` component switches between `Sheet` (mobile) and `Dialog` (desktop)
+- Drag handles use `lg:hidden` to hide on desktop
 - Overlay: `bg-black/10 backdrop-blur-xs`
-- Safe area bottom padding via `env(safe-area-inset-bottom)`
-- Content scrolls independently within the sheet
+- Safe area bottom padding via `env(safe-area-inset-bottom)` on mobile
+
+### Action Buttons
+
+- Layout-aware button for edit/delete/action slots in page headers
+- **Compact** (mobile): `variant="ghost"` + `size="icon"` — icon only, 44×44 touch target
+- **Expanded** (desktop): `variant="outline"` + `size="sm"` — icon + text label
+- `aria-label` set only in compact mode (icon-only); in expanded mode the visible text suffices
 
 ### Badges
 
@@ -284,25 +292,57 @@ Cards use `rounded-2xl` (18px). Buttons and inputs use `rounded-lg` (10px). Prim
 └─────────────────────────────┘
 ```
 
-### Key Layout Rules
+### Mobile Key Layout Rules
 
 1. **Safe area insets** on top and bottom for notch/home-indicator devices
 2. **Bottom nav** is fixed, blurred background (`backdrop-blur`), 95% opacity
 3. **FAB** floats above bottom nav center, 56×56, primary color, ring-2 shadow
 4. **Stat cards** use 2-column grid with 12px gap
 5. **Sections** stack vertically with 16px gap
-6. **Full-screen forms** fill `h-dvh` with scrollable content area
-7. **Content padding** is 16px horizontal, always
+6. **Full-screen forms** use `flex-1` within the `FullScreenLayout` wrapper
+7. **Content padding** is 16px horizontal (`px-4`)
 
-### Desktop (planned, 1024px+)
+### Desktop (1024px+)
 
-Not yet implemented. Design goals:
+```
+┌──────────────────────────────────────────────────────┐
+│ TopBar: Avatar + Greeting + Name     Month ▾         │  ← 64px, fixed, backdrop-blur
+├───────────┬──────────────────────────────────────────┤
+│ SidebarNav│                                          │
+│ [+ New ▾] │  ┌────────────────────────────┐          │
+│           │  │  Page Title                │          │
+│ Overview  │  │                            │          │
+│ Txns      │  │  ┌──────────────────────┐  │          │
+│ Budgets   │  │  │  Content (max 650px) │  │          │
+│ Wallets   │  │  │  Single column       │  │          │
+│ Settings  │  │  │  Cards, lists, forms │  │          │
+│           │  │  └──────────────────────┘  │          │
+│           │  └────────────────────────────┘          │
+│  230px    │     px-10 py-9 on main, centered         │
+└───────────┴──────────────────────────────────────────┘
+```
 
-- Sidebar navigation replacing bottom nav
-- Multi-column content area (2–3 columns)
-- Cards expand horizontally rather than stacking
-- Net worth as a hero section
-- Stat cards, budget, and transactions in a responsive grid
+### Desktop Key Layout Rules
+
+1. **TopBar**: 64px height, fixed, `backdrop-blur-xl`, avatar + greeting left, month picker right
+2. **SidebarNav**: 230px fixed, `backdrop-blur-xl`, "New" dropdown at top, 5 nav items, active state with left accent bar
+3. **Content area**: `ml-[230px] mt-16 px-10 py-9`, content wrapped in `max-w-[650px] mx-auto`
+4. **Single column**: all content stacks vertically within the 650px container
+5. **No bottom nav** — sidebar replaces it
+6. **No FAB** — sidebar "New" dropdown replaces it
+7. **No safe-area insets** — not applicable on desktop
+8. **View transitions** scoped to `main-content` — sidebar and top bar stay static during navigation
+9. **Back/close buttons hidden** — sidebar provides persistent navigation
+10. **Action buttons labeled** — `ActionButton` shows icon+text on desktop (icon-only on mobile)
+11. **Bottom sheets → centered dialogs** — `ResponsiveSheet` switches container type
+
+### Breakpoints
+
+| Tier    | Range      | Shell        | Navigation               |
+| ------- | ---------- | ------------ | ------------------------ |
+| Mobile  | < 768px    | AppShell     | Bottom nav + FAB         |
+| Tablet  | 768–1023px | AppShell     | Bottom nav + FAB         |
+| Desktop | ≥ 1024px   | DesktopShell | Sidebar + "New" dropdown |
 
 ---
 

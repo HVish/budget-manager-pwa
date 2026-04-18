@@ -3,16 +3,8 @@ import { Loader2, Pencil, Plus, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import {
   Dialog,
   DialogContent,
@@ -21,22 +13,18 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { PageHeaderBar } from '@/components/layout/page-header-bar';
-import { useCategories, useCreateCategory, useDeleteCategory } from '@/api/hooks/use-categories';
+import { useCategories, useDeleteCategory } from '@/api/hooks/use-categories';
 import { getCategoryMeta } from '@/lib/categories';
 import { useAppNavigate } from '@/lib/navigation';
 import { cn } from '@/lib/utils';
-import type { Category, CategoryType } from '@/api/types';
+import type { Category } from '@/api/types';
 import { EditCategoryDialog } from './edit-category-dialog';
 
 export default function CategoriesPage() {
   const navigate = useAppNavigate();
   const categoriesQuery = useCategories({ sort: 'name' });
-  const createCategory = useCreateCategory();
   const deleteCategory = useDeleteCategory();
 
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [newDisplayName, setNewDisplayName] = useState('');
-  const [newType, setNewType] = useState<CategoryType>('expense');
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [deletingCategory, setDeletingCategory] = useState<Category | null>(null);
 
@@ -58,28 +46,6 @@ export default function CategoriesPage() {
     return { defaultIncome, defaultExpense, custom };
   }, [categoriesQuery.data]);
 
-  async function handleCreate() {
-    if (!newDisplayName.trim()) return;
-    try {
-      await createCategory.mutateAsync({
-        displayName: newDisplayName.trim(),
-        type: newType,
-      });
-      setNewDisplayName('');
-      setShowCreateForm(false);
-      toast.success('Category created');
-    } catch (err) {
-      if (err && typeof err === 'object' && 'response' in err) {
-        const resp = (err as { response: Response }).response;
-        if (resp.status === 409) {
-          toast.error('A category with this name already exists');
-          return;
-        }
-      }
-      toast.error('Failed to create category');
-    }
-  }
-
   async function handleDelete() {
     if (!deletingCategory) return;
     try {
@@ -92,7 +58,7 @@ export default function CategoriesPage() {
   }
 
   return (
-    <div className="bg-background min-h-dvh pb-[max(env(safe-area-inset-bottom),24px)]">
+    <div className="pb-[max(env(safe-area-inset-bottom),24px)]">
       <PageHeaderBar title="Categories" onBack={() => navigate(-1)} />
 
       {categoriesQuery.isError ? (
@@ -168,7 +134,7 @@ export default function CategoriesPage() {
             <h2 className="text-primary mb-2 px-1 text-xs font-semibold tracking-wider uppercase">
               My Categories
             </h2>
-            {custom.length === 0 && !showCreateForm ? (
+            {custom.length === 0 ? (
               <Card className="py-0">
                 <CardContent className="px-4 py-6 text-center">
                   <p className="text-muted-foreground text-sm">
@@ -214,74 +180,14 @@ export default function CategoriesPage() {
               </Card>
             )}
 
-            {/* Create form */}
-            {showCreateForm ? (
-              <Card className="mt-3 py-0">
-                <CardContent className="space-y-3 p-4">
-                  <Input
-                    value={newDisplayName}
-                    onChange={(e) => setNewDisplayName(e.target.value)}
-                    placeholder="Category name"
-                    maxLength={100}
-                    className="h-11 rounded-lg text-sm"
-                    autoFocus
-                  />
-                  <Select
-                    value={newType}
-                    items={[
-                      { value: 'expense', label: 'Expense' },
-                      { value: 'income', label: 'Income' },
-                    ]}
-                    onValueChange={(v) => setNewType((v ?? 'expense') as CategoryType)}
-                  >
-                    <SelectTrigger className="h-11 rounded-lg text-sm">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="expense" label="Expense">
-                        Expense
-                      </SelectItem>
-                      <SelectItem value="income" label="Income">
-                        Income
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-11 flex-1 rounded-lg"
-                      onClick={() => {
-                        setShowCreateForm(false);
-                        setNewDisplayName('');
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      size="sm"
-                      className="h-11 flex-1 rounded-lg"
-                      disabled={!newDisplayName.trim() || createCategory.isPending}
-                      onClick={handleCreate}
-                    >
-                      {createCategory.isPending && (
-                        <Loader2 className="mr-1.5 size-3.5 animate-spin" />
-                      )}
-                      Create
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ) : (
-              <Button
-                variant="outline"
-                className="mt-3 h-11 w-full rounded-lg text-sm font-medium"
-                onClick={() => setShowCreateForm(true)}
-              >
-                <Plus className="mr-2 size-4" />
-                Add Category
-              </Button>
-            )}
+            <Button
+              variant="outline"
+              className="mt-3 h-11 w-full rounded-lg text-sm font-medium"
+              onClick={() => navigate('/categories/new')}
+            >
+              <Plus className="mr-2 size-4" />
+              Add Category
+            </Button>
           </section>
         </main>
       )}

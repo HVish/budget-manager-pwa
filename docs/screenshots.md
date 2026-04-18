@@ -37,14 +37,17 @@ pnpm screenshots wallet             # Capture by prefix (all wallet screens)
 
 ## Output
 
-Screenshots are saved to `screenshots/<viewport>/<name>.png` at two viewports:
+Screenshots are saved to `screenshots/<viewport>/<name>.png` at three viewports:
 
-| Viewport       | Size      | Device reference  |
-| -------------- | --------- | ----------------- |
-| `mobile-small` | 375 x 812 | iPhone SE         |
-| `mobile-large` | 430 x 932 | iPhone 15 Pro Max |
+| Viewport       | Size       | Device reference  |
+| -------------- | ---------- | ----------------- |
+| `mobile-small` | 375 x 812  | iPhone SE         |
+| `mobile-large` | 430 x 932  | iPhone 15 Pro Max |
+| `desktop`      | 1280 x 800 | Laptop            |
 
-All captures use 3x device scale factor with dark color scheme.
+All captures use 2x device scale factor with dark color scheme.
+
+Desktop screenshots show the `DesktopShell` layout (sidebar + top bar + centered content). Mobile screenshots show the `AppShell` layout (bottom nav + FAB + greeting bar).
 
 ## How It Works
 

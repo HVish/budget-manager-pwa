@@ -3,6 +3,7 @@ import { useParams } from 'react-router';
 import { Pencil, Trash2 } from 'lucide-react';
 import { TransactionDateGroup } from '@/features/transactions/transaction-date-group';
 import { Button } from '@/components/ui/button';
+import { ActionButton } from '@/components/ui/action-button';
 import { PageHeaderBar } from '@/components/layout/page-header-bar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useWallet } from '@/api/hooks/use-wallets';
@@ -101,24 +102,17 @@ export default function WalletDetailPage() {
       <div className="pb-[max(env(safe-area-inset-bottom),24px)]">
         {/* Header */}
         <PageHeaderBar title="Wallet Details" onBack={() => navigate('/wallets')}>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="min-h-11 min-w-11"
+          <ActionButton
+            icon={Pencil}
+            label="Edit"
             onClick={() => navigate(`/wallets/${id}/edit`)}
-            aria-label="Edit wallet"
-          >
-            <Pencil />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-destructive min-h-11 min-w-11"
+          />
+          <ActionButton
+            icon={Trash2}
+            label="Delete"
+            className="text-destructive"
             onClick={() => setDeleteOpen(true)}
-            aria-label="Delete wallet"
-          >
-            <Trash2 />
-          </Button>
+          />
         </PageHeaderBar>
 
         {/* Info banner — "Viewing data for" */}
@@ -161,7 +155,7 @@ export default function WalletDetailPage() {
           </h2>
 
           {txQuery.isLoading && (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {Array.from({ length: 3 }).map((_, i) => (
                 <Skeleton key={i} className="h-16 rounded-xl" />
               ))}

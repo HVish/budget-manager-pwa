@@ -160,15 +160,39 @@ html[data-vt-type='fade'] {
   }
 }
 
+/* ── Desktop: scope transitions to main-content, keep shell static ──────── */
+
+@media (min-width: 1024px) {
+  /* Suppress the root transition — sidebar and top bar don't animate */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+
+  /* Fade only for desktop — all transition types use the same subtle fade */
+  html[data-vt-type] {
+    &::view-transition-old(main-content) {
+      animation: vt-fade-out var(--vt-duration-fade) ease-out both;
+    }
+
+    &::view-transition-new(main-content) {
+      animation: vt-fade-in var(--vt-duration-fade) ease-in both;
+    }
+  }
+}
+
 /* ── Reduced motion ──────────────────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-old(root),
-  ::view-transition-new(root) {
+  ::view-transition-new(root),
+  ::view-transition-old(main-content),
+  ::view-transition-new(main-content) {
     animation: vt-fade-out 100ms ease both !important;
   }
 
-  ::view-transition-new(root) {
+  ::view-transition-new(root),
+  ::view-transition-new(main-content) {
     animation: vt-fade-in 100ms ease both !important;
   }
 }

@@ -146,7 +146,7 @@ function EditTransactionForm({ transaction: tx }: EditTransactionFormProps) {
   // ── Render ──────────────────────────────────────────────────────────────
 
   return (
-    <div className="bg-background flex h-dvh flex-col">
+    <div className="flex flex-1 flex-col">
       <PageHeaderBar title="Edit Transaction" onClose={() => navigate(-1)} />
 
       <form
@@ -348,7 +348,7 @@ export default function EditTransactionPage() {
 
   if (isLoading) {
     return (
-      <div className="bg-background flex h-dvh flex-col">
+      <div className="flex flex-1 flex-col">
         <div className="relative flex min-h-14 items-center px-4 pt-[max(env(safe-area-inset-top),16px)]">
           <Skeleton className="h-7 w-7 rounded-lg" />
           <Skeleton className="absolute left-1/2 h-6 w-36 -translate-x-1/2" />
@@ -383,7 +383,7 @@ export default function EditTransactionPage() {
 
   if (isError || !transaction) {
     return (
-      <div className="bg-background flex h-dvh flex-col items-center justify-center gap-2 px-4 text-center">
+      <div className="flex flex-1 flex-col items-center justify-center gap-2 px-4 text-center">
         <p className="text-destructive text-sm">Transaction not found</p>
         <AppLink
           to="/transactions"
@@ -399,7 +399,7 @@ export default function EditTransactionPage() {
   // button, but guard against direct URL navigation as well.
   if (transaction.transferId) {
     return (
-      <div className="bg-background flex h-dvh flex-col items-center justify-center gap-2 px-4 text-center">
+      <div className="flex flex-1 flex-col items-center justify-center gap-2 px-4 text-center">
         <p className="text-muted-foreground text-sm">Transfer transactions cannot be edited</p>
         <AppLink
           to={`/transactions/${id}`}

@@ -15,7 +15,7 @@ export function BudgetsSkeleton() {
       </div>
 
       {/* Budget card skeletons */}
-      <div className="space-y-3 px-4 pb-24">
+      <div className="space-y-4 px-4 pb-24">
         {Array.from({ length: 4 }).map((_, i) => (
           <Skeleton key={i} className="h-28 w-full rounded-2xl" />
         ))}

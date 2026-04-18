@@ -82,7 +82,7 @@ export function TransactionFilterTabs({ activeTab, onTabChange }: TransactionFil
         role="tablist"
         onScroll={updateEdge}
         style={maskStyle[edge]}
-        className="scrollbar-none flex gap-2 overflow-x-auto pr-2 pl-4"
+        className="scrollbar-none flex gap-2 overflow-x-auto pr-2 pl-4 lg:pl-0"
       >
         {TRANSACTION_FILTER_TABS.map((tab, index) => (
           <button
@@ -93,7 +93,7 @@ export function TransactionFilterTabs({ activeTab, onTabChange }: TransactionFil
             onClick={() => onTabChange(tab.id)}
             onKeyDown={(e) => handleKeyDown(e, index)}
             className={cn(
-              'min-h-11 shrink-0 rounded-4xl px-4 py-1.5 text-sm font-medium text-nowrap transition-colors duration-150',
+              'min-h-11 min-w-20 shrink-0 rounded-4xl px-4 py-1.5 text-sm font-medium text-nowrap transition-colors duration-150',
               'focus-visible:ring-ring focus-visible:ring-offset-background focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
               activeTab === tab.id
                 ? 'bg-primary text-primary-foreground'

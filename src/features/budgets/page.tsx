@@ -5,6 +5,7 @@ import { useBudgetSummary } from '@/api/hooks/use-budgets';
 import { useCategories } from '@/api/hooks/use-categories';
 import { buildCategoryMetaMap } from '@/lib/categories';
 import { useMonthStore } from '@/stores/month-store';
+
 import { BudgetsSkeleton } from './budgets-skeleton';
 import { BudgetEmpty } from './budget-empty';
 import { BudgetSummaryCards } from './budget-summary-cards';
@@ -27,7 +28,7 @@ export default function BudgetsPage() {
 
   if (isLoading) {
     return (
-      <div className="pt-[max(env(safe-area-inset-top),16px)]">
+      <div className="pt-[max(env(safe-area-inset-top),16px)] lg:pt-0">
         <PageHeader title="Budgets" />
         <BudgetsSkeleton />
       </div>
@@ -36,7 +37,7 @@ export default function BudgetsPage() {
 
   if (isError) {
     return (
-      <div className="pt-[max(env(safe-area-inset-top),16px)]">
+      <div className="pt-[max(env(safe-area-inset-top),16px)] lg:pt-0">
         <PageHeader title="Budgets" />
         <div className="flex flex-col items-center justify-center gap-2 px-4 pt-12 text-center">
           <p role="alert" className="text-destructive text-sm">
@@ -52,7 +53,7 @@ export default function BudgetsPage() {
 
   if (!data || data.budgets.length === 0) {
     return (
-      <div className="pt-[max(env(safe-area-inset-top),16px)]">
+      <div className="pt-[max(env(safe-area-inset-top),16px)] lg:pt-0">
         <PageHeader title="Budgets" />
         <BudgetEmpty />
       </div>
@@ -61,7 +62,7 @@ export default function BudgetsPage() {
 
   if (!data.conversionAvailable) {
     return (
-      <div className="pt-[max(env(safe-area-inset-top),16px)]">
+      <div className="pt-[max(env(safe-area-inset-top),16px)] lg:pt-0">
         <PageHeader title="Budgets" />
         <div className="px-4 pt-12 text-center">
           <p className="text-muted-foreground text-sm">Exchange rates unavailable</p>
@@ -71,10 +72,10 @@ export default function BudgetsPage() {
   }
 
   return (
-    <div className="pt-[max(env(safe-area-inset-top),16px)]">
+    <div className="pt-[max(env(safe-area-inset-top),16px)] lg:pt-0">
       <PageHeader title="Budgets" />
 
-      <div className="px-4 pt-2">
+      <div className="px-4 pt-2 lg:px-0">
         <BudgetSummaryCards
           totalSpent={data.totalSpent}
           totalLimit={data.totalLimit}
@@ -84,12 +85,12 @@ export default function BudgetsPage() {
       </div>
 
       <section aria-label="Budget categories">
-        <div className="px-4 pt-4 pb-2">
+        <div className="px-4 pt-4 pb-2 lg:px-0">
           <h2 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
             Categories
           </h2>
         </div>
-        <div className="space-y-3 px-4 pb-24">
+        <div className="space-y-4 px-4 pb-24 lg:px-0 lg:pb-4">
           {sortedBudgets.map((item) => (
             <BudgetCard
               key={item.category}

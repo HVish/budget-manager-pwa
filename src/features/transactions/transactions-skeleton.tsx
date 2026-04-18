@@ -4,7 +4,7 @@ export function TransactionsPageSkeleton() {
   return (
     <div className="space-y-4 px-4">
       {Array.from({ length: 2 }).map((_, groupIdx) => (
-        <div key={groupIdx} className="space-y-3.5">
+        <div key={groupIdx} className="space-y-4">
           {/* Date header skeleton */}
           <div className="flex items-center justify-between px-1 pt-1 pb-1.5">
             <Skeleton className="h-3 w-28" />

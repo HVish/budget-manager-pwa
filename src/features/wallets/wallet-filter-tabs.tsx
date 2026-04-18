@@ -76,13 +76,13 @@ export function WalletFilterTabs({ activeTab, onTabChange }: WalletFilterTabsPro
   }
 
   return (
-    <nav aria-label="Wallet type filter" className="pb-4">
+    <nav aria-label="Wallet type filter" className="pb-3">
       <div
         ref={setListRef}
         role="tablist"
         onScroll={updateEdge}
         style={maskStyle[edge]}
-        className="scrollbar-none flex gap-3 overflow-x-auto pr-2 pl-4"
+        className="scrollbar-none flex gap-2 overflow-x-auto pr-2 pl-4 lg:pl-0"
       >
         {FILTER_TABS.map((tab, index) => (
           <button
@@ -93,11 +93,11 @@ export function WalletFilterTabs({ activeTab, onTabChange }: WalletFilterTabsPro
             onClick={() => onTabChange(tab.id)}
             onKeyDown={(e) => handleKeyDown(e, index)}
             className={cn(
-              'shrink-0 rounded-xl px-4 py-2 text-sm text-nowrap transition-colors duration-150',
+              'min-h-11 min-w-20 shrink-0 rounded-4xl px-4 py-1.5 text-sm font-medium text-nowrap transition-colors duration-150',
               'focus-visible:ring-ring focus-visible:ring-offset-background focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
               activeTab === tab.id
-                ? 'bg-primary text-primary-foreground font-semibold'
-                : 'text-muted-foreground hover:bg-card font-medium',
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-secondary text-secondary-foreground',
             )}
           >
             {tab.label}

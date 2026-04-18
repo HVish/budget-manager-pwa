@@ -213,7 +213,7 @@ export default function CreateTransactionPage() {
   // ── Render ──────────────────────────────────────────────────────────────
 
   return (
-    <div className="bg-background flex h-dvh flex-col">
+    <div className="flex flex-1 flex-col">
       <PageHeaderBar title="New Transaction" onClose={() => navigate(-1)} />
 
       <TransactionTypeTabs value={type} onChange={handleTypeChange} />

@@ -15,7 +15,7 @@ export function TransactionSearchBar({
   onFilterPress,
 }: TransactionSearchBarProps) {
   return (
-    <div className="flex items-center gap-2 px-4 pb-3">
+    <div className="flex items-center gap-2 px-4 pb-3 lg:px-0">
       <div className="bg-secondary flex min-h-11 flex-1 items-center gap-2 rounded-full px-4">
         <Search className="text-muted-foreground size-5 shrink-0" aria-hidden="true" />
         <input
@@ -25,7 +25,7 @@ export function TransactionSearchBar({
           maxLength={100}
           enterKeyHint="search"
           placeholder="Search transactions"
-          className="min-w-0 flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none [&::-webkit-search-cancel-button]:hidden"
+          className="text-foreground placeholder:text-muted-foreground min-w-0 flex-1 bg-transparent text-sm focus:outline-none [&::-webkit-search-cancel-button]:hidden"
           aria-label="Search transactions"
         />
         {searchQuery && (
@@ -47,12 +47,15 @@ export function TransactionSearchBar({
         className={cn(
           'bg-secondary relative flex size-11 shrink-0 items-center justify-center rounded-full',
           'focus-visible:ring-ring focus-visible:ring-offset-background focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
-          'active:translate-y-px transition-transform duration-100',
+          'transition-transform duration-100 active:translate-y-px',
         )}
       >
         <SlidersHorizontal className="size-5" aria-hidden="true" />
         {hasActiveFilters && (
-          <span className="bg-primary absolute top-1.5 right-1.5 size-2 rounded-full" aria-hidden="true" />
+          <span
+            className="bg-primary absolute top-1.5 right-1.5 size-2 rounded-full"
+            aria-hidden="true"
+          />
         )}
       </button>
     </div>

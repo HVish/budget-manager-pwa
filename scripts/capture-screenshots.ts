@@ -32,6 +32,7 @@ const BASE_URL = process.env.BASE_URL ?? 'https://localhost:5173';
 const VIEWPORTS = [
   { name: 'mobile-small', width: 375, height: 812 },
   { name: 'mobile-large', width: 430, height: 932 },
+  { name: 'desktop', width: 1280, height: 800 },
 ] as const;
 
 // ── Fixtures ────────────────────────────────────────────────────────────────
@@ -91,7 +92,11 @@ async function mockApi(route: Route, overrides: MockOverrides = {}) {
     return route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify(overrides.emptyBudgets ? emptyBudgetSummary : fixtures.budgetSummary),
+      body: JSON.stringify(
+        overrides.emptyBudgets || overrides.emptyDashboard
+          ? emptyBudgetSummary
+          : fixtures.budgetSummary,
+      ),
     });
   }
 

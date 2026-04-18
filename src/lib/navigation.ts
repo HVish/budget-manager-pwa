@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import { flushSync } from 'react-dom';
 import { resetScrollPosition } from '@/lib/scroll';
+import { isDesktopViewport } from '@/hooks/use-breakpoint';
 
 type TransitionType = 'tab-switch' | 'push' | 'pop' | 'modal-present' | 'modal-dismiss' | 'fade';
 
@@ -67,7 +68,7 @@ export function useAppNavigate() {
     }
 
     const from = location.pathname;
-    const type = getTransitionType(from, to);
+    const type = isDesktopViewport() ? 'fade' : getTransitionType(from, to);
 
     if (!document.startViewTransition) {
       routerNavigate(to, options);
@@ -132,7 +133,7 @@ export function usePopstateViewTransitions() {
         const to = normalize(new URL(event.destination.url).pathname);
         if (from === to) return;
 
-        const type = getTransitionType(from, to);
+        const type = isDesktopViewport() ? 'fade' : getTransitionType(from, to);
 
         event.intercept({
           async handler() {
@@ -167,7 +168,7 @@ export function usePopstateViewTransitions() {
       const oldPath = lastPathRef.current;
       if (normalize(newPath) === normalize(oldPath)) return;
 
-      const type = getTransitionType(oldPath, newPath);
+      const type = isDesktopViewport() ? 'fade' : getTransitionType(oldPath, newPath);
       document.documentElement.dataset.vtType = type;
 
       // Start view transition, wait for React to render via timeout fallback

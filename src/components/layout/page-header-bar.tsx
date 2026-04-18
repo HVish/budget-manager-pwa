@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { ArrowLeft, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useLayout } from './layout-context';
 import { cn } from '@/lib/utils';
 
 type LeadingAction =
@@ -20,26 +21,25 @@ type PageHeaderBarProps = LeadingAction & {
 
 /**
  * Full-width header bar for detail and form pages.
- * Leading button (back/close) uses size-6 icons; trailing actions use size-5.
  *
- * Usage:
- *   <PageHeaderBar title="Wallet Details" onBack={...}>
- *     <Button variant="ghost" size="icon" className="min-h-11 min-w-11" aria-label="Edit">
- *       <Pencil />
- *     </Button>
- *   </PageHeaderBar>
- *
- *   <PageHeaderBar title="New Wallet" onClose={...} />
+ * Layout-aware:
+ * - Compact (mobile): shows back/close buttons, safe-area-inset-top padding
+ * - Expanded (desktop): hides back/close (sidebar provides navigation), simple padding
  */
 export function PageHeaderBar({ title, onBack, onClose, children, className }: PageHeaderBarProps) {
+  const { variant, safeAreaHandled } = useLayout();
+  const isCompact = variant === 'compact';
+
   return (
     <header
       className={cn(
-        'flex min-h-14 items-center gap-2 px-4 pt-[max(env(safe-area-inset-top),16px)]',
+        'flex min-h-14 items-center gap-2 px-4',
+        safeAreaHandled ? 'pt-4' : 'pt-[max(env(safe-area-inset-top),16px)]',
         className,
       )}
     >
-      {onBack && (
+      {/* Back/close buttons only on compact (mobile) — desktop uses sidebar navigation */}
+      {isCompact && onBack && (
         <Button
           variant="ghost"
           size="icon-lg"
@@ -50,7 +50,7 @@ export function PageHeaderBar({ title, onBack, onClose, children, className }: P
           <ArrowLeft />
         </Button>
       )}
-      {onClose && (
+      {isCompact && onClose && (
         <Button
           variant="ghost"
           size="icon-lg"

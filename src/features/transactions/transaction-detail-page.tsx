@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ActionButton } from '@/components/ui/action-button';
 import { PageHeaderBar } from '@/components/layout/page-header-bar';
 import { useTransaction } from '@/api/hooks/use-transactions';
 import { useWallet } from '@/api/hooks/use-wallets';
@@ -78,7 +79,7 @@ export default function TransactionDetailPage() {
           <Skeleton className="h-6 w-20 rounded-full" />
           <Skeleton className="h-9 w-44" />
         </div>
-        <div className="space-y-3 pt-4">
+        <div className="space-y-4 pt-4">
           <Skeleton className="h-52 rounded-2xl" />
         </div>
       </div>
@@ -124,25 +125,18 @@ export default function TransactionDetailPage() {
         {/* Header */}
         <PageHeaderBar title="Transaction" onBack={() => navigate('/transactions')}>
           {!isTransfer && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="min-h-11 min-w-11"
+            <ActionButton
+              icon={Pencil}
+              label="Edit"
               onClick={() => navigate(`/transactions/${id}/edit`)}
-              aria-label="Edit transaction"
-            >
-              <Pencil />
-            </Button>
+            />
           )}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-destructive min-h-11 min-w-11"
+          <ActionButton
+            icon={Trash2}
+            label="Delete"
+            className="text-destructive"
             onClick={() => setDeleteOpen(true)}
-            aria-label="Delete transaction"
-          >
-            <Trash2 />
-          </Button>
+          />
         </PageHeaderBar>
 
         {/* Hero — mirrors wallet detail: centered icon, title, subtitle, amount */}

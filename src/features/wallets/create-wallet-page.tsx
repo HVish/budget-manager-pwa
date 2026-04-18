@@ -70,7 +70,7 @@ export default function CreateWalletPage() {
   const isPending = createWallet.isPending;
 
   return (
-    <div className="bg-background flex h-dvh flex-col">
+    <div className="flex flex-1 flex-col">
       <WalletFormHeader title="New Wallet" onClose={() => navigate('/wallets')} />
 
       <form

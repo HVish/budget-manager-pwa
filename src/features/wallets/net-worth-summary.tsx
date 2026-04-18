@@ -53,7 +53,7 @@ interface NetWorthSummaryProps {
 
 export function NetWorthSummary({ netWorth, currency, conversionAvailable }: NetWorthSummaryProps) {
   return (
-    <section aria-label="Net worth summary" className="px-4 pb-4">
+    <section aria-label="Net worth summary" className="px-4 pb-4 lg:px-0">
       <div className="space-y-1">
         <p className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
           Total Net Worth

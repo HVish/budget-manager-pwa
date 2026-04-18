@@ -3,14 +3,8 @@ import { ChevronDown, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
-import {
-  Sheet,
-  SheetTrigger,
-  SheetContent,
-  SheetTitle,
-  SheetDescription,
-  SheetClose,
-} from '@/components/ui/sheet';
+import { SheetClose, SheetDescription, SheetTitle } from '@/components/ui/sheet';
+import { ResponsiveSheet } from '@/components/ui/responsive-sheet';
 import { useMonthStore } from '@/stores/month-store';
 import { formatMonthYear, isFutureMonth } from '@/lib/date';
 import { subMonths, format } from 'date-fns';
@@ -55,20 +49,21 @@ export function MonthSelectorSheet() {
   }
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger
-        render={<Button variant="outline" className="h-9 gap-1.5 rounded-full px-3 text-sm" />}
+    <>
+      <Button
+        variant="outline"
+        className="h-9 min-h-11 gap-1.5 rounded-full px-3 text-sm"
+        onClick={() => setOpen(true)}
+        aria-haspopup="dialog"
+        aria-expanded={open}
       >
         {formatMonthYear(year, month)}
         <ChevronDown className="h-3.5 w-3.5 opacity-60" />
-      </SheetTrigger>
-      <SheetContent
-        side="bottom"
-        showCloseButton={false}
-        className="flex max-h-[60dvh] flex-col gap-0 rounded-t-2xl p-0"
-      >
-        {/* Drag handle */}
-        <div className="flex justify-center pt-3 pb-1">
+      </Button>
+
+      <ResponsiveSheet open={open} onOpenChange={setOpen} title="Select Month">
+        {/* Drag handle — mobile only (hidden in dialog mode) */}
+        <div className="flex justify-center pt-3 pb-1 lg:hidden">
           <div className="bg-muted-foreground/30 h-1 w-10 rounded-full" />
         </div>
 
@@ -78,7 +73,16 @@ export function MonthSelectorSheet() {
           <SheetDescription className="sr-only">
             Choose a month to view your budget data
           </SheetDescription>
-          <SheetClose render={<Button variant="ghost" size="icon-sm" aria-label="Close" />}>
+          <SheetClose
+            render={
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="min-h-11 min-w-11"
+                aria-label="Close"
+              />
+            }
+          >
             <X className="h-4 w-4" />
           </SheetClose>
         </div>
@@ -86,7 +90,7 @@ export function MonthSelectorSheet() {
         <Separator />
 
         {/* Scrollable month list */}
-        <div className="flex-1 space-y-2 overflow-y-auto px-4 py-3 pb-[env(safe-area-inset-bottom)]">
+        <div className="flex-1 space-y-2 overflow-y-auto px-4 py-3 pb-[env(safe-area-inset-bottom)] lg:max-h-96 lg:pb-3">
           {MONTH_LIST.map((item) => {
             const isSelected = item.year === year && item.month === month;
             return (
@@ -109,7 +113,7 @@ export function MonthSelectorSheet() {
             );
           })}
         </div>
-      </SheetContent>
-    </Sheet>
+      </ResponsiveSheet>
+    </>
   );
 }

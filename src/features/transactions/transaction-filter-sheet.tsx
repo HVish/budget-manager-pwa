@@ -6,13 +6,8 @@ import { useCategories } from '@/api/hooks/use-categories';
 import { getCategoryMeta } from '@/lib/categories';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetTitle,
-} from '@/components/ui/sheet';
+import { SheetClose, SheetDescription, SheetTitle } from '@/components/ui/sheet';
+import { ResponsiveSheet } from '@/components/ui/responsive-sheet';
 
 export interface TransactionFilterState {
   walletIds: string[];
@@ -73,7 +68,7 @@ function FilterSheetBody({
   return (
     <>
       {/* Drag handle */}
-      <div className="flex justify-center pt-3 pb-1">
+      <div className="flex justify-center pt-3 pb-1 lg:hidden">
         <div className="bg-muted-foreground/30 h-1 w-10 rounded-full" />
       </div>
 
@@ -83,7 +78,16 @@ function FilterSheetBody({
         <SheetDescription className="sr-only">
           Filter transactions by wallet or category
         </SheetDescription>
-        <SheetClose render={<Button variant="ghost" size="icon-sm" className="min-h-11 min-w-11" aria-label="Close" />}>
+        <SheetClose
+          render={
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="min-h-11 min-w-11"
+              aria-label="Close"
+            />
+          }
+        >
           <X className="h-4 w-4" />
         </SheetClose>
       </div>
@@ -94,7 +98,7 @@ function FilterSheetBody({
       <div className="flex-1 overflow-y-auto px-4 py-3">
         {wallets.length > 0 && (
           <div className="mb-4">
-            <p className="text-muted-foreground mb-2 text-xs font-medium uppercase tracking-wide">
+            <p className="text-muted-foreground mb-2 text-xs font-medium tracking-wide uppercase">
               Wallet
             </p>
             <div className="flex flex-wrap gap-2">
@@ -123,7 +127,7 @@ function FilterSheetBody({
 
         {categories.length > 0 && (
           <div>
-            <p className="text-muted-foreground mb-2 text-xs font-medium uppercase tracking-wide">
+            <p className="text-muted-foreground mb-2 text-xs font-medium tracking-wide uppercase">
               Category
             </p>
             <div className="flex flex-wrap gap-2">
@@ -174,16 +178,14 @@ export function TransactionFilterSheet({
   onApply,
 }: TransactionFilterSheetProps) {
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" showCloseButton={false} className="flex max-h-[70dvh] flex-col gap-0 rounded-t-2xl p-0">
-        {open && (
-          <FilterSheetBody
-            initialFilters={filters}
-            onApply={onApply}
-            onClose={() => onOpenChange(false)}
-          />
-        )}
-      </SheetContent>
-    </Sheet>
+    <ResponsiveSheet open={open} onOpenChange={onOpenChange} title="Filter Transactions">
+      {open && (
+        <FilterSheetBody
+          initialFilters={filters}
+          onApply={onApply}
+          onClose={() => onOpenChange(false)}
+        />
+      )}
+    </ResponsiveSheet>
   );
 }

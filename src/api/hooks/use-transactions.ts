@@ -39,8 +39,7 @@ export function useTransactions(filters: TransactionFilters = {}) {
     queryFn: ({ pageParam }) => {
       const searchParams: Record<string, string | number | boolean> = {};
 
-      if (queryFilters.walletIds?.length)
-        searchParams.walletIds = queryFilters.walletIds.join(',');
+      if (queryFilters.walletIds?.length) searchParams.walletIds = queryFilters.walletIds.join(',');
       if (queryFilters.startDate) searchParams.startDate = queryFilters.startDate;
       if (queryFilters.endDate) searchParams.endDate = queryFilters.endDate;
       if (queryFilters.minAmount !== undefined) searchParams.minAmount = queryFilters.minAmount;

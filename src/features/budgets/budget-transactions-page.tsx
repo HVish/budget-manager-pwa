@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useParams } from 'react-router';
 import { Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ActionButton } from '@/components/ui/action-button';
 import { PageHeaderBar } from '@/components/layout/page-header-bar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TransactionDateGroup } from '@/features/transactions/transaction-date-group';
@@ -28,10 +29,7 @@ export default function BudgetTransactionsPage() {
 
   // Use the month-scoped summary so spent/percentage match the selected month
   const { data: summary, isLoading, isError } = useBudgetSummary(year, month);
-  const budget = useMemo(
-    () => summary?.budgets.find((b) => b.id === id),
-    [summary, id],
-  );
+  const budget = useMemo(() => summary?.budgets.find((b) => b.id === id), [summary, id]);
   const primaryCurrency = summary?.primaryCurrency;
 
   // Transactions for this budget's category in the selected month
@@ -48,10 +46,7 @@ export default function BudgetTransactionsPage() {
     [txQuery.data],
   );
 
-  const dateGroups = useMemo(
-    () => groupTransactionsByDate(allTransactions),
-    [allTransactions],
-  );
+  const dateGroups = useMemo(() => groupTransactionsByDate(allTransactions), [allTransactions]);
 
   // Wallet name lookup
   const walletsQuery = useWallets();
@@ -83,7 +78,7 @@ export default function BudgetTransactionsPage() {
           <Skeleton className="h-4 w-44" />
           <Skeleton className="h-1.5 w-full rounded-full" />
         </div>
-        <div className="space-y-3">
+        <div className="space-y-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="h-16 rounded-xl" />
           ))}
@@ -118,24 +113,17 @@ export default function BudgetTransactionsPage() {
       <div className="pb-[max(env(safe-area-inset-bottom),24px)]">
         {/* Header */}
         <PageHeaderBar title="Budget" onBack={() => navigate('/budgets')}>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="min-h-11 min-w-11"
+          <ActionButton
+            icon={Pencil}
+            label="Edit"
             onClick={() => navigate(`/budgets/${id}/edit`)}
-            aria-label="Edit budget"
-          >
-            <Pencil />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-destructive min-h-11 min-w-11"
+          />
+          <ActionButton
+            icon={Trash2}
+            label="Delete"
+            className="text-destructive"
             onClick={() => setDeleteOpen(true)}
-            aria-label="Delete budget"
-          >
-            <Trash2 />
-          </Button>
+          />
         </PageHeaderBar>
 
         {/* Info banner */}
@@ -151,10 +139,7 @@ export default function BudgetTransactionsPage() {
         {/* Budget hero */}
         <div className="flex flex-col items-center px-4 pt-6 pb-4">
           <div
-            className={cn(
-              'flex h-14 w-14 items-center justify-center rounded-full',
-              meta.color,
-            )}
+            className={cn('flex h-14 w-14 items-center justify-center rounded-full', meta.color)}
           >
             <Icon className="h-7 w-7 text-white" />
           </div>
@@ -211,7 +196,7 @@ export default function BudgetTransactionsPage() {
           </h2>
 
           {txQuery.isLoading && (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {Array.from({ length: 3 }).map((_, i) => (
                 <Skeleton key={i} className="h-16 rounded-xl" />
               ))}
