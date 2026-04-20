@@ -87,6 +87,7 @@ const CreateCategoryPage = lazyPage(
   FormPageSkeleton,
 );
 const PrivacyPage = lazy(() => import('@/features/landing/privacy-page'));
+const TermsPage = lazy(() => import('@/features/landing/terms-page'));
 
 /** On desktop, full-screen routes get the sidebar + top bar.
  *  On mobile, they render standalone (no chrome). */
@@ -156,6 +157,14 @@ export default function AppRoutes() {
         element={
           <Suspense fallback={null}>
             <PrivacyPage />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/terms"
+        element={
+          <Suspense fallback={null}>
+            <TermsPage />
           </Suspense>
         }
       />

@@ -164,11 +164,29 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="border-border/50 border-t">
-        <div className="text-muted-foreground mx-auto flex max-w-5xl items-center justify-between px-6 py-6 text-sm">
-          <span>&copy; {new Date().getFullYear()} Budget Manager</span>
-          <AppLink to="/privacy" className="hover:text-foreground transition-colors">
-            Privacy Policy
-          </AppLink>
+        <div className="mx-auto max-w-5xl px-6 py-6">
+          <p className="text-muted-foreground/60 mb-4 text-xs leading-relaxed">
+            Budget Manager is a personal finance tracking tool, not a financial advisor. It does not
+            provide financial, investment, or tax advice. You are solely responsible for your
+            financial decisions.
+          </p>
+          <div className="text-muted-foreground flex items-center justify-between text-sm">
+            <span>&copy; {new Date().getFullYear()} Budget Manager</span>
+            <div className="flex gap-4">
+              <AppLink
+                to="/terms"
+                className="hover:text-foreground flex min-h-11 items-center transition-colors"
+              >
+                Terms
+              </AppLink>
+              <AppLink
+                to="/privacy"
+                className="hover:text-foreground flex min-h-11 items-center transition-colors"
+              >
+                Privacy
+              </AppLink>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
