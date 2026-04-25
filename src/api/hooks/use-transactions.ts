@@ -7,6 +7,7 @@ import type {
   Transaction,
   TransferCreate,
   Transfer,
+  CategoryType,
 } from '@/api/types';
 
 interface TransactionFilters {
@@ -16,6 +17,7 @@ interface TransactionFilters {
   minAmount?: number;
   maxAmount?: number;
   category?: string;
+  type?: CategoryType;
   tags?: string[];
   isTransfer?: boolean;
   limit?: number;
@@ -45,6 +47,7 @@ export function useTransactions(filters: TransactionFilters = {}) {
       if (queryFilters.minAmount !== undefined) searchParams.minAmount = queryFilters.minAmount;
       if (queryFilters.maxAmount !== undefined) searchParams.maxAmount = queryFilters.maxAmount;
       if (queryFilters.category) searchParams.category = queryFilters.category;
+      if (queryFilters.type) searchParams.type = queryFilters.type;
       if (queryFilters.tags?.length) searchParams.tags = queryFilters.tags.join(',');
       if (queryFilters.isTransfer !== undefined) searchParams.isTransfer = queryFilters.isTransfer;
       if (queryFilters.limit) searchParams.limit = queryFilters.limit;

@@ -65,9 +65,10 @@ Key decisions where someone could reasonably make the wrong choice without conte
 - **Why:** The filter sheet uses a conditional-render pattern (`{open && <FilterSheetBody />}`) so the inner component mounts fresh with `useState(initialFilters)` each time. No `useEffect` sync needed — the draft is always initialized from committed state. Changes are only applied on "Apply" button press.
 - **Rejected:** Keeping draft state in the parent (applies partial changes on every toggle), `useEffect` to sync props to state (complex, easy to get wrong).
 
-### Income/Expenses filter: use minAmount/maxAmount
+### Income/Expenses filter: use API `type` parameter
 
-- **Why:** The API has no `type=income|expense` filter. Since amounts are signed (positive = credit, negative = debit), `minAmount=1` selects income and `maxAmount=-1` selects expenses.
+- **Why:** The API's `type=income|expense` filter does the same amount-based filtering server-side. Tabs set `type` in the filter config; the category filter's `categoryType` overrides it via spread order (more specific wins).
+- **Rejected:** `minAmount=1` / `maxAmount=-1` (original approach — conflicted with category filter also sending `type`, producing contradictory API params).
 
 ### Daily net: omit for mixed-currency date groups
 

@@ -8,10 +8,13 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { SheetClose, SheetDescription, SheetTitle } from '@/components/ui/sheet';
 import { ResponsiveSheet } from '@/components/ui/responsive-sheet';
+import type { CategoryType } from '@/api/types';
 
 export interface TransactionFilterState {
   walletIds: string[];
   category: string | undefined;
+  /** Disambiguates categories that share the same name (e.g. "OTHER" for income vs expense). */
+  categoryType: CategoryType | undefined;
 }
 
 interface TransactionFilterSheetProps {
@@ -46,15 +49,19 @@ function FilterSheetBody({
     }));
   }
 
-  function selectCategory(name: string) {
-    setDraft((prev) => ({
-      ...prev,
-      category: prev.category === name ? undefined : name,
-    }));
+  function selectCategory(name: string, type: CategoryType) {
+    setDraft((prev) => {
+      const isSame = prev.category === name && prev.categoryType === type;
+      return {
+        ...prev,
+        category: isSame ? undefined : name,
+        categoryType: isSame ? undefined : type,
+      };
+    });
   }
 
   function handleClear() {
-    setDraft({ walletIds: [], category: undefined });
+    setDraft({ walletIds: [], category: undefined, categoryType: undefined });
   }
 
   function handleApply() {
@@ -98,7 +105,7 @@ function FilterSheetBody({
       <div className="flex-1 overflow-y-auto px-4 py-3">
         {wallets.length > 0 && (
           <div className="mb-4">
-            <p className="text-muted-foreground mb-2 text-xs font-medium tracking-wide uppercase">
+            <p className="text-muted-foreground mb-2 text-xs font-medium tracking-wider uppercase">
               Wallet
             </p>
             <div className="flex flex-wrap gap-2">
@@ -127,33 +134,42 @@ function FilterSheetBody({
 
         {categories.length > 0 && (
           <div>
-            <p className="text-muted-foreground mb-2 text-xs font-medium tracking-wide uppercase">
-              Category
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {categories.map((cat) => {
-                const meta = getCategoryMeta(cat.name, cat);
-                const Icon = meta.icon;
-                const isSelected = draft.category === cat.name;
-                return (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    onClick={() => selectCategory(cat.name)}
-                    className={cn(
-                      'flex min-h-11 items-center gap-1.5 rounded-4xl px-3 py-2 text-sm font-medium transition-colors duration-150',
-                      'focus-visible:ring-ring focus-visible:ring-offset-background focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
-                      isSelected
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-secondary text-secondary-foreground',
-                    )}
-                  >
-                    <Icon className="size-3.5 shrink-0" aria-hidden="true" />
-                    {meta.label || cat.displayName}
-                  </button>
-                );
-              })}
-            </div>
+            {(['income', 'expense'] as const).map((type) => {
+              const group = categories.filter((c) => c.type === type);
+              if (group.length === 0) return null;
+              return (
+                <div key={type} className="mb-4 last:mb-0">
+                  <p className="text-muted-foreground mb-2 text-xs font-medium tracking-wider uppercase">
+                    {type === 'income' ? 'Income Categories' : 'Expense Categories'}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {group.map((cat) => {
+                      const meta = getCategoryMeta(cat.name, cat);
+                      const Icon = meta.icon;
+                      const isSelected =
+                        draft.category === cat.name && draft.categoryType === cat.type;
+                      return (
+                        <button
+                          key={cat.id}
+                          type="button"
+                          onClick={() => selectCategory(cat.name, cat.type)}
+                          className={cn(
+                            'flex min-h-11 items-center gap-1.5 rounded-4xl px-3 py-2 text-sm font-medium transition-colors duration-150',
+                            'focus-visible:ring-ring focus-visible:ring-offset-background focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
+                            isSelected
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-secondary text-secondary-foreground',
+                          )}
+                        >
+                          <Icon className="size-3.5 shrink-0" aria-hidden="true" />
+                          {meta.label || cat.displayName}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

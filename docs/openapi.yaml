@@ -528,6 +528,13 @@ paths:
             minLength: 2
             maxLength: 100
           example: grocery
+        - name: type
+          in: query
+          description: >-
+            Filter by transaction type (income=positive amounts,
+            expense=negative amounts)
+          schema:
+            $ref: '#/components/schemas/CategoryType'
         - name: isTransfer
           in: query
           description: >-

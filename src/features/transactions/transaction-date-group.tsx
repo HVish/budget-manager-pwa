@@ -27,7 +27,7 @@ export function TransactionDateGroup({
     <section aria-label={`Transactions on ${formattedDate}`} className="space-y-4">
       {/* Date header row */}
       <div className="flex items-center justify-between px-1 py-1">
-        <h2 className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+        <h2 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
           {formattedDate}
         </h2>
         {currency !== null && (

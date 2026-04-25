@@ -31,6 +31,7 @@ export default function TransactionsPage() {
   const [advancedFilters, setAdvancedFilters] = useState<TransactionFilterState>({
     walletIds: [],
     category: undefined,
+    categoryType: undefined,
   });
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
 
@@ -40,6 +41,7 @@ export default function TransactionsPage() {
     setAdvancedFilters((prev) => {
       const same =
         prev.category === next.category &&
+        prev.categoryType === next.categoryType &&
         prev.walletIds.length === next.walletIds.length &&
         prev.walletIds.every((id, i) => id === next.walletIds[i]);
       return same ? prev : next;
@@ -67,6 +69,9 @@ export default function TransactionsPage() {
       ...(isSearchActive ? { title: debouncedSearch } : {}),
       ...(advancedFilters.walletIds.length ? { walletIds: advancedFilters.walletIds } : {}),
       ...(advancedFilters.category ? { category: advancedFilters.category } : {}),
+      // Category type overrides the tab type — selecting an expense category
+      // while on the "Income" tab should show expense transactions for that category.
+      ...(advancedFilters.categoryType ? { type: advancedFilters.categoryType } : {}),
     };
   }, [activeTab, startDate, endDate, debouncedSearch, isSearchActive, advancedFilters]);
 
